@@ -1,24 +1,49 @@
 """
-This is a module implementing Similarity Forest classifier, outlined here: http://saketsathe.net/downloads/simforest.pdf
+This is a module implementing Similarity Forest Classifier,
+as outlined in 'Similarity Forests', S. Sathe and C. C. Aggarwal, KDD 2017' ,
+avaiable here: http://saketsathe.net/downloads/simforest.pdf
 """
+
 import numpy as np
-from sklearn.base import BaseEstimator, ClassifierMixin
+from sklearn.base import BaseEstimator, ClassifierMixin, is_classifier
 from sklearn.ensemble.forest import ForestClassifier
-from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
-from sklearn.utils.multiclass import unique_labels
+from sklearn.utils.validation import check_X_y, check_array, check_is_fitted, check_random_state
+from sklearn.utils.multiclass import unique_labels, check_classification_targets
+
+
+def calc_gini(total_left, total_right, true_left, true_right):
+    left_pred = true_left / total_left
+    right_pred = true_right / total_right
+
+    left_gini = 1 - left_pred ** 2 - (1 - left_pred) ** 2
+    right_gini = 1 - right_pred ** 2 - (1 - right_pred) ** 2
+
+    left_prop = total_left / (total_left + total_right)
+    return left_prop * left_gini + (1 - left_prop) * right_gini
 
 
 class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
-    """Similarity Forest classifier implementation based on scikit-learn-contrib project template.
+    """Similarity Tree classifier implementation.
+        Similarity Trees are base models used as building blocks for Similarity Forest ensemble.
             Parameters
             ----------
+            random_state : int, random numbers generator seed
+            n_directions: int, number of discriminative directions to check at each split.
+                               The best direction is chosen, based on child nodes' purity.
+            sim_function: function used to measure similarity between data-points
 
             Attributes
             ----------
+
     """
 
-    def __init__(self, demo_param='demo_param'):
-        self.demo_param = demo_param
+    def __init__(self,
+                 random_state=1,
+                 n_directions=1,
+                 sim_function=np.dot):
+        self.random_state = random_state
+        self.n_directions = n_directions
+        self._sim_function = sim_function
 
     def get_depth(self):
         """Returns the depth of the decision tree.
@@ -32,86 +57,269 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
         """
         pass
 
-    def fit(self, X, y):
+    def _sample_directions(self, random_state, labels, n_directions=1):
+        """
+            Parameters
+            ----------
+            labels : class labels used to determine discrimative directions
+            n_directions : number of direction pairs to sample in order to choose the one providing the best split
+
+            Returns
+            -------
+            generator of object pairs' indexes tuples to draw directions on
+        """
+
+        #Choose a data-point from random class, and then, a choose data-point from points of other class
+        for _ in range(n_directions):
+            first = random_state.choice(range(len(labels)), replace=False)
+            first_class = labels[first]
+            others = np.where(labels != first_class)[0]
+            yield first, random_state.choice(others, replace=False)
+
+        '''first = np.where(labels == 1)[0]
+        other = np.where(labels == 0)[0]
+
+        for _ in range(n_directions):
+            yield random_state.choice(first, replace=False), random_state.choice(other, replace=False)'''
+
+    def _find_split(self, X, y, p, q):
+        """ Find split among direction drew on pair of data-points from different classes
+            Parameters
+            ----------
+            X : all data-points
+            y : labels
+            p : first data-point used for drawing direction of the split
+            q : second data-point used for drawing direction of the split
+
+            Returns
+            -------
+            best_impurity_decrease : decrease of Gini index after the split
+            best_p : first data point from pair providing the best impurity decrease
+            best_p : second data point from pair providing the best impurity decrease
+            best_criterion : classification threshold
+        """
+        similarities = [self._sim_function(x, q) - self._sim_function(x, p) for x in X]
+        if np.unique(similarities).size == 1:
+            return
+        indices = sorted([i for i in range(len(y)) if not np.isnan(similarities[i])],
+                         key=lambda x: similarities[x])
+
+        best_impurity = 1.0
+        best_p = None
+        best_q = None
+        best_split_point = 0
+
+        n = len(indices)
+        total_true = sum([y[j] for j in indices])
+        left_true = 0
+        for i in range(n - 1):
+            left_true += y[indices[i]]
+            right_true = total_true - left_true
+            impurity = calc_gini(i + 1, n - i - 1, left_true, right_true)
+            if impurity < best_impurity:
+                best_impurity = impurity
+                best_p = p
+                best_q = q
+
+                best_split_point = (similarities[indices[i]] + similarities[indices[i + 1]]) / 2
+
+        return best_impurity, best_p, best_q, best_split_point, similarities
+
+    def fit(self, X, y, check_input=True, dtype="numeric"):
         """Build a similarity tree classifier from the training set (X, y).
                Parameters
                ----------
-               X : array-like or sparse matrix, shape = [n_samples, n_features]
+               X : array-like of any type, as long as suitable similarity function is provided
                    The training input samples.
-               y : array-like, shape = [n_samples] or [n_samples, n_outputs]
+               y : array-like, shape = [n_samples]
                    The labels.
 
                Returns
                -------
                self : object
         """
-        # Check that X and y have correct shape
-        X, y = check_X_y(X, y)
-        # Store the classes seen during fit
+        if check_input:
+            # Check that X and y have correct shape
+            X, y = check_X_y(X, y)
+
+            # Input validation, check it to be a non-empty 2D array containing only finite values
+            X = check_array(X)
+
+            # Check if provided similarity function applies to input
+            X = self._validate_X_predict(X, check_input)
+
+        y = np.atleast_1d(y)
+        is_classification = is_classifier(self)
+
+        if is_classification:
+            check_classification_targets(y)
+            y = np.copy(y)
+
         self.classes_ = unique_labels(y)
+        self.n_classes_ = self.classes_.shape[0]
+
+        # Check parameters
+        random_state = check_random_state(self.random_state)
+
+        if not isinstance(self.n_directions, int):
+            raise ValueError('n_directions parameter must be an int')
 
         self.X_ = X
         self.y_ = y
+        self._lhs = None
+        self._rhs = None
+        self._p = None
+        self._q = None
+        self._similarities = []
+        self._split_point = -np.inf
+        self._value = None
+        self._is_leaf = False
+        self.is_fitted_ = False
+
+        # Value of predicion - positive class probability
+        self._value = sum(y) / len(y)
+        if self._value < 0.0 or self._value > 1.0:
+            raise ValueError('Wrong node class probability value.')
+
+        # Return leaf node value
+        if self._is_pure():
+            self._is_leaf = True
+            return self
+
+        # Sample n_direction discriminative directions and find the best one
+        best_impurity = 1.0
+        best_split_point = -np.inf
+        best_p = None
+        best_q = None
+        similarities = []
+        for i, j in self._sample_directions(random_state, self.y_,  self.n_directions):
+            impurity, p, q, split_point, curr_similarities = self._find_split(X, y, X[i], X[j])
+            if impurity < best_impurity:
+                best_impurity = impurity
+                best_split_point = split_point
+                best_p = p
+                best_q = q
+                similarities = curr_similarities
+
+        if best_impurity < 1.0:
+            self._split_point = best_split_point
+            self._p = best_p
+            self._q = best_q
+            self._similarities = similarities
+
+            # Projection of remaining data-points
+            #similarities = [self._sim_function(x, self._q) - self._sim_function(x, self._p) for x in X]
+            if (np.unique(self._similarities).size == 1):
+                print('All similarities are equal')
+                return
+
+            # Left- and right-hand side partitioning
+            lhs_idxs = np.nonzero(self._similarities <= self._split_point)[0]
+            rhs_idxs = np.nonzero(self._similarities > self._split_point)[0]
+
+            if len(lhs_idxs) > 0 and len(rhs_idxs) > 0:
+                self._lhs = SimilarityTreeClassifier(random_state=self.random_state,
+                                                     n_directions=self.n_directions,
+                                                     sim_function=self._sim_function).fit(self.X_[lhs_idxs], self.y_[lhs_idxs],
+                                                                                          check_input=False)
+                self._rhs = SimilarityTreeClassifier(random_state=self.random_state,
+                                                     n_directions=self.n_directions,
+                                                     sim_function=self._sim_function).fit(self.X_[rhs_idxs], self.y_[rhs_idxs],
+                                                                                          check_input=False)
+
         self.is_fitted_= True
-        # Return the classifier
+
         return self
 
     def _validate_X_predict(self, X, check_input):
-        """Validate X whenever one tries to predict, apply, predict_proba"""
-        pass
+        """Validate X whenever one tries to predict, apply, predict_proba.
+            In case of Similarity Tree, check if similarity function provided applies to input.
+            Check result of applying similarity function to two first data-points. """
+
+        X_subset = X[:2, :]
+        res = self._sim_function(X_subset[0, :], X_subset[1, :])
+        if not isinstance(res, (int, float)):
+            raise ValueError('Provided similarity function does not apply to input.')
+
+        return X
 
     def predict(self, X, check_input=True):
         """A reference implementation of a prediction for a classifier.
 
-        Parameters
-        ----------
-        X : array-like, shape (n_samples, n_features)
-            The input samples.
+            Parameters
+            ----------
+            X : array-like, shape (n_samples, n_features)
+                The input samples.
 
-        Returns
-        -------
-        y : ndarray, shape (n_samples,)
-            The labels.
+            Returns
+            -------
+            y : ndarray, shape (n_samples,)
+                The labels.
         """
-        # Check is fit had been called
-        check_is_fitted(self, 'is_fitted_')
+
+
+        # Check if fit had been called
+        check_is_fitted(self, ['X_', 'y_', 'is_fitted_'])
 
         # Input validation
         X = check_array(X)
 
-        return np.ones(X.shape[0], dtype=np.int64)
+        X = self._validate_X_predict(X, check_input)
+
+        return np.array(self.predict_proba(X) > 0.5).astype(np.int)
+
+    def predict_row(self, x):
+        """ Predict class of a single data-point.
+            If current node is a leaf, return its prediction value, if not, traverse down the tree to find point's class
+
+            Parameters
+            ----------
+            x : a data-point
+
+            Returns
+            -------
+            data-point's class
+        """
+
+        if self._is_leaf:
+            return self._value
+
+        t = self._lhs if self._sim_function(x, self._q) - self._sim_function(x, self._p) <= self._split_point else self._rhs
+        return t.predict_row(x)
 
     def predict_proba(self, X, check_input=True):
-        """ A reference implementation of a prediction for a classifier.
+        """ Predict class probability of input array.
 
-        Parameters
-        ----------
-        X : array-like, shape (n_samples, n_features)
-            The input samples.
+            Parameters
+            ----------
+            X : array-like, shape (n_samples, n_features)
+                The input data-points. Can be of any type, provided that proper function has been given.
 
-        Returns
-        -------
-        y : ndarray, shape (n_samples,)
-            The labels.
-        """
+            Returns
+            -------
+            y : ndarray, shape (n_samples,)
+                The labels.
+            """
+
         # Check is fit had been called
-        check_is_fitted(self, 'is_fitted_')
+        check_is_fitted(self, ['X_', 'y_', 'is_fitted_'])
 
         # Input validation
         X = check_array(X)
+        X = self._validate_X_predict(X, check_input)
 
-        return np.ones(X.shape[0], dtype=np.float32)
+        return np.array([self.predict_row(x) for x in X])
 
     def predict_log_proba(self, X):
         """Predict class log-probabilities of the input samples X.
-        Parameters
-        ----------
-        X : array-like or sparse matrix of shape = [n_samples, n_features]
-            The input samples.
-        Returns
-        -------
-        p : array of shape = [n_samples, n_classes].
-            The class log-probabilities of the input samples.
+            Parameters
+            ----------
+            X : array-like or sparse matrix of shape = [n_samples, n_features]
+                The input samples.
+            Returns
+            -------
+            p : array of shape = [n_samples, n_classes_].
+                The class log-probabilities of the input samples.
         """
         proba = self.predict_proba(X)
 
@@ -132,6 +340,14 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
     def cost_complexity_pruning_path(self, X, y, sample_weight=None):
         """Compute the pruning path during Minimal Cost-Complexity Pruning."""
         pass
+
+    def _is_pure(self):
+        """Check whenever current node containts only elements from one class."""
+
+        return self._value in [0, 1]
+
+    def _more_tags(self):
+        return {'binary_only': True}
 
     @property
     def feature_importances_(self):

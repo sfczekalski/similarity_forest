@@ -6,7 +6,7 @@ from simforest import SimilarityTreeClassifier
 
 
 @pytest.mark.parametrize(
-    "Estimator", [SimilarityTreeClassifier]
+    "SimilarityTreeClassifier", [SimilarityTreeClassifier]
 )
-def test_all_estimators(Estimator):
-    return check_estimator(Estimator)
+def test_all_estimators(SimilarityTreeClassifier):
+    return check_estimator(SimilarityTreeClassifier)
