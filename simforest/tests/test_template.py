@@ -13,17 +13,6 @@ from simforest import SimilarityTreeClassifier
 def data():
     return load_iris(return_X_y=True)
 
-'''
-def test_similarity_tree_predictions(data):
-    clf = SimilarityTreeClassifier()
-
-    clf.fit(*data)
-
-    X = data[0]
-    y_pred = clf.predict(X)
-    assert_array_equal(y_pred, np.ones(X.shape[0], dtype=np.int64))
-    assert y_pred.shape == (X.shape[0],)
-'''
 
 def test_similarity_tree_classifier_output_array_shape(data):
     X, y = data
@@ -42,7 +31,7 @@ def test_classifier_attributes(data):
     clf.fit(X, y)
 
     assert hasattr(clf, 'is_fitted_')
-    assert hasattr(clf, 'classes_')
+    assert hasattr(clf, 'classes')
     assert hasattr(clf, 'X_')
     assert hasattr(clf, 'y_')
 
@@ -52,7 +41,7 @@ def test_default_attribute_value():
     clf = SimilarityTreeClassifier()
     assert clf.random_state == 1
     assert clf.n_directions == 1
-    assert clf._sim_function == np.dot
+    assert clf.sim_function == np.dot
 
 
 def test_setting_attributes(data):
@@ -62,7 +51,7 @@ def test_setting_attributes(data):
     y_pred = clf.predict(X)
 
     assert clf.random_state == 42
-    assert clf._sim_function == distance.cosine
+    assert clf.sim_function == distance.cosine
     assert clf.n_directions == 2
 
 
@@ -79,24 +68,14 @@ def test_deterministic_predictions():
     assert_array_equal(y_pred1, y_pred2)
 
 
-def test_raises_value_error_wron_sim_fun(data):
+def test_log_probabilities(data):
+    X, y = data
+    clf = SimilarityTreeClassifier()
+    clf.fit(X, y)
+    preds = clf.predict_proba(X)
+    log_preds = clf.predict_log_proba(X)
 
-    def wrong_sim_f(x1, x2):
-        return 'wrong'
-
-    with pytest.raises(ValueError, match='Provided similarity function does not apply to input.'):
-        X, y = data
-        clf = SimilarityTreeClassifier(sim_function=wrong_sim_f)
-        clf.fit(X, y)
-        y_pred = clf.predict(X)
-
-
-def test_wrong_class_prob_value_range():
-    X, y = make_blobs(n_samples=300, centers=[(0, 0), (1, 1)], random_state=42)
-    y += 1
-    with pytest.raises(ValueError, match='Wrong node class probability value.'):
-        clf = SimilarityTreeClassifier()
-        clf.fit(X, y)
+    assert_allclose(log_preds, np.log(preds+1e-10))
 
 
 def test_pure_node():
@@ -105,3 +84,11 @@ def test_pure_node():
     clf = SimilarityTreeClassifier()
     clf.fit(X, y)
     assert clf._is_leaf == True
+
+
+def test_wrong_sim_f():
+    with pytest.raises(ValueError) as wrong_sim_f:
+        X, y = np.array(['a', 'b', 'c']), np.array([1, 0, 0])
+        clf = SimilarityTreeClassifier()
+        clf.fit(X, y)
+        assert 'Provided similarity function does not apply to input.' in str(wrong_sim_f.value)

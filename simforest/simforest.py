@@ -22,6 +22,16 @@ def calc_gini(total_left, total_right, true_left, true_right):
     return left_prop * left_gini + (1 - left_prop) * right_gini
 
 
+def gini_index(split_index, y):
+    left_partition, right_partition = y[:split_index], y[split_index:]
+
+    left_gini = 1.0 - np.sum([(np.where(left_partition == cl)[0].size / len(left_partition)) ** 2 for cl in np.unique(y)])
+    right_gini = 1.0 - np.sum([(np.where(right_partition == cl)[0].size / len(right_partition)) ** 2 for cl in np.unique(y)])
+
+    left_prop = len(left_partition) / len(y)
+    return left_prop * left_gini + (1.0 - left_prop) * right_gini
+
+
 class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
     """Similarity Tree classifier implementation.
         Similarity Trees are base models used as building blocks for Similarity Forest ensemble.
@@ -40,10 +50,12 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
     def __init__(self,
                  random_state=1,
                  n_directions=1,
-                 sim_function=np.dot):
+                 sim_function=np.dot,
+                 classes=None):
         self.random_state = random_state
         self.n_directions = n_directions
-        self._sim_function = sim_function
+        self.sim_function = sim_function
+        self.classes = classes
 
     def get_depth(self):
         """Returns the depth of the decision tree.
@@ -61,6 +73,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
         """
             Parameters
             ----------
+            random_state : random state object
             labels : class labels used to determine discrimative directions
             n_directions : number of direction pairs to sample in order to choose the one providing the best split
 
@@ -69,12 +82,14 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
             generator of object pairs' indexes tuples to draw directions on
         """
 
-        #Choose a data-point from random class, and then, a choose data-point from points of other class
+        # Choose a data-point from random class, and then, choose a data-point from points of other class
         for _ in range(n_directions):
             first = random_state.choice(range(len(labels)), replace=False)
             first_class = labels[first]
             others = np.where(labels != first_class)[0]
-            yield first, random_state.choice(others, replace=False)
+            second = random_state.choice(others, replace=False)
+
+            yield first, second
 
         '''first = np.where(labels == 1)[0]
         other = np.where(labels == 0)[0]
@@ -98,24 +113,39 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
             best_p : second data point from pair providing the best impurity decrease
             best_criterion : classification threshold
         """
-        similarities = [self._sim_function(x, q) - self._sim_function(x, p) for x in X]
+        similarities = [self.sim_function(x, q) - self.sim_function(x, p) for x in X]
         if np.unique(similarities).size == 1:
             return
         indices = sorted([i for i in range(len(y)) if not np.isnan(similarities[i])],
                          key=lambda x: similarities[x])
+
+        y = y[indices]
 
         best_impurity = 1.0
         best_p = None
         best_q = None
         best_split_point = 0
 
-        n = len(indices)
+        n = len(y)
+        #total_true = np.sum(y)
         total_true = sum([y[j] for j in indices])
         left_true = 0
         for i in range(n - 1):
+            '''
             left_true += y[indices[i]]
             right_true = total_true - left_true
-            impurity = calc_gini(i + 1, n - i - 1, left_true, right_true)
+            impurity2 = calc_gini(i + 1, n - i - 1, left_true, right_true)
+            '''
+
+            impurity = gini_index(i+1, y[indices])
+
+            '''
+            print(1 - np.sum([(np.where(y[:(i+1)]==c)[0].size / len(y[:(i+1)])) ** 2 for c in np.unique(y)]))
+            print(f'Left true {left_true}')
+            left_pred = left_true / (i+1)
+            print(left_pred)
+            print(1 - left_pred ** 2 - (1 - left_pred) ** 2)'''
+
             if impurity < best_impurity:
                 best_impurity = impurity
                 best_p = p
@@ -125,7 +155,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
 
         return best_impurity, best_p, best_q, best_split_point, similarities
 
-    def fit(self, X, y, check_input=True, dtype="numeric"):
+    def fit(self, X, y, check_input=True):
         """Build a similarity tree classifier from the training set (X, y).
                Parameters
                ----------
@@ -138,6 +168,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
                -------
                self : object
         """
+        # Check input
         if check_input:
             # Check that X and y have correct shape
             X, y = check_X_y(X, y)
@@ -155,8 +186,14 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
             check_classification_targets(y)
             y = np.copy(y)
 
-        self.classes_ = unique_labels(y)
-        self.n_classes_ = self.classes_.shape[0]
+        if self.classes is None:
+            self.classes = unique_labels(y)
+        self.n_classes_ = self.classes.shape[0]
+
+        '''
+        if self.n_classes_ > 2:
+            raise Exception('Similarity Tree is a binary classifier!')
+        '''
 
         # Check parameters
         random_state = check_random_state(self.random_state)
@@ -176,10 +213,16 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
         self._is_leaf = False
         self.is_fitted_ = False
 
-        # Value of predicion - positive class probability
-        self._value = sum(y) / len(y)
-        if self._value < 0.0 or self._value > 1.0:
-            raise ValueError('Wrong node class probability value.')
+        # Value of predicion
+        probs = np.ones(shape=self.n_classes_)
+        for i, c in enumerate(self.classes):
+            count = np.where(y == c)[0].size
+            probs[i] = count / len(y) + 0.000000001
+
+        self._value = probs
+
+        if not 1.0 - 0.00001 <= self._value.sum() <= 1.0 + 0.00001:
+            raise ValueError('Wrong node class probability values.')
 
         # Return leaf node value
         if self._is_pure():
@@ -193,6 +236,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
         best_q = None
         similarities = []
         for i, j in self._sample_directions(random_state, self.y_,  self.n_directions):
+
             impurity, p, q, split_point, curr_similarities = self._find_split(X, y, X[i], X[j])
             if impurity < best_impurity:
                 best_impurity = impurity
@@ -207,11 +251,8 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
             self._q = best_q
             self._similarities = similarities
 
-            # Projection of remaining data-points
-            #similarities = [self._sim_function(x, self._q) - self._sim_function(x, self._p) for x in X]
-            if (np.unique(self._similarities).size == 1):
-                print('All similarities are equal')
-                return
+            if np.unique(self._similarities).size == 1:
+                raise ValueError('All similarities are equal')
 
             # Left- and right-hand side partitioning
             lhs_idxs = np.nonzero(self._similarities <= self._split_point)[0]
@@ -220,12 +261,16 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
             if len(lhs_idxs) > 0 and len(rhs_idxs) > 0:
                 self._lhs = SimilarityTreeClassifier(random_state=self.random_state,
                                                      n_directions=self.n_directions,
-                                                     sim_function=self._sim_function).fit(self.X_[lhs_idxs], self.y_[lhs_idxs],
+                                                     sim_function=np.dot,
+                                                     classes=self.classes).fit(self.X_[lhs_idxs], self.y_[lhs_idxs],
                                                                                           check_input=False)
                 self._rhs = SimilarityTreeClassifier(random_state=self.random_state,
                                                      n_directions=self.n_directions,
-                                                     sim_function=self._sim_function).fit(self.X_[rhs_idxs], self.y_[rhs_idxs],
+                                                     sim_function=np.dot,
+                                                     classes=self.classes).fit(self.X_[rhs_idxs], self.y_[rhs_idxs],
                                                                                           check_input=False)
+            else:
+                return
 
         self.is_fitted_= True
 
@@ -236,12 +281,30 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
             In case of Similarity Tree, check if similarity function provided applies to input.
             Check result of applying similarity function to two first data-points. """
 
-        X_subset = X[:2, :]
-        res = self._sim_function(X_subset[0, :], X_subset[1, :])
+        res = self.sim_function(X[0, :], X[1, :])
         if not isinstance(res, (int, float)):
             raise ValueError('Provided similarity function does not apply to input.')
 
         return X
+
+    def predict_row_class(self, x):
+        """ Predict class of a single data-point.
+            If current node is a leaf, return its prediction value, if not, traverse down the tree to find point's class
+
+            Parameters
+            ----------
+            x : a data-point
+
+            Returns
+            -------
+            data-point's class
+        """
+
+        if self._is_leaf:
+            return self.classes[np.argmax(self._value)]
+
+        t = self._lhs if self.sim_function(x, self._q) - self.sim_function(x, self._p) <= self._split_point else self._rhs
+        return t.predict_row_class(x)
 
     def predict(self, X, check_input=True):
         """A reference implementation of a prediction for a classifier.
@@ -266,9 +329,9 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
 
         X = self._validate_X_predict(X, check_input)
 
-        return np.array(self.predict_proba(X) > 0.5).astype(np.int)
+        return np.array([self.predict_row_class(x) for x in X])
 
-    def predict_row(self, x):
+    def predict_row_prob(self, x):
         """ Predict class of a single data-point.
             If current node is a leaf, return its prediction value, if not, traverse down the tree to find point's class
 
@@ -284,8 +347,10 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
         if self._is_leaf:
             return self._value
 
-        t = self._lhs if self._sim_function(x, self._q) - self._sim_function(x, self._p) <= self._split_point else self._rhs
-        return t.predict_row(x)
+        t = self._lhs if self.sim_function(x, self._q) - self.sim_function(x, self._p) <= self._split_point else self._rhs
+        if t is None:
+            return self._value
+        return t.predict_row_prob(x)
 
     def predict_proba(self, X, check_input=True):
         """ Predict class probability of input array.
@@ -308,7 +373,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
         X = check_array(X)
         X = self._validate_X_predict(X, check_input)
 
-        return np.array([self.predict_row(x) for x in X])
+        return np.array([self.predict_row_prob(x) for x in X])
 
     def predict_log_proba(self, X):
         """Predict class log-probabilities of the input samples X.
@@ -321,9 +386,11 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
             p : array of shape = [n_samples, n_classes_].
                 The class log-probabilities of the input samples.
         """
-        proba = self.predict_proba(X)
+        probas = self.predict_proba(X)
+        probas += 1e-10
 
-        return np.log(proba)
+        vect_log = np.vectorize(np.log)
+        return vect_log(probas)
 
     def apply(self, X, check_input=True):
         """Returns the index of the leaf that each sample is predicted as."""
@@ -344,15 +411,36 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
     def _is_pure(self):
         """Check whenever current node containts only elements from one class."""
 
-        return self._value in [0, 1]
+        return np.unique(self.y_).size == 1
 
-    def _more_tags(self):
-        return {'binary_only': True}
+    '''def _more_tags(self):
+        return {'binary_only': True}'''
 
     @property
     def feature_importances_(self):
         """Return the feature importances."""
         pass
+
+
+class TreeEnsemble:
+    def __init__(self,
+                 n_trees,
+                 sample_sz,
+                 classes=None):
+        self.trees = [self.create_tree() for i in range(n_trees)]
+        self.sample_sz = sample_sz
+        self.classes=classes
+
+    def create_tree(self):
+        idxs = np.random.permutation(self.sample_sz)#[:self.sample_sz]
+        tree = SimilarityTreeClassifier(self.x.iloc[idxs], self.y[idxs],
+                            idxs=np.array(range(self.sample_sz)), min_leaf=self.min_leaf)
+
+        tree.fit()
+        return tree
+
+    def predict(self, x):
+        return np.mean([t.predict(x) for t in self.trees], axis=0)
 
 
 class SimilarityForestClassifier(ForestClassifier):
