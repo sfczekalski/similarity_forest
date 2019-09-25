@@ -304,6 +304,9 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
             return self.classes[np.argmax(self._value)]
 
         t = self._lhs if self.sim_function(x, self._q) - self.sim_function(x, self._p) <= self._split_point else self._rhs
+        if t is None:
+            return self.classes[np.argmax(self._value)]
+
         return t.predict_row_class(x)
 
     def predict(self, X, check_input=True):
@@ -422,27 +425,124 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
         pass
 
 
-class TreeEnsemble:
+class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
     def __init__(self,
-                 n_trees,
-                 sample_sz,
-                 classes=None):
-        self.trees = [self.create_tree() for i in range(n_trees)]
-        self.sample_sz = sample_sz
-        self.classes=classes
+                 random_state=1,
+                 n_trees=20,
+                 n_directions=1,
+                 sim_function=np.dot):
+        self.random_state = random_state
+        self.n_trees = n_trees
+        self.n_directions = n_directions
+        self.sim_function = sim_function
 
-    def create_tree(self):
-        idxs = np.random.permutation(self.sample_sz)#[:self.sample_sz]
-        tree = SimilarityTreeClassifier(self.x.iloc[idxs], self.y[idxs],
-                            idxs=np.array(range(self.sample_sz)), min_leaf=self.min_leaf)
+    def _validate_X_predict(self, X, check_input):
+        """Validate X whenever one tries to predict, apply, predict_proba.
+            In case of Similarity Forest, check if similarity function provided applies to input.
+            Check result of applying similarity function to two first data-points. """
 
-        tree.fit()
-        return tree
+        res = self.sim_function(X[0, :], X[1, :])
+        if not isinstance(res, (int, float)):
+            raise ValueError('Provided similarity function does not apply to input.')
 
-    def predict(self, x):
-        return np.mean([t.predict(x) for t in self.trees], axis=0)
+        return X
 
+    def fit(self, X, y, check_input=True):
+        # Check input
+        if check_input:
+            # Check that X and y have correct shape
+            X, y = check_X_y(X, y)
 
+            # Input validation, check it to be a non-empty 2D array containing only finite values
+            X = check_array(X)
+
+            # Check if provided similarity function applies to input
+            X = self._validate_X_predict(X, check_input)
+
+        y = np.atleast_1d(y)
+        is_classification = is_classifier(self)
+
+        if is_classification:
+            check_classification_targets(y)
+            y = np.copy(y)
+
+        self.classes = unique_labels(y)
+        self.n_classes_ = self.classes.shape[0]
+
+        '''
+        if self.n_classes_ > 2:
+            raise Exception('Similarity Tree is a binary classifier!')
+        '''
+
+        # Check input
+        random_state = check_random_state(self.random_state)
+
+        if not isinstance(self.n_directions, int):
+            raise ValueError('n_directions parameter must be an int')
+
+        self.X_ = X
+        self.y_ = y
+
+        self.classes = np.unique(y)
+        self.trees = []
+        for i in range(self.n_trees):
+            idxs = random_state.choice(range(y.size), y.size, replace=True)
+
+            tree = SimilarityTreeClassifier(classes=self.classes, n_directions=self.n_directions, random_state=self.random_state)
+            tree.fit(X[idxs], y[idxs], check_input=False)
+
+            self.trees.append(tree)
+
+        assert len(self.trees) == self.n_trees
+        self.is_fitted_ = True
+
+        return self
+
+    def predict_proba(self, X, check_input=True):
+
+        # Check is fit had been called
+        check_is_fitted(self, ['X_', 'y_', 'is_fitted_'])
+
+        # Input validation
+        X = check_array(X)
+
+        # Check if provided similarity function applies to input
+        X = self._validate_X_predict(X, check_input)
+
+        return np.mean([t.predict_proba(X) for t in self.trees], axis=0)
+
+    def predict_log_proba(self, X):
+        """Predict class log-probabilities of the input samples X.
+            Parameters
+            ----------
+            X : array-like or sparse matrix of shape = [n_samples, n_features]
+                The input samples.
+            Returns
+            -------
+            p : array of shape = [n_samples, n_classes_].
+                The class log-probabilities of the input samples.
+        """
+        probas = self.predict_proba(X)
+        probas += 1e-10
+
+        vect_log = np.vectorize(np.log)
+        return vect_log(probas)
+
+    def predict(self, X, check_input=True):
+
+        # Check is fit had been called
+        check_is_fitted(self, ['X_', 'y_', 'is_fitted_'])
+
+        # Input validation
+        X = check_array(X)
+
+        # Check if provided similarity function applies to input
+        X = self._validate_X_predict(X, check_input)
+
+        return self.classes[np.argmax(self.predict_proba(X), axis=1)]
+        #return np.array(self.predict_proba(X) >= 0.5).astype(np.int)
+
+'''
 class SimilarityForestClassifier(ForestClassifier):
     """A similarity forest classifier.
         A similarity forest is a meta estimator that fits a number of similarity tree
@@ -644,3 +744,4 @@ class SimilarityForestClassifier(ForestClassifier):
         self.min_impurity_decrease = min_impurity_decrease
         self.min_impurity_split = min_impurity_split
         self.ccp_alpha = ccp_alpha
+'''
