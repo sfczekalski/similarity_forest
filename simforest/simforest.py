@@ -114,8 +114,6 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
             best_criterion : classification threshold
         """
         similarities = [self.sim_function(x, q) - self.sim_function(x, p) for x in X]
-        if np.unique(similarities).size == 1:
-            return
         indices = sorted([i for i in range(len(y)) if not np.isnan(similarities[i])],
                          key=lambda x: similarities[x])
 
@@ -250,9 +248,6 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
             self._p = best_p
             self._q = best_q
             self._similarities = similarities
-
-            if np.unique(self._similarities).size == 1:
-                raise ValueError('All similarities are equal')
 
             # Left- and right-hand side partitioning
             lhs_idxs = np.nonzero(self._similarities <= self._split_point)[0]
