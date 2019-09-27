@@ -51,18 +51,36 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
                  random_state=1,
                  n_directions=1,
                  sim_function=np.dot,
-                 classes=None):
+                 classes=None,
+                 max_depth=None,
+                 depth=1):
         self.random_state = random_state
         self.n_directions = n_directions
         self.sim_function = sim_function
         self.classes = classes
+        self.max_depth = max_depth
+        self.depth = depth
 
     def get_depth(self):
         """Returns the depth of the decision tree.
         The depth of a tree is the maximum distance between the root
         and any leaf.
         """
-        pass
+
+        check_is_fitted(self, ['X_', 'y_', 'is_fitted_'])
+
+        if self is None:
+            return 0
+        elif self._lhs is None and self._rhs is None:
+            return 1
+        else:
+            l_depth = self._lhs.get_depth()
+            r_depth = self._rhs.get_depth()
+
+            if l_depth > r_depth:
+                return l_depth + 1
+            else:
+                return r_depth + 1
 
     def get_n_leaves(self):
         """Returns the number of leaves of the decision tree.
@@ -227,6 +245,11 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
             self._is_leaf = True
             return self
 
+        if self.max_depth is not None:
+            if self.depth == self.max_depth:
+                self._is_leaf = True
+                return self
+
         # Sample n_direction discriminative directions and find the best one
         best_impurity = 1.0
         best_split_point = -np.inf
@@ -257,12 +280,16 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
                 self._lhs = SimilarityTreeClassifier(random_state=self.random_state,
                                                      n_directions=self.n_directions,
                                                      sim_function=np.dot,
-                                                     classes=self.classes).fit(self.X_[lhs_idxs], self.y_[lhs_idxs],
+                                                     classes=self.classes,
+                                                     max_depth=self.max_depth,
+                                                     depth=self.depth+1).fit(self.X_[lhs_idxs], self.y_[lhs_idxs],
                                                                                           check_input=False)
                 self._rhs = SimilarityTreeClassifier(random_state=self.random_state,
                                                      n_directions=self.n_directions,
                                                      sim_function=np.dot,
-                                                     classes=self.classes).fit(self.X_[rhs_idxs], self.y_[rhs_idxs],
+                                                     classes=self.classes,
+                                                     max_depth=self.max_depth,
+                                                     depth=self.depth+1).fit(self.X_[rhs_idxs], self.y_[rhs_idxs],
                                                                                           check_input=False)
             else:
                 return
@@ -425,11 +452,13 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
                  random_state=1,
                  n_trees=20,
                  n_directions=1,
-                 sim_function=np.dot):
+                 sim_function=np.dot,
+                 max_depth=None):
         self.random_state = random_state
         self.n_trees = n_trees
         self.n_directions = n_directions
         self.sim_function = sim_function
+        self.max_depth = max_depth
 
     def _validate_X_predict(self, X, check_input):
         """Validate X whenever one tries to predict, apply, predict_proba.
@@ -483,7 +512,8 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
         for i in range(self.n_trees):
             idxs = random_state.choice(range(y.size), y.size, replace=True)
 
-            tree = SimilarityTreeClassifier(classes=self.classes, n_directions=self.n_directions, random_state=self.random_state)
+            tree = SimilarityTreeClassifier(classes=self.classes, n_directions=self.n_directions,
+                                            random_state=self.random_state, max_depth=self.max_depth)
             tree.fit(X[idxs], y[idxs], check_input=False)
 
             self.trees.append(tree)

@@ -11,13 +11,13 @@ X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.3, random_state=42)
 
 # Fit predict for both classifiers
-st = SimilarityTreeClassifier()
+st = SimilarityTreeClassifier(max_depth=20)
 st.fit(X_train, y_train)
 st_pred = st.predict(X_test)
 st_prob = st.predict_proba(X_test)
 
+print(st.get_depth())
 
-start_time = time.time()
 dt = DecisionTreeClassifier(random_state=42)
 dt.fit(X_train, y_train)
 dt_pred = dt.predict(X_test)

@@ -11,21 +11,24 @@ X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.3, random_state=42)
 
 # Fit predict for both classifiers
-sf = SimilarityForestClassifier(n_trees=100)
+sf = SimilarityForestClassifier(n_trees=20, max_depth=None)
 sf.fit(X_train, y_train)
 sf_pred = sf.predict(X_test)
+sf_pred_train = sf.predict(X_train)
 sf_prob = sf.predict_proba(X_test)
 
 
 rf = RandomForestClassifier(random_state=42)
 rf.fit(X_train, y_train)
 rf_pred = rf.predict(X_test)
+rf_pred_train = rf.predict(X_train)
 rf_prob = rf.predict_proba(X_test)
 
 
 # Compare classifiers' accuracy
 print(f'Random Forest accuracy score: {accuracy_score(y_test, rf_pred)}')
 print(f'Similarity Forest accuracy score: {accuracy_score(y_test, sf_pred)}')
+print(f'Similarity Forest accuracy score on train data: {accuracy_score(y_train, sf_pred_train)}')
 
 print(f'Similarity Forest log loss: {log_loss(y_test, sf_prob)}')
 print(f'Random Forest log loss: {log_loss(y_test, rf_prob)}')
