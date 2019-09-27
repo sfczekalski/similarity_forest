@@ -9,7 +9,7 @@ import pandas as pd
 import numpy as np
 from sklearn.datasets import load_svmlight_file
 
-X, y = load_svmlight_file('ionosphere_scale')
+X, y = load_svmlight_file('data/ionosphere_scale')
 X = X.toarray()
 
 X_train, X_test, y_train, y_test = train_test_split(
