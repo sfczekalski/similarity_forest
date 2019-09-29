@@ -277,7 +277,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
             self._split_point = best_split_point
             self._p = best_p
             self._q = best_q
-            self._similarities = similarities
+            self._similarities = np.array(similarities)
 
             # Left- and right-hand side partitioning
             lhs_idxs = np.nonzero(self._similarities <= self._split_point)[0]
