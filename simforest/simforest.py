@@ -504,12 +504,14 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
                  n_trees=20,
                  n_directions=1,
                  sim_function=np.dot,
-                 max_depth=None):
+                 max_depth=None,
+                 oob_score=False):
         self.random_state = random_state
         self.n_trees = n_trees
         self.n_directions = n_directions
         self.sim_function = sim_function
         self.max_depth = max_depth
+        self.oob_score = oob_score
 
     def _validate_X_predict(self, X, check_input):
         """Validate X whenever one tries to predict, apply, predict_proba.
@@ -558,6 +560,8 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
         self.X_ = X
         self.y_ = y
 
+        self.oob_score_ = 0.0
+
         self.classes = np.unique(y)
         self.trees = []
         for i in range(self.n_trees):
@@ -568,6 +572,14 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
             tree.fit(X[idxs], y[idxs], check_input=False)
 
             self.trees.append(tree)
+
+            if self.oob_score:
+                idxs_oob = np.setdiff1d(np.array(range(y.size)), idxs)
+
+                self.oob_score_ += tree.score(X[idxs_oob], y[idxs_oob])
+
+        if self.oob_score:
+            self.oob_score_ /= self.n_trees
 
         assert len(self.trees) == self.n_trees
         self.is_fitted_ = True
