@@ -174,8 +174,6 @@ def test_wrong_sim_f_forest():
         clf.fit(X, y)
         assert 'Provided similarity function does not apply to input.' in str(wrong_sim_f.value)
 
-#test probabilty values - sum axis 1 == 1
-
 
 def test_probability_values_forest(data):
     X, y = data
@@ -184,3 +182,11 @@ def test_probability_values_forest(data):
     preds = clf.predict_proba(X)
 
     assert_allclose(np.sum(preds, axis=1), np.ones(shape=y.shape))
+
+
+def test_number_of_leaves_in_apply(data):
+    X, y = data
+    clf = SimilarityTreeClassifier()
+    clf.fit(X, y)
+
+    assert (np.unique(clf.apply(X)).size == clf.get_n_leaves())

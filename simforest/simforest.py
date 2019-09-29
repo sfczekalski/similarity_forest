@@ -47,6 +47,9 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
 
     """
 
+    # List of all nodes in the tree, that is SimilarityTreeClassifier instances. Shared across all instances
+    _nodes_list = []
+
     def __init__(self,
                  random_state=1,
                  n_directions=1,
@@ -85,7 +88,12 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
     def get_n_leaves(self):
         """Returns the number of leaves of the decision tree.
         """
-        pass
+        if self is None:
+            return 0
+        if self._lhs is None and self._rhs is None:
+            return 1
+        else:
+            return self._lhs.get_n_leaves() + self._rhs.get_n_leaves()
 
     def _sample_directions(self, random_state, labels, n_directions=1):
         """
@@ -144,8 +152,8 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
 
         n = len(y)
         #total_true = np.sum(y)
-        total_true = sum([y[j] for j in indices])
-        left_true = 0
+        #total_true = sum([y[j] for j in indices])
+        #left_true = 0
         for i in range(n - 1):
             '''
             left_true += y[indices[i]]
@@ -154,13 +162,6 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
             '''
 
             impurity = gini_index(i+1, y[indices])
-
-            '''
-            print(1 - np.sum([(np.where(y[:(i+1)]==c)[0].size / len(y[:(i+1)])) ** 2 for c in np.unique(y)]))
-            print(f'Left true {left_true}')
-            left_pred = left_true / (i+1)
-            print(left_pred)
-            print(1 - left_pred ** 2 - (1 - left_pred) ** 2)'''
 
             if impurity < best_impurity:
                 best_impurity = impurity
@@ -228,6 +229,12 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
         self._value = None
         self._is_leaf = False
         self.is_fitted_ = False
+
+        # Append self to the list of class instances
+        self._nodes_list.append(self)
+
+        # Current node id is length of all nodes list. Nodes are numbered from 1, the root node
+        self._node_id = len(self._nodes_list)
 
         # Value of predicion
         probs = np.ones(shape=self.n_classes_)
@@ -417,13 +424,57 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
         vect_log = np.vectorize(np.log)
         return vect_log(probas)
 
-    def apply(self, X, check_input=True):
+    def apply(self, X, check_input=False):
         """Returns the index of the leaf that each sample is predicted as."""
-        pass
+
+        if check_input:
+            # Check if fit had been called
+            check_is_fitted(self, ['X_', 'y_', 'is_fitted_'])
+
+            # Input validation
+            X = check_array(X)
+
+            X = self._validate_X_predict(X, check_input)
+
+        return np.array([self.apply_x(x) for x in X])
+
+    def apply_x(self, x, check_input=False):
+        """Returns the index of the leaf that each sample is predicted as."""
+
+        if self._is_leaf:
+            return self._node_id
+
+        t = self._lhs if self.sim_function(x, self._q) - self.sim_function(x, self._p) <= self._split_point else self._rhs
+        if t is None:
+            return self._node_id
+        return t.apply_x(x)
 
     def decision_path(self, X, check_input=True):
         """Return the decision path in the tree."""
-        pass
+
+        if check_input:
+            # Check is fit had been called
+            check_is_fitted(self, ['X_', 'y_', 'is_fitted_'])
+
+            # Input validation
+            X = check_array(X)
+            X = self._validate_X_predict(X, check_input)
+
+        if self._is_leaf:
+            return f'In the leaf node, containing samples: \n {list(zip(self.X_, self.y_))}'
+
+        similarity = self.sim_function(X, self._q) - self.sim_function(X, self._p)
+        left = similarity <= self._split_point
+        t = self._lhs if left else self._rhs
+        if t is None:
+            return f'In the leaf node, containing samples: \n {list(zip(self.X_, self.y_))}'
+
+        if left:
+            print(f'Going left P: {self._p}, \t Q: {self._q}, \t split point: {self._split_point}, \t similarity: {similarity}')
+        else:
+            print(f'Going right P: {self._p}, \t Q: {self._q}, \t split point: {self._split_point}, \t similarity: {similarity}')
+
+        return t.decision_path(X, check_input=False)
 
     def _prune_tree(self):
         """Prune tree using Minimal Cost-Complexity Pruning."""
