@@ -16,7 +16,7 @@ st.fit(X_train, y_train)
 st_pred = st.predict(X_test)
 st_prob = st.predict_proba(X_test)
 
-print(st.get_depth())
+print(st.get_n_leaves())
 
 dt = DecisionTreeClassifier(random_state=42)
 dt.fit(X_train, y_train)

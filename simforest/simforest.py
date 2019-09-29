@@ -9,6 +9,7 @@ from sklearn.base import BaseEstimator, ClassifierMixin, is_classifier
 from sklearn.ensemble.forest import ForestClassifier
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted, check_random_state
 from sklearn.utils.multiclass import unique_labels, check_classification_targets
+from scipy.spatial import distance
 
 
 def calc_gini(total_left, total_right, true_left, true_right):
@@ -53,7 +54,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
     def __init__(self,
                  random_state=1,
                  n_directions=1,
-                 sim_function=np.dot,
+                 sim_function=distance.euclidean,
                  classes=None,
                  max_depth=None,
                  depth=1):
@@ -204,8 +205,10 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
             y = np.copy(y)
 
         if self.classes is None:
-            self.classes = unique_labels(y)
-        self.n_classes_ = self.classes.shape[0]
+            self.classes_ = unique_labels(y)
+        else:
+            self.classes_ = self.classes
+        self.n_classes_ = len(self.classes_)
 
         '''
         if self.n_classes_ > 2:
@@ -238,7 +241,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
 
         # Value of predicion
         probs = np.ones(shape=self.n_classes_)
-        for i, c in enumerate(self.classes):
+        for i, c in enumerate(self.classes_):
             count = np.where(y == c)[0].size
             probs[i] = count / len(y) + 0.000000001
 
@@ -286,18 +289,19 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
             if len(lhs_idxs) > 0 and len(rhs_idxs) > 0:
                 self._lhs = SimilarityTreeClassifier(random_state=self.random_state,
                                                      n_directions=self.n_directions,
-                                                     sim_function=np.dot,
-                                                     classes=self.classes,
+                                                     sim_function=self.sim_function,
+                                                     classes=self.classes_,
                                                      max_depth=self.max_depth,
                                                      depth=self.depth+1).fit(self.X_[lhs_idxs], self.y_[lhs_idxs],
-                                                                                          check_input=False)
+                                                                             check_input=False)
+
                 self._rhs = SimilarityTreeClassifier(random_state=self.random_state,
                                                      n_directions=self.n_directions,
-                                                     sim_function=np.dot,
-                                                     classes=self.classes,
+                                                     sim_function=self.sim_function,
+                                                     classes=self.classes_,
                                                      max_depth=self.max_depth,
                                                      depth=self.depth+1).fit(self.X_[rhs_idxs], self.y_[rhs_idxs],
-                                                                                          check_input=False)
+                                                                             check_input=False)
             else:
                 return
 
@@ -310,9 +314,10 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
             In case of Similarity Tree, check if similarity function provided applies to input.
             Check result of applying similarity function to two first data-points. """
 
-        res = self.sim_function(X[0, :], X[1, :])
-        if not isinstance(res, (int, float)):
-            raise ValueError('Provided similarity function does not apply to input.')
+        if X.shape[0] > 1:
+            res = self.sim_function(X[0], X[1])
+            if not isinstance(res, (int, float)):
+                raise ValueError('Provided similarity function does not apply to input.')
 
         return X
 
@@ -330,11 +335,11 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
         """
 
         if self._is_leaf:
-            return self.classes[np.argmax(self._value)]
+            return self.classes_[np.argmax(self._value)]
 
         t = self._lhs if self.sim_function(x, self._q) - self.sim_function(x, self._p) <= self._split_point else self._rhs
         if t is None:
-            return self.classes[np.argmax(self._value)]
+            return self.classes_[np.argmax(self._value)]
 
         return t.predict_row_class(x)
 

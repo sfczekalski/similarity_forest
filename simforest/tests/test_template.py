@@ -31,7 +31,7 @@ def test_classifier_attributes_tree(data):
     clf.fit(X, y)
 
     assert hasattr(clf, 'is_fitted_')
-    assert hasattr(clf, 'classes')
+    assert hasattr(clf, 'classes_')
     assert hasattr(clf, 'X_')
     assert hasattr(clf, 'y_')
 
