@@ -184,9 +184,27 @@ def test_probability_values_forest(data):
     assert_allclose(np.sum(preds, axis=1), np.ones(shape=y.shape))
 
 
-def test_number_of_leaves_in_apply(data):
+def test_number_of_tree_leaves_in_apply(data):
     X, y = data
     clf = SimilarityTreeClassifier()
     clf.fit(X, y)
 
     assert (np.unique(clf.apply(X)).size == clf.get_n_leaves())
+
+
+def test_number_of_tree_in_forest_leaves_in_apply(data):
+    X, y = data
+    clf = SimilarityForestClassifier()
+    clf.fit(X, y)
+    apply_result = clf.apply(X)
+
+    assert np.unique(apply_result[:, 0]).size == clf.trees[0].get_n_leaves()
+
+
+def test_forest_apply_result_shape(data):
+    X, y = data
+    clf = SimilarityForestClassifier()
+    clf.fit(X, y)
+    apply_result = clf.apply(X)
+
+    assert apply_result.shape == (X.shape[0], clf.n_trees)

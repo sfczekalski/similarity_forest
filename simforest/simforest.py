@@ -618,6 +618,20 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
         return self.classes[np.argmax(self.predict_proba(X), axis=1)]
         #return np.array(self.predict_proba(X) >= 0.5).astype(np.int)
 
+    def apply(self, X, check_input=True):
+        """Apply trees in the forest to X, return leaf indices."""
+
+        if check_input:
+            # Check if fit had been called
+            check_is_fitted(self, ['X_', 'y_', 'is_fitted_'])
+
+            # Input validation
+            X = check_array(X)
+
+            X = self._validate_X_predict(X, check_input)
+
+        return np.array([t.apply(X, check_input=False) for t in self.trees]).transpose()
+
 '''
 class SimilarityForestClassifier(ForestClassifier):
     """A similarity forest classifier.
