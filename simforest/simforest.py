@@ -12,17 +12,6 @@ from sklearn.utils.multiclass import unique_labels, check_classification_targets
 from scipy.spatial import distance
 
 
-def calc_gini(total_left, total_right, true_left, true_right):
-    left_pred = true_left / total_left
-    right_pred = true_right / total_right
-
-    left_gini = 1 - left_pred ** 2 - (1 - left_pred) ** 2
-    right_gini = 1 - right_pred ** 2 - (1 - right_pred) ** 2
-
-    left_prop = total_left / (total_left + total_right)
-    return left_prop * left_gini + (1 - left_prop) * right_gini
-
-
 def gini_index(split_index, y):
     left_partition, right_partition = y[:split_index], y[split_index:]
 
@@ -147,12 +136,6 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
 
             yield first, second
 
-        '''first = np.where(labels == 1)[0]
-        other = np.where(labels == 0)[0]
-
-        for _ in range(n_directions):
-            yield random_state.choice(first, replace=False), random_state.choice(other, replace=False)'''
-
     def _find_split(self, X, y, p, q):
         """ Find split among direction drew on pair of data-points from different classes
             Parameters
@@ -181,15 +164,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
         best_split_point = 0
 
         n = len(y)
-        #total_true = np.sum(y)
-        #total_true = sum([y[j] for j in indices])
-        #left_true = 0
         for i in range(n - 1):
-            '''
-            left_true += y[indices[i]]
-            right_true = total_true - left_true
-            impurity2 = calc_gini(i + 1, n - i - 1, left_true, right_true)
-            '''
 
             impurity = gini_index(i+1, y[indices])
 
@@ -238,11 +213,6 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
         else:
             self.classes_ = self.classes
         self.n_classes_ = len(self.classes_)
-
-        '''
-        if self.n_classes_ > 2:
-            raise Exception('Similarity Tree is a binary classifier!')
-        '''
 
         # Check parameters
         random_state = check_random_state(self.random_state)
@@ -652,6 +622,7 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
         self.y_ = y
         self.classes_ = unique_labels(y)
         self.n_classes_ = self.classes_.shape[0]
+        self.base_estimator_ = SimilarityTreeClassifier
 
         '''
         if self.n_classes_ > 2:
@@ -665,10 +636,14 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
             raise ValueError('n_directions parameter must be an int')
 
         self.oob_score_ = 0.0
+        self.oob_decision_function_ = np.ndarray(shape=(X.size, self.n_classes_))
+        self.oob_decision_function_.fill(np.nan)
+        nans = [np.nan] * X.size
 
         self.estimators_ = []
         for i in range(self.n_estimators):
-            idxs = random_state.choice(range(y.size), y.size, replace=True)
+            all_idxs = range(y.size)
+            idxs = random_state.choice(all_idxs, y.size, replace=True)
 
             tree = SimilarityTreeClassifier(classes=self.classes_, n_directions=self.n_directions,
                                             sim_function=self.sim_function, random_state=self.random_state,
@@ -679,8 +654,12 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
 
             if self.oob_score:
                 idxs_oob = np.setdiff1d(np.array(range(y.size)), idxs)
-
                 self.oob_score_ += tree.score(X[idxs_oob], y[idxs_oob])
+
+                tree_probs = tree.predict_proba(X[np.unique(idxs_oob)])
+
+                self.oob_decision_function_[idxs_oob] = np.add(np.nan_to_num(self.oob_decision_function_[idxs_oob]),
+                                                               tree_probs)
 
         if self.oob_score:
             self.oob_score_ /= self.n_estimators

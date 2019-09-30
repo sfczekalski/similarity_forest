@@ -30,6 +30,7 @@ print(f'Random Forest accuracy score: {accuracy_score(y_test, rf_pred)}')
 print(f'Similarity Forest accuracy score: {accuracy_score(y_test, sf_pred)}')
 print(f'Similarity Forest oob score: {sf.oob_score_}')
 
+import numpy as np
 print(f'Similarity Forest log loss: {log_loss(y_test, sf_prob)}')
 print(f'Random Forest log loss: {log_loss(y_test, rf_prob)}')
 
