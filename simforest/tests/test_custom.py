@@ -41,7 +41,7 @@ def test_default_attribute_value_tree():
     clf = SimilarityTreeClassifier()
     assert clf.random_state == 1
     assert clf.n_directions == 1
-    assert clf.sim_function == distance.euclidean
+    assert clf.sim_function == np.dot
 
 
 def test_setting_attributes_tree(data):
@@ -127,7 +127,7 @@ def test_default_attribute_value_forest():
     clf = SimilarityForestClassifier()
     assert clf.random_state == 1
     assert clf.n_directions == 1
-    assert clf.sim_function == distance.euclidean
+    assert clf.sim_function == np.dot
 
 
 def test_setting_attributes_forest(data):

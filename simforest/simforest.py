@@ -9,7 +9,6 @@ from sklearn.base import BaseEstimator, ClassifierMixin, is_classifier
 from sklearn.ensemble.forest import ForestClassifier
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted, check_random_state
 from sklearn.utils.multiclass import unique_labels, check_classification_targets
-from scipy.spatial import distance
 
 
 def gini_index(split_index, y):
@@ -72,7 +71,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
     def __init__(self,
                  random_state=1,
                  n_directions=1,
-                 sim_function=distance.euclidean,
+                 sim_function=np.dot,
                  classes=None,
                  max_depth=None,
                  depth=1):
@@ -309,14 +308,9 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
         return self
 
     def _validate_X_predict(self, X, check_input):
-        """Validate X whenever one tries to predict, apply, predict_proba.
-            In case of Similarity Tree, check if similarity function provided applies to input.
-            Check result of applying similarity function to two first data-points. """
+        """Validate X whenever one tries to predict, apply, predict_proba."""
 
-        if X.shape[0] > 1:
-            res = self.sim_function(X[0], X[1])
-            if not isinstance(res, (int, float)):
-                raise ValueError('Provided similarity function does not apply to input.')
+        X = check_array(X)
 
         return X
 
@@ -566,7 +560,7 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
                  random_state=1,
                  n_estimators=20,
                  n_directions=1,
-                 sim_function=distance.euclidean,
+                 sim_function=np.dot,
                  max_depth=None,
                  oob_score=False):
         self.random_state = random_state
@@ -577,14 +571,9 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
         self.oob_score = oob_score
 
     def _validate_X_predict(self, X, check_input):
-        """Validate X whenever one tries to predict, apply, predict_proba.
-            In case of Similarity Forest, check if similarity function provided applies to input.
-            Check result of applying similarity function to two first data-points. """
+        """Validate X whenever one tries to predict, apply, predict_proba."""
 
-        if X.shape[0] > 1:
-            res = self.sim_function(X[0], X[1])
-            if not isinstance(res, (int, float)):
-                raise ValueError('Provided similarity function does not apply to input.')
+        X = check_array(X)
 
         return X
 
