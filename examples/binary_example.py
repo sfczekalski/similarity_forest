@@ -8,16 +8,17 @@ from sklearn.preprocessing import LabelEncoder, StandardScaler
 import pandas as pd
 import numpy as np
 from sklearn.datasets import load_svmlight_file
+from scipy.spatial import distance
 
-X, y = load_svmlight_file('data/ionosphere_scale')
+X, y = load_svmlight_file('data/mushrooms')
 X = X.toarray()
 
 X_train, X_test, y_train, y_test = train_test_split(
                 X, y, test_size=0.2, random_state=42)
 
-#scaler = StandardScaler()
-#X_train = scaler.fit_transform(X_train)
-#X_test = scaler.transform(X_test)
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
 
 '''
 encoder = LabelEncoder()
@@ -26,11 +27,11 @@ y_test = encoder.transform(y_test)
 '''
 
 #params = {'n_trees': [20, 30, 40, 50, 60, 70, 80, 90]}
-sf = SimilarityForestClassifier(n_trees=100)
+sf = SimilarityForestClassifier(sim_function=np.dot, max_depth=10, n_directions=1, n_estimators=100)
 sf.fit(X_train, y_train)
 sf_pred = sf.predict(X_test)
-
-'''rf = RandomForestClassifier(random_state=42, max_features='sqrt')
+'''
+rf = DecisionTreeClassifier(random_state=42, max_features='sqrt')
 rf.fit(X_train, y_train)
 rf_pred = rf.predict(X_test)
 

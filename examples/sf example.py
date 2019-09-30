@@ -11,7 +11,7 @@ X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.3, random_state=42)
 
 # Fit predict for both classifiers
-sf = SimilarityForestClassifier(n_trees=20, max_depth=None, oob_score=True)
+sf = SimilarityForestClassifier(n_estimators=20, max_depth=None, oob_score=True)
 sf.fit(X_train, y_train)
 sf_pred = sf.predict(X_test)
 sf_pred_train = sf.predict(X_train)
