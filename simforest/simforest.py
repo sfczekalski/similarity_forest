@@ -87,7 +87,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
                 return r_depth + 1
 
     def get_n_leaves(self):
-        """Returns the number of leaves of the decision tree.
+        """Returns the number of leaves of the similarity tree.
         """
         if self is None:
             return 0
@@ -303,7 +303,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
                                                      depth=self.depth+1).fit(self.X_[rhs_idxs], self.y_[rhs_idxs],
                                                                              check_input=False)
             else:
-                return
+                return self
 
         self.is_fitted_= True
 
@@ -508,7 +508,7 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
                  random_state=1,
                  n_trees=20,
                  n_directions=1,
-                 sim_function=np.dot,
+                 sim_function=distance.euclidean,
                  max_depth=None,
                  oob_score=False):
         self.random_state = random_state
@@ -523,9 +523,10 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
             In case of Similarity Forest, check if similarity function provided applies to input.
             Check result of applying similarity function to two first data-points. """
 
-        res = self.sim_function(X[0, :], X[1, :])
-        if not isinstance(res, (int, float)):
-            raise ValueError('Provided similarity function does not apply to input.')
+        if X.shape[0] > 1:
+            res = self.sim_function(X[0], X[1])
+            if not isinstance(res, (int, float)):
+                raise ValueError('Provided similarity function does not apply to input.')
 
         return X
 
@@ -548,8 +549,8 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
             check_classification_targets(y)
             y = np.copy(y)
 
-        self.classes = unique_labels(y)
-        self.n_classes_ = self.classes.shape[0]
+        self.classes_ = unique_labels(y)
+        self.n_classes_ = self.classes_.shape[0]
 
         '''
         if self.n_classes_ > 2:
@@ -567,16 +568,16 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
 
         self.oob_score_ = 0.0
 
-        self.classes = np.unique(y)
-        self.trees = []
+        self.trees_ = []
         for i in range(self.n_trees):
             idxs = random_state.choice(range(y.size), y.size, replace=True)
 
-            tree = SimilarityTreeClassifier(classes=self.classes, n_directions=self.n_directions,
-                                            random_state=self.random_state, max_depth=self.max_depth)
+            tree = SimilarityTreeClassifier(classes=self.classes_, n_directions=self.n_directions,
+                                            sim_function=self.sim_function, random_state=self.random_state,
+                                            max_depth=self.max_depth)
             tree.fit(X[idxs], y[idxs], check_input=False)
 
-            self.trees.append(tree)
+            self.trees_.append(tree)
 
             if self.oob_score:
                 idxs_oob = np.setdiff1d(np.array(range(y.size)), idxs)
@@ -586,7 +587,7 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
         if self.oob_score:
             self.oob_score_ /= self.n_trees
 
-        assert len(self.trees) == self.n_trees
+        assert len(self.trees_) == self.n_trees
         self.is_fitted_ = True
 
         return self
@@ -602,7 +603,7 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
         # Check if provided similarity function applies to input
         X = self._validate_X_predict(X, check_input)
 
-        return np.mean([t.predict_proba(X) for t in self.trees], axis=0)
+        return np.mean([t.predict_proba(X) for t in self.trees_], axis=0)
 
     def predict_log_proba(self, X):
         """Predict class log-probabilities of the input samples X.
@@ -632,7 +633,7 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
         # Check if provided similarity function applies to input
         X = self._validate_X_predict(X, check_input)
 
-        return self.classes[np.argmax(self.predict_proba(X), axis=1)]
+        return self.classes_[np.argmax(self.predict_proba(X), axis=1)]
         #return np.array(self.predict_proba(X) >= 0.5).astype(np.int)
 
     def apply(self, X, check_input=True):
@@ -647,7 +648,7 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
 
             X = self._validate_X_predict(X, check_input)
 
-        return np.array([t.apply(X, check_input=False) for t in self.trees]).transpose()
+        return np.array([t.apply(X, check_input=False) for t in self.trees_]).transpose()
 
 '''
 class SimilarityForestClassifier(ForestClassifier):

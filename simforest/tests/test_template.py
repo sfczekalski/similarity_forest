@@ -41,7 +41,7 @@ def test_default_attribute_value_tree():
     clf = SimilarityTreeClassifier()
     assert clf.random_state == 1
     assert clf.n_directions == 1
-    assert clf.sim_function == np.dot
+    assert clf.sim_function == distance.euclidean
 
 
 def test_setting_attributes_tree(data):
@@ -119,7 +119,7 @@ def test_classifier_attributes_forest(data):
     clf.fit(X, y)
 
     assert hasattr(clf, 'is_fitted_')
-    assert hasattr(clf, 'classes')
+    assert hasattr(clf, 'classes_')
     assert hasattr(clf, 'X_')
     assert hasattr(clf, 'y_')
 
@@ -129,7 +129,7 @@ def test_default_attribute_value_forest():
     clf = SimilarityForestClassifier()
     assert clf.random_state == 1
     assert clf.n_directions == 1
-    assert clf.sim_function == np.dot
+    assert clf.sim_function == distance.euclidean
 
 
 def test_setting_attributes_forest(data):
@@ -198,7 +198,7 @@ def test_number_of_tree_in_forest_leaves_in_apply(data):
     clf.fit(X, y)
     apply_result = clf.apply(X)
 
-    assert np.unique(apply_result[:, 0]).size == clf.trees[0].get_n_leaves()
+    assert np.unique(apply_result[:, 0]).size == clf.trees_[0].get_n_leaves()
 
 
 def test_forest_apply_result_shape(data):

@@ -2,11 +2,11 @@ import pytest
 
 from sklearn.utils.estimator_checks import check_estimator
 
-from simforest import SimilarityTreeClassifier
+from simforest import SimilarityTreeClassifier, SimilarityForestClassifier
 
 
 @pytest.mark.parametrize(
-    "SimilarityTreeClassifier", [SimilarityTreeClassifier]
+    "Estimator", [SimilarityTreeClassifier, SimilarityForestClassifier]
 )
-def test_all_estimators(SimilarityTreeClassifier):
-    return check_estimator(SimilarityTreeClassifier)
+def test_all_estimators(Estimator):
+    return check_estimator(Estimator)
