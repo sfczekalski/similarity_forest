@@ -1,4 +1,4 @@
-name: project-template
+name: similarity_forest
 dependencies:
   - numpy
   - scipy
