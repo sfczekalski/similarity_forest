@@ -340,6 +340,11 @@ class SimilarityForestClassifier(ForestClassifier):
 
 
 def weighted_variance(split_index, y):
+    """Calculate sum of weighted variances."""
+
+    assert len(y) > 1
+    assert split_index <= len(y) - 1
+
     left_partition, right_partition = y[:split_index], y[split_index:]
     left_proportion = len(left_partition) / len(y)
 
@@ -461,16 +466,14 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         for _ in range(n_directions):
             '''first = random_state.choice(range(len(y)), replace=False)
             first_value = y[first]
-            min_diff = 0.5 * np.std(y)
+            min_diff = 0.1 * np.std(y)
             different = np.where(y - first_value > min_diff)[0]
             if len(different) == 0:
                 self.is_fitted_= True
                 self._is_leaf = True
                 return self
             second = random_state.choice(different, replace=False)'''
-            #print(f'Dlugosc calego wektora: {len(y)}, dlugosc tego z odleglymi punktami: {len(different)}')
             first, second = random_state.choice(a=range(len(y)), size=2, replace=False)
-            #print(f'First: {y[first]}, second: {y[second]}')
 
             yield first, second
 
@@ -582,7 +585,6 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
             if len(self.y_) <= self.min_samples_split:
                 self._is_leaf = True
                 return self
-        #print(f'Points in a node {self._node_id}: {len(self.y_)}')
 
         # Sample n_direction discriminative directions and find the best one
         best_impurity = np.inf
@@ -633,6 +635,12 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
                 self.is_fitted_ = True
                 self._is_leaf = True
                 return self
+
+        # Split has not been found
+        else:
+            self.is_fitted_ = True
+            self._is_leaf = True
+            return self
 
         self.is_fitted_= True
 

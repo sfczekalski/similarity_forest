@@ -1,19 +1,29 @@
 from simforest import SimilarityTreeRegressor
 from sklearn.tree import DecisionTreeRegressor
-from sklearn.datasets import make_regression
+from sklearn.datasets import make_regression, load_svmlight_file
+from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import r2_score
 from sklearn.model_selection import train_test_split
 import numpy as np
+from scipy.spatial import distance
+import pandas as pd
 
-#X, y = make_blobs(n_samples=1000, centers=[(0, 0), (1, 1), (1.5, 1)], random_state=42)
 
 X, y = make_regression(n_features=4, n_informative=2, n_samples=1000, random_state=1)
 rng = np.random.RandomState(2)
 X += 2 * rng.uniform(size=X.shape)
 linearly_separable = (X, y)
+'''X, y = load_svmlight_file('../data/cpusmall')
+X = X.toarray()'''
+
+#X = pd.read_csv('../data/winequality-white.csv', skiprows=1, delimiter=';', header=None)
 
 X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.3, random_state=42)
+
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
 
 # Fit predict for both classifiers
 st = SimilarityTreeRegressor(sim_function=np.dot, max_depth=None, n_directions=1)
