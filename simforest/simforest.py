@@ -1,6 +1,3 @@
-"""
-This is a module implementing Similarity Forest classifier, outlined here: http://saketsathe.net/downloads/simforest.pdf
-"""
 import numpy as np
 from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin
 from sklearn.ensemble.forest import ForestClassifier
@@ -342,6 +339,13 @@ class SimilarityForestClassifier(ForestClassifier):
         self.ccp_alpha = ccp_alpha
 
 
+def weighted_variance(split_index, y):
+    left_partition, right_partition = y[:split_index], y[split_index:]
+    left_proportion = len(left_partition) / len(y)
+
+    return left_proportion * np.var(left_partition) + (1 - left_proportion) * np.var(right_partition)
+
+
 class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
     """Similarity Tree regressor implementation.
             Similarity Trees are base models used as building blocks for Similarity Forest ensemble.
@@ -385,11 +389,15 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
                  n_directions=1,
                  sim_function=np.dot,
                  max_depth=None,
+                 min_samples_split=5,
+                 min_impurity_decrease=0.0,
                  depth=1):
         self.random_state = random_state
         self.n_directions = n_directions
         self.sim_function = sim_function
         self.max_depth = max_depth
+        self.min_samples_split = min_samples_split
+        self.min_impurity_decrease = min_impurity_decrease
         self.depth = depth
 
     def apply(self, X, check_input=False):
@@ -438,6 +446,74 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         else:
             return self._lhs.get_n_leaves() + self._rhs.get_n_leaves()
 
+    def _sample_directions(self, random_state, y, n_directions=1):
+        """
+            Parameters
+            ----------
+            random_state : random state object
+            y : output vector
+            n_directions : number of direction pairs to sample in order to choose the one providing the best split
+            Returns
+            -------
+            generator of object pairs' indexes tuples to draw directions on
+        """
+        # Choose two data-points to draw directions on
+        for _ in range(n_directions):
+            '''first = random_state.choice(range(len(y)), replace=False)
+            first_value = y[first]
+            min_diff = 0.5 * np.std(y)
+            different = np.where(y - first_value > min_diff)[0]
+            if len(different) == 0:
+                self.is_fitted_= True
+                self._is_leaf = True
+                return self
+            second = random_state.choice(different, replace=False)'''
+            #print(f'Dlugosc calego wektora: {len(y)}, dlugosc tego z odleglymi punktami: {len(different)}')
+            first, second = random_state.choice(a=range(len(y)), size=2, replace=False)
+            #print(f'First: {y[first]}, second: {y[second]}')
+
+            yield first, second
+
+    def _find_split(self, X, y, p, q):
+        """ Find split among direction drew on pair of data-points
+            Parameters
+            ----------
+            X : all data-points
+            y : output vector
+            p : first data-point used for drawing direction of the split
+            q : second data-point used for drawing direction of the split
+            Returns
+            -------
+            best_impurity_decrease : decrease of variance after the split
+            best_p : first data point from pair providing the best impurity decrease
+            best_p : second data point from pair providing the best impurity decrease
+            best_split_point : split threshold
+        """
+        similarities = [self.sim_function(x, q) - self.sim_function(x, p) for x in X]
+        indices = sorted([i for i in range(len(y)) if not np.isnan(similarities[i])],
+                         key=lambda x: similarities[x])
+
+        y = y[indices]
+
+        best_impurity = np.inf
+        best_p = None
+        best_q = None
+        best_split_point = 0
+
+        n = len(y)
+        for i in range(n - 1):
+
+            impurity = weighted_variance(i+1, y[indices])
+
+            if impurity < best_impurity:
+                best_impurity = impurity
+                best_p = p
+                best_q = q
+
+                best_split_point = (similarities[indices[i]] + similarities[indices[i + 1]]) / 2
+
+        return best_impurity, best_p, best_q, best_split_point, similarities
+
     def fit(self, X, y, check_input=True):
         """Build a similarity tree regressor from the training set (X, y).
                Parameters
@@ -477,6 +553,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         self._value = None
         self._is_leaf = False
         self.is_fitted_ = False
+        self._impurity = None
 
         # Append self to the list of class instances
         self._nodes_list.append(self)
@@ -484,8 +561,76 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         # Current node id is length of all nodes list. Nodes are numbered from 1, the root node
         self._node_id = len(self._nodes_list)
 
+        # Value of predicion
+        self._value = np.mean(self.y_)
+
+        # Current node's impurity
+        self._impurity = np.var(self.y_)
+
+
+        if self.y_.size == 1:
+            self._is_leaf = True
+            self.is_fitted_ = True
+            return self
+
         if self.max_depth is not None:
             if self.depth == self.max_depth:
+                self._is_leaf = True
+                return self
+
+        if self.min_samples_split is not None:
+            if len(self.y_) <= self.min_samples_split:
+                self._is_leaf = True
+                return self
+        #print(f'Points in a node {self._node_id}: {len(self.y_)}')
+
+        # Sample n_direction discriminative directions and find the best one
+        best_impurity = np.inf
+        best_split_point = -np.inf
+        best_p = None
+        best_q = None
+        similarities = []
+
+        for i, j in self._sample_directions(random_state, self.y_, self.n_directions):
+
+            impurity, p, q, split_point, curr_similarities = self._find_split(X, y, X[i], X[j])
+            if impurity < best_impurity:
+                best_impurity = impurity
+                best_split_point = split_point
+                best_p = p
+                best_q = q
+                similarities = curr_similarities
+
+        # Split as long as it improves impurity
+        N_T = len(y)
+        N = len(self._nodes_list[0].y_)
+
+        if N_T * (self._impurity - best_impurity) / N > self.min_impurity_decrease:
+            self._split_point = best_split_point
+            self._p = best_p
+            self._q = best_q
+            self._similarities = np.array(similarities)
+
+            # Left- and right-hand side partitioning
+            lhs_idxs = np.nonzero(self._similarities <= self._split_point)[0]
+            rhs_idxs = np.nonzero(self._similarities > self._split_point)[0]
+
+            if len(lhs_idxs) > 0 and len(rhs_idxs) > 0:
+                self._lhs = SimilarityTreeRegressor(random_state=self.random_state,
+                                                     n_directions=self.n_directions,
+                                                     sim_function=self.sim_function,
+                                                     max_depth=self.max_depth,
+                                                     depth=self.depth + 1).fit(self.X_[lhs_idxs], self.y_[lhs_idxs],
+                                                                               check_input=False)
+
+                self._rhs = SimilarityTreeRegressor(random_state=self.random_state,
+                                                     n_directions=self.n_directions,
+                                                     sim_function=self.sim_function,
+                                                     max_depth=self.max_depth,
+                                                     depth=self.depth + 1).fit(self.X_[rhs_idxs], self.y_[rhs_idxs],
+                                                                               check_input=False)
+            else:
+                self.is_fitted_ = True
                 self._is_leaf = True
                 return self
 
@@ -501,6 +646,16 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         return X
 
     def predict(self, X, check_input=True):
+        """Predict regression value for X.
+            Parameters
+            ----------
+            X : array-like, shape (n_samples, n_features)
+                The input samples.
+            Returns
+            -------
+            y : ndarray, shape (n_samples,)
+                The labels.
+        """
 
         if check_input:
             # Check if fit had been called
@@ -511,7 +666,26 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
 
             X = self._validate_X_predict(X, check_input)
 
-        return
+        return np.array([self.predict_row_output(x) for x in X])
+
+    def predict_row_output(self, x):
+        """ Predict regression output of a single data-point.
+            If current node is a leaf, return its prediction value,
+            if not, traverse down the tree to find point's output
+            Parameters
+            ----------
+            x : a data-point
+            Returns
+            -------
+            data-point's output
+        """
+        if self._is_leaf:
+            return self._value
+
+        t = self._lhs if self.sim_function(x, self._q) - self.sim_function(x, self._p) <= self._split_point else self._rhs
+        if t is None:
+            return self._value
+        return t.predict_row_output(x)
 
     @property
     def feature_importances_(self):
