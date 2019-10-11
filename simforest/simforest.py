@@ -1,5 +1,5 @@
 import numpy as np
-from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin
+from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin, is_regressor
 from sklearn.ensemble.forest import ForestClassifier
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted, check_random_state
 from sklearn.utils.multiclass import unique_labels
@@ -464,7 +464,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         """
         # Choose two data-points to draw directions on
         for _ in range(n_directions):
-            '''first = random_state.choice(range(len(y)), replace=False)
+            first = random_state.choice(range(len(y)), replace=False)
             first_value = y[first]
             min_diff = np.std(y)
             different = np.where(np.abs(y - first_value) > min_diff)[0]
@@ -474,8 +474,8 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
                 #return self
                 first, second = random_state.choice(a=range(len(y)), size=2, replace=False)
             else:
-                second = random_state.choice(different, replace=False)'''
-            first, second = random_state.choice(a=range(len(y)), size=2, replace=False)
+                second = random_state.choice(different, replace=False)
+            #first, second = random_state.choice(a=range(len(y)), size=2, replace=False)
             #print(f'diff: {np.abs(y[second] - y[first])}')
             assert first is not None
             assert second is not None
@@ -709,134 +709,162 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         """Return the feature importances."""
         pass
 
-    class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
-        """A similarity forest regressor.
-                A similarity forest is a meta estimator that fits a number of similarity tree
-                regressors on various sub-samples of the dataset and uses averaging to
-                improve the predictive accuracy and control over-fitting.
-                The sub-sample size is always the same as the original
-                input sample size but the samples are drawn with replacement.
-                Parameters
-                ----------
-                random_state : int, RandomState instance or None, optional (default=None)
-                    If int, random_state is the seed used by the random number generator;
-                    If RandomState instance, random_state is the random number generator;
-                    If None, the random number generator is the RandomState instance used
-                    by `np.random`.
-                n_estimators : integer, optional (default=20)
-                    The number of trees in the forest.
-                n_directions : int, number of discriminative directions to check at each split.
-                                    The best direction is chosen, based on child nodes' purity.
-                sim_function : function used to measure similarity between data-points
-                max_depth : integer or None, optional (default=None)
-                    The maximum depth of the tree. If None, then nodes are expanded until
-                    all leaves are pure.
-                oob_score : bool (default=False)
-                    Whether to use out-of-bag samples to estimate the R^2 on unseen data.
 
-                Attributes
-                ----------
-                base_estimator_ : SimilarityTreeRegressor
-                    The child estimator template used to create the collection of fitted
-                    sub-estimators.
-                estimators_ : list of SimilarityTreeRegressors
-                    The collection of fitted sub-estimators.
-                oob_score_ : float
-                    Score of the training dataset obtained using an out-of-bag estimate.
-                oob_prediction_ :
-                    array of shape = [n_samples] Prediction computed with out-of-bag estimate on the training set.
-                is_fitted_ : bool flag indicating whenever fit has been called
-                X_ : data used for fitting the forest
-                y_ : data labels
+class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
+    """A similarity forest regressor.
+            A similarity forest is a meta estimator that fits a number of similarity tree
+            regressors on various sub-samples of the dataset and uses averaging to
+            improve the predictive accuracy and control over-fitting.
+            The sub-sample size is always the same as the original
+            input sample size but the samples are drawn with replacement.
+            Parameters
+            ----------
+            random_state : int, RandomState instance or None, optional (default=None)
+                If int, random_state is the seed used by the random number generator;
+                If RandomState instance, random_state is the random number generator;
+                If None, the random number generator is the RandomState instance used
+                by `np.random`.
+            n_estimators : integer, optional (default=20)
+                The number of trees in the forest.
+            n_directions : int, number of discriminative directions to check at each split.
+                            The best direction is chosen, based on child nodes' purity.
+            sim_function : function used to measure similarity between data-points
+            max_depth : integer or None, optional (default=None)
+                The maximum depth of the tree. If None, then nodes are expanded until
+                all leaves are pure.
+            oob_score : bool (default=False)
+                Whether to use out-of-bag samples to estimate the R^2 on unseen data.
 
-                Notes
-                -----
-                The default values for the parameters controlling the size of the trees
-                (``max_depth``) lead to fully grown and
-                unpruned trees which can potentially be very large on some data sets. To
-                reduce memory consumption, the size of the trees should be
-                controlled by setting those parameter values.
-                To obtain a deterministic behaviour during
-                fitting, ``random_state`` has to be fixed.
-                """
+            Attributes
+            ----------
+            base_estimator_ : SimilarityTreeRegressor
+                The child estimator template used to create the collection of fitted
+                sub-estimators.
+            estimators_ : list of SimilarityTreeRegressors
+                The collection of fitted sub-estimators.
+            oob_score_ : float
+                Score of the training dataset obtained using an out-of-bag estimate.
+            oob_prediction_ :
+                array of shape = [n_samples] Prediction computed with out-of-bag estimate on the training set.
+            is_fitted_ : bool flag indicating whenever fit has been called
+            X_ : data used for fitting the forest
+            y_ : data labels
 
-        def __init__(self,
-                     random_state=1,
-                     n_estimators=20,
-                     n_directions=1,
-                     sim_function=np.dot,
-                     max_depth=None,
-                     oob_score=False):
-            self.random_state = random_state
-            self.n_estimators = n_estimators
-            self.n_directions = n_directions
-            self.sim_function = sim_function
-            self.max_depth = max_depth
-            self.oob_score = oob_score
+            Notes
+            -----
+            The default values for the parameters controlling the size of the trees
+            (``max_depth``) lead to fully grown and
+            unpruned trees which can potentially be very large on some data sets. To
+            reduce memory consumption, the size of the trees should be
+            controlled by setting those parameter values.
+            To obtain a deterministic behaviour during
+            fitting, ``random_state`` has to be fixed.
+    """
+    def __init__(self,
+                random_state=1,
+                n_estimators=20,
+                n_directions=1,
+                sim_function=np.dot,
+                max_depth=None,
+                oob_score=False):
+        self.random_state = random_state
+        self.n_estimators = n_estimators
+        self.n_directions = n_directions
+        self.sim_function = sim_function
+        self.max_depth = max_depth
+        self.oob_score = oob_score
 
-        def apply(self, X, check_input=False):
-            """Returns the index of the leaf that each sample is predicted as."""
+    def apply(self, X, check_input=False):
+        """Returns the index of the leaf that each sample is predicted as."""
 
-            if check_input:
-                # Check if fit had been called
-                check_is_fitted(self, ['X_', 'y_', 'is_fitted_'])
+        if check_input:
+            # Check if fit had been called
+            check_is_fitted(self, ['X_', 'y_', 'is_fitted_'])
 
-                # Input validation
-                X = check_array(X)
-
-                X = self._validate_X_predict(X, check_input)
-
-        def decision_path(self, X):
-            pass
-
-        def fit(self, X, y, check_input=True):
-            """Build a similarity forest regressor from the training set (X, y).
-                   Parameters
-                   ----------
-                   X : array-like of any type, as long as suitable similarity function is provided
-                       The training input samples.
-                   y : array-like, shape = [n_samples]
-                       The training outputs.
-
-                   Returns
-                   -------
-                   self : object
-            """
-
-            # Check input
-            if check_input:
-                # Check that X and y have correct shape
-                X, y = check_X_y(X, y)
-
-                # Input validation, check it to be a non-empty 2D array containing only finite values
-                X = check_array(X)
-
-                # Check if provided similarity function applies to input
-                X = self._validate_X_predict(X, check_input)
-
-            return self
-
-        def _validate_X_predict(self, X, check_input):
-            """Validate X whenever one tries to predict, apply."""
-
+            # Input validation
             X = check_array(X)
 
-            return X
+            X = self._validate_X_predict(X, check_input)
 
-        def predict(self, X, check_input=True):
+    def decision_path(self, X):
+        pass
 
-            if check_input:
-                # Check if fit had been called
-                check_is_fitted(self, ['X_', 'y_', 'is_fitted_'])
+    def fit(self, X, y, check_input=True):
+        """Build a similarity forest regressor from the training set (X, y).
+                Parameters
+                ----------
+                X : array-like of any type, as long as suitable similarity function is provided
+                    The training input samples.
+                y : array-like, shape = [n_samples]
+                    The training outputs.
 
-                # Input validation
-                X = check_array(X)
+                Returns
+                -------
+                self : object
+        """
 
-                X = self._validate_X_predict(X, check_input)
+        # Check input
+        if check_input:
+            # Check that X and y have correct shape
+            X, y = check_X_y(X, y)
 
-            return
+            # Input validation, check it to be a non-empty 2D array containing only finite values
+            X = check_array(X)
 
-        @property
-        def feature_importances_(self):
-            """Return the feature importances."""
-            pass
+            # Check if provided similarity function applies to input
+            X = self._validate_X_predict(X, check_input)
+
+        y = np.atleast_1d(y)
+
+        self.X_ = X
+        self.y_ = y
+        self.base_estimator_ = SimilarityTreeRegressor
+
+        # Check input
+        random_state = check_random_state(self.random_state)
+
+        if not isinstance(self.n_directions, int):
+            raise ValueError('n_directions parameter must be an int')
+
+        # TODO Add oob score
+
+        self.estimators_ = []
+        for i in range(self.n_estimators):
+            all_idxs = range(y.size)
+            idxs = random_state.choice(all_idxs, y.size, replace=True)
+
+            tree = SimilarityTreeRegressor(n_directions=self.n_directions, sim_function=self.sim_function,
+                                               random_state=self.random_state, max_depth=self.max_depth)
+            tree.fit(X[idxs], y[idxs], check_input=False)
+
+            self.estimators_.append(tree)
+
+        assert len(self.estimators_) == self.n_estimators
+        self.is_fitted_ = True
+
+        return self
+
+    def _validate_X_predict(self, X, check_input):
+        """Validate X whenever one tries to predict, apply."""
+
+        X = check_array(X)
+
+        return X
+
+    def predict(self, X, check_input=True):
+
+        if check_input:
+            # Check if fit had been called
+            check_is_fitted(self, ['X_', 'y_', 'is_fitted_'])
+
+            # Input validation
+            X = check_array(X)
+
+            X = self._validate_X_predict(X, check_input)
+
+        return np.mean([t.predict(X) for t in self.estimators_], axis=0)
+
+    @property
+    def feature_importances_(self):
+        """Return the feature importances."""
+        pass
