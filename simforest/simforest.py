@@ -466,14 +466,19 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         for _ in range(n_directions):
             '''first = random_state.choice(range(len(y)), replace=False)
             first_value = y[first]
-            min_diff = 0.1 * np.std(y)
-            different = np.where(y - first_value > min_diff)[0]
+            min_diff = np.std(y)
+            different = np.where(np.abs(y - first_value) > min_diff)[0]
             if len(different) == 0:
-                self.is_fitted_= True
-                self._is_leaf = True
-                return self
-            second = random_state.choice(different, replace=False)'''
+                #self.is_fitted_ = True
+                #self._is_leaf = True
+                #return self
+                first, second = random_state.choice(a=range(len(y)), size=2, replace=False)
+            else:
+                second = random_state.choice(different, replace=False)'''
             first, second = random_state.choice(a=range(len(y)), size=2, replace=False)
+            #print(f'diff: {np.abs(y[second] - y[first])}')
+            assert first is not None
+            assert second is not None
 
             yield first, second
 
@@ -570,7 +575,6 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         # Current node's impurity
         self._impurity = np.var(self.y_)
 
-
         if self.y_.size == 1:
             self._is_leaf = True
             self.is_fitted_ = True
@@ -603,11 +607,12 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
                 best_q = q
                 similarities = curr_similarities
 
-        # Split as long as it improves impurity
+        # Split as long as induced impurity decrease is desirable
+        # N_T / N refers to proportion of points in the current node to points in the root node
         N_T = len(y)
         N = len(self._nodes_list[0].y_)
 
-        if N_T * (self._impurity - best_impurity) / N > self.min_impurity_decrease:
+        if (self._impurity - best_impurity) * N_T / N > self.min_impurity_decrease:
             self._split_point = best_split_point
             self._p = best_p
             self._q = best_q
@@ -687,8 +692,12 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
             -------
             data-point's output
         """
+
         if self._is_leaf:
             return self._value
+
+        assert self._p is not None
+        assert self._q is not None
 
         t = self._lhs if self.sim_function(x, self._q) - self.sim_function(x, self._p) <= self._split_point else self._rhs
         if t is None:
