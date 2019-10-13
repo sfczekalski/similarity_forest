@@ -469,14 +469,10 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
             min_diff = np.std(y)
             different = np.where(np.abs(y - first_value) > min_diff)[0]
             if len(different) == 0:
-                #self.is_fitted_ = True
-                #self._is_leaf = True
-                #return self
                 first, second = random_state.choice(a=range(len(y)), size=2, replace=False)
             else:
                 second = random_state.choice(different, replace=False)
             #first, second = random_state.choice(a=range(len(y)), size=2, replace=False)
-            #print(f'diff: {np.abs(y[second] - y[first])}')
             assert first is not None
             assert second is not None
 
