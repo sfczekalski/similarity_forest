@@ -417,8 +417,48 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
 
             X = self._validate_X_predict(X, check_input)
 
-    def decision_path(self, X):
-        pass
+        return np.array([self.apply_x(x) for x in X])
+
+    def apply_x(self, x, check_input=False):
+        """Returns the index of the leaf that sample is predicted as."""
+
+        if self._is_leaf:
+            return self._node_id
+
+        t = self._lhs if self.sim_function(x, self._q) - self.sim_function(x,
+                                                                           self._p) <= self._split_point else self._rhs
+        if t is None:
+            return self._node_id
+        return t.apply_x(x)
+
+    def decision_path(self, X, check_input=True):
+        """Return the decision path in the tree."""
+
+        if check_input:
+            # Check is fit had been called
+            check_is_fitted(self, ['X_', 'y_', 'is_fitted_'])
+
+            # Input validation
+            X = check_array(X)
+            X = self._validate_X_predict(X, check_input)
+
+        if self._is_leaf:
+            return f'In the leaf node, containing samples: \n {list(zip(self.X_, self.y_))}'
+
+        similarity = self.sim_function(X, self._q) - self.sim_function(X, self._p)
+        left = similarity <= self._split_point
+        t = self._lhs if left else self._rhs
+        if t is None:
+            return f'In the leaf node, containing samples: \n {list(zip(self.X_, self.y_))}'
+
+        if left:
+            print(
+                f'Going left P: {self._p}, \t Q: {self._q}, \t split point: {self._split_point}, \t similarity: {similarity}')
+        else:
+            print(
+                f'Going right P: {self._p}, \t Q: {self._q}, \t split point: {self._split_point}, \t similarity: {similarity}')
+
+        return t.decision_path(X, check_input=False)
 
     def get_depth(self):
         """Returns the depth of the decision tree.
@@ -782,8 +822,7 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
 
             X = self._validate_X_predict(X, check_input)
 
-    def decision_path(self, X):
-        pass
+        return np.array([t.apply(X, check_input=False) for t in self.estimators_]).transpose()
 
     def fit(self, X, y, check_input=True):
         """Build a similarity forest regressor from the training set (X, y).

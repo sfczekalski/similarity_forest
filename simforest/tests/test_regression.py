@@ -133,3 +133,28 @@ def test_wrong_sim_f_forest():
         clf = SimilarityForestRegressor()
         clf.fit(X, y)
         assert 'Provided similarity function does not apply to input.' in str(wrong_sim_f.value)
+
+
+def test_number_of_tree_leaves_in_apply(data):
+    X, y = data
+    clf = SimilarityTreeRegressor()
+    clf.fit(X, y)
+
+    assert (np.unique(clf.apply(X)).size == clf.get_n_leaves())
+
+def test_number_of_tree_in_forest_leaves_in_apply(data):
+    X, y = data
+    clf = SimilarityForestRegressor()
+    clf.fit(X, y)
+    apply_result = clf.apply(X)
+
+    assert np.unique(apply_result[:, 0]).size == clf.estimators_[0].get_n_leaves()
+
+
+def test_forest_apply_result_shape(data):
+    X, y = data
+    clf = SimilarityForestRegressor()
+    clf.fit(X, y)
+    apply_result = clf.apply(X)
+
+    assert apply_result.shape == (X.shape[0], clf.n_estimators)
