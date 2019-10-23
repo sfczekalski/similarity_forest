@@ -3,6 +3,7 @@ from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin, is_regr
 from sklearn.ensemble.forest import ForestClassifier
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted, check_random_state
 from sklearn.utils.multiclass import unique_labels
+import math
 
 
 class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
@@ -358,13 +359,15 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
                 ----------
                 random_state : int, random numbers generator seed
                 n_directions : int, number of discriminative directions to check at each split.
-                                   The best direction is chosen, based on child nodes' purity.
+                    The best direction is chosen, based on child nodes' purity.
                 sim_function : function used to measure similarity between data-points
                 max_depth : integer or None, optional (default=None)
                     The maximum depth of the tree. If None, then nodes are expanded until
                     all leaves are pure.
                 depth : int depth of the tree count
-
+                sampling_strategy : string, strategy used to sample data-points to split direction on them.
+                    Possible values are 'discriminative' for sampling points with regression values far away from each other,
+                    and 'random' for sampling randomly.
                 Attributes
                 ----------
                 is_fitted_ : bool flag indicating whenever fit has been called
@@ -396,7 +399,8 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
                  max_depth=None,
                  min_samples_split=2,
                  min_impurity_decrease=0.0,
-                 depth=1):
+                 depth=1,
+                 sampling_strategy='discriminative'):
         self.random_state = random_state
         self.n_directions = n_directions
         self.sim_function = sim_function
@@ -404,6 +408,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         self.min_samples_split = min_samples_split
         self.min_impurity_decrease = min_impurity_decrease
         self.depth = depth
+        self.sampling_stategy = sampling_strategy
 
     def apply(self, X, check_input=False):
         """Returns the index of the leaf that each sample is predicted as."""
@@ -504,19 +509,22 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         """
         # Choose two data-points to draw directions on
         for _ in range(n_directions):
-            first = random_state.choice(range(len(y)), replace=False)
-            first_value = y[first]
-            min_diff = np.std(y)
-            different = np.where(np.abs(y - first_value) > min_diff)[0]
-            if len(different) == 0:
-                first, second = random_state.choice(a=range(len(y)), size=2, replace=False)
+
+            if self.sampling_stategy == 'discriminative':
+                first = random_state.choice(range(len(y)), replace=False)
+                first_value = y[first]
+                min_diff = np.std(y)
+                different = np.where(np.abs(y - first_value) > min_diff)[0]
+                if len(different) == 0:
+                    first, second = random_state.choice(a=range(len(y)), size=2, replace=False)
+                else:
+                    second = random_state.choice(different, replace=False)
+
             else:
-                second = random_state.choice(different, replace=False)
-            #first, second = random_state.choice(a=range(len(y)), size=2, replace=False)
+                first, second = random_state.choice(a=range(len(y)), size=2, replace=False)
+
             assert first is not None
             assert second is not None
-
-            #print(f'first: {y[first]}, second: {y[second]}, median: {np.median(y)}, std: {np.std(y)}')
 
             yield first, second
 
@@ -744,17 +752,16 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
             return self._value
         return t.predict_row_output(x)
 
-    def outlyingness_(self, X, check_input=True):
-        """Get outlyingness measure for X.
+    def path_length_(self, X, check_input=True):
+        """Get path length for instances of X.
             Parameters
             ----------
             X : array-like, shape (n_samples, n_features)
                 The input samples.
             Returns
             -------
-            outlyingness : ndarray, shape (n_samples,)
-                The outlyingness measure, according to single tree.
-                It is not scaled to 0 - 1! Scaling is performed in a forest.
+            path_length : ndarray, shape (n_samples,)
+                The path_length for instances of X, according to a single tree.
         """
 
         if check_input:
@@ -766,10 +773,10 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
 
             X = self._validate_X_predict(X, check_input)
 
-        return np.array([self.row_outlyingness_(x) for x in X])
+        return np.array([self.row_path_length_(x) for x in X])
 
-    def row_outlyingness_(self, x):
-        """ Predict outlyingness measure of a single data-point.
+    def row_path_length_(self, x):
+        """ Get outlyingness path length of a single data-point.
             If current node is a leaf, return its depth,
             if not, traverse down the tree
             Parameters
@@ -777,7 +784,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
             x : a data-point
             Returns
             -------
-            data-point's outlyingness, according to single tree.
+            data-point's path length, according to single a tree.
         """
 
         if self._is_leaf:
@@ -792,7 +799,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         if t is None:
             #print(self.depth)
             return self.depth
-        return t.row_outlyingness_(x)
+        return t.row_path_length_(x)
 
     @property
     def feature_importances_(self):
@@ -854,13 +861,19 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
                 n_directions=1,
                 sim_function=np.dot,
                 max_depth=None,
-                oob_score=False):
+                oob_score=False,
+                sampling_strategy='discriminative',
+                bootstrap=True,
+                sub_sample_fraction=0.5):
         self.random_state = random_state
         self.n_estimators = n_estimators
         self.n_directions = n_directions
         self.sim_function = sim_function
         self.max_depth = max_depth
         self.oob_score = oob_score
+        self.sampling_stategy = sampling_strategy
+        self.bootstrap = bootstrap
+        self.sub_sample_fraction = sub_sample_fraction
 
     def apply(self, X, check_input=False):
         """Returns the index of the leaf that each sample is predicted as."""
@@ -917,18 +930,31 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
 
         self.estimators_ = []
         for i in range(self.n_estimators):
-            all_idxs = range(y.size)
-            idxs = random_state.choice(all_idxs, y.size, replace=True)
+            if self.bootstrap:
+                all_idxs = range(y.size)
+                idxs = random_state.choice(all_idxs, y.size, replace=True)
 
-            tree = SimilarityTreeRegressor(n_directions=self.n_directions, sim_function=self.sim_function,
-                                               random_state=self.random_state, max_depth=self.max_depth)
-            tree.fit(X[idxs], y[idxs], check_input=False)
+                tree = SimilarityTreeRegressor(n_directions=self.n_directions, sim_function=self.sim_function,
+                                               random_state=self.random_state, max_depth=self.max_depth,
+                                               sampling_strategy=self.sampling_stategy)
+                tree.fit(X[idxs], y[idxs], check_input=False)
 
-            self.estimators_.append(tree)
+                self.estimators_.append(tree)
 
-            if self.oob_score:
-                idxs_oob = np.setdiff1d(np.array(range(y.size)), idxs)
-                self.oob_score_ += tree.score(X[idxs_oob], y[idxs_oob])
+                if self.oob_score:
+                    idxs_oob = np.setdiff1d(np.array(range(y.size)), idxs)
+                    self.oob_score_ += tree.score(X[idxs_oob], y[idxs_oob])
+            else:
+                all_idxs = range(y.size)
+                sample_size = int(self.sub_sample_fraction * y.size)
+                idxs = random_state.choice(all_idxs, sample_size, replace=False)
+
+                tree = SimilarityTreeRegressor(n_directions=self.n_directions, sim_function=self.sim_function,
+                                               random_state=self.random_state, max_depth=self.max_depth,
+                                               sampling_strategy=self.sampling_stategy)
+                tree.fit(X[idxs], y[idxs], check_input=False)
+
+                self.estimators_.append(tree)
 
         if self.oob_score:
             self.oob_score_ /= self.n_estimators
@@ -990,10 +1016,12 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
 
             X = self._validate_X_predict(X, check_input)
 
-        outlyingness = np.mean([t.outlyingness_(X, check_input=False) for t in self.estimators_], axis=0)
-        outlyingness = (outlyingness - np.min(outlyingness)) / np.ptp(outlyingness)
-
-        return outlyingness
+        path_lengths = np.mean([t.path_length_(X, check_input=False) for t in self.estimators_], axis=0)
+        #outlyingness = (outlyingness - np.min(outlyingness)) / np.ptp(outlyingness)
+        n = X.size
+        scaling_factor = 2 * (math.log(n - 1) + 0.5772156649) - (2 * (n - 1) / n)
+        score = np.array([1 - 2 ** (-pl/scaling_factor) for pl in path_lengths])
+        return score
 
     @property
     def feature_importances_(self):

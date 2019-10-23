@@ -22,7 +22,8 @@ X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)
 
 # Fit
-sf = SimilarityForestRegressor(n_estimators=100, n_directions=1)
+sf = SimilarityForestRegressor(n_estimators=100, n_directions=1, sampling_strategy='random', bootstrap=False,
+                               sub_sample_fraction=0.2)
 sf.fit(X_train, y_train)
 sf_outlyingness = sf.outlyingness(X_test)
 
