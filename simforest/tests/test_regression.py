@@ -142,6 +142,7 @@ def test_number_of_tree_leaves_in_apply(data):
 
     assert (np.unique(clf.apply(X)).size == clf.get_n_leaves())
 
+
 def test_number_of_tree_in_forest_leaves_in_apply(data):
     X, y = data
     clf = SimilarityForestRegressor()
@@ -158,3 +159,25 @@ def test_forest_apply_result_shape(data):
     apply_result = clf.apply(X)
 
     assert apply_result.shape == (X.shape[0], clf.n_estimators)
+
+
+def test_similarity_tree_regressor_outlyingness_array(data):
+    X, y = data
+    clf = SimilarityTreeRegressor()
+
+    clf.fit(X, y)
+
+    outlyingness = clf.outlyingness_(X)
+    assert outlyingness.shape == (X.shape[0],)
+
+
+def test_similarity_forest_regressor_outlyingness_array(data):
+    X, y = data
+    clf = SimilarityForestRegressor()
+
+    clf.fit(X, y)
+
+    outlyingness = clf.outlyingness(X)
+    assert outlyingness.shape == (X.shape[0],)
+    assert outlyingness.all() <= 1.0
+    assert outlyingness.all() >= 0.0

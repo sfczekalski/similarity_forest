@@ -394,7 +394,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
                  n_directions=1,
                  sim_function=np.dot,
                  max_depth=None,
-                 min_samples_split=5,
+                 min_samples_split=2,
                  min_impurity_decrease=0.0,
                  depth=1):
         self.random_state = random_state
@@ -515,6 +515,8 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
             #first, second = random_state.choice(a=range(len(y)), size=2, replace=False)
             assert first is not None
             assert second is not None
+
+            #print(f'first: {y[first]}, second: {y[second]}, median: {np.median(y)}, std: {np.std(y)}')
 
             yield first, second
 
@@ -654,6 +656,8 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
             self._q = best_q
             self._similarities = np.array(similarities)
 
+            #print(f'impurity decrease: {(self._impurity - best_impurity) * N_T / N}')
+
             # Left- and right-hand side partitioning
             lhs_idxs = np.nonzero(self._similarities <= self._split_point)[0]
             rhs_idxs = np.nonzero(self._similarities > self._split_point)[0]
@@ -739,6 +743,56 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         if t is None:
             return self._value
         return t.predict_row_output(x)
+
+    def outlyingness_(self, X, check_input=True):
+        """Get outlyingness measure for X.
+            Parameters
+            ----------
+            X : array-like, shape (n_samples, n_features)
+                The input samples.
+            Returns
+            -------
+            outlyingness : ndarray, shape (n_samples,)
+                The outlyingness measure, according to single tree.
+                It is not scaled to 0 - 1! Scaling is performed in a forest.
+        """
+
+        if check_input:
+            # Check if fit had been called
+            check_is_fitted(self, ['X_', 'y_', 'is_fitted_'])
+
+            # Input validation
+            X = check_array(X)
+
+            X = self._validate_X_predict(X, check_input)
+
+        return np.array([self.row_outlyingness_(x) for x in X])
+
+    def row_outlyingness_(self, x):
+        """ Predict outlyingness measure of a single data-point.
+            If current node is a leaf, return its depth,
+            if not, traverse down the tree
+            Parameters
+            ----------
+            x : a data-point
+            Returns
+            -------
+            data-point's outlyingness, according to single tree.
+        """
+
+        if self._is_leaf:
+            #print(self.depth)
+            return self.depth
+
+        assert self._p is not None
+        assert self._q is not None
+
+        t = self._lhs if self.sim_function(x, self._q) - self.sim_function(x,
+                                                                           self._p) <= self._split_point else self._rhs
+        if t is None:
+            #print(self.depth)
+            return self.depth
+        return t.row_outlyingness_(x)
 
     @property
     def feature_importances_(self):
@@ -898,6 +952,33 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
             X = self._validate_X_predict(X, check_input)
 
         return np.mean([t.predict(X) for t in self.estimators_], axis=0)
+
+    def outlyingness(self, X, check_input=True):
+        """Get outlyingness measure for X.
+            Parameters
+            ----------
+            X : array-like, shape (n_samples, n_features)
+                The input samples.
+            check_input : bool indicating if input values should be checked or not.
+            Returns
+            -------
+            outlyingness : ndarray, shape (n_samples,)
+                The outlyingness measure, values are scaled to fit within range between 0 and 1.
+        """
+
+        if check_input:
+            # Check if fit had been called
+            check_is_fitted(self, ['X_', 'y_', 'is_fitted_'])
+
+            # Input validation
+            X = check_array(X)
+
+            X = self._validate_X_predict(X, check_input)
+
+        outlyingness = np.mean([t.outlyingness_(X, check_input=False) for t in self.estimators_], axis=0)
+        outlyingness = (outlyingness - np.min(outlyingness)) / np.ptp(outlyingness)
+
+        return outlyingness
 
     @property
     def feature_importances_(self):

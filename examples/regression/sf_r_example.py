@@ -3,31 +3,31 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.datasets import make_regression, load_svmlight_file, load_wine, make_friedman1
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import r2_score
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, GridSearchCV
 import numpy as np
 from scipy.spatial import distance
 import pandas as pd
 import matplotlib.pyplot as plt
 
 
-X, y = make_regression(n_features=4, n_informative=3, n_samples=1000, random_state=1)
+'''X, y = make_regression(n_features=4, n_informative=2, n_samples=1000, random_state=1)
 rng = np.random.RandomState(2)
 X += 2 * rng.uniform(size=X.shape)
-linearly_separable = (X, y)
+linearly_separable = (X, y)'''
 
-'''X, y = load_svmlight_file('../data/mpg')
-X = X.toarray()'''
+X, y = load_svmlight_file('../data/mpg')
+X = X.toarray()
 
 #X, y = make_friedman1(n_samples=1000, random_state=42)
+#X, y = load_wine(return_X_y=True)
 
-'''
-df = pd.read_csv('../data/AirQualityUCI.csv', sep=',')
+
+'''df = pd.read_csv('../data/AirQualityUCI.csv', sep=',')
 df.drop(columns=['Date', 'Time'], inplace=True)
 df.dropna(inplace=True)
 print(df.head())
 
-y, X = df.pop('quality'), df
-'''
+y, X = df.pop('RH'), df'''
 
 X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.3, random_state=42)
@@ -37,7 +37,7 @@ X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)
 
 # Fit predict for both classifiers
-sf = SimilarityForestRegressor(sim_function=np.dot, n_directions=1, n_estimators=100)
+sf = SimilarityForestRegressor(n_estimators=100)
 sf.fit(X_train, y_train)
 sf_pred = sf.predict(X_test)
 print(f'Similarity Forest R2 score: {r2_score(y_test, sf_pred)}')
