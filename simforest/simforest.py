@@ -707,7 +707,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
             Returns
             -------
             y : ndarray, shape (n_samples,)
-                The labels.
+                Predicted regression values.
         """
 
         if check_input:
@@ -834,8 +834,6 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
                 The collection of fitted sub-estimators.
             oob_score_ : float
                 Score of the training dataset obtained using an out-of-bag estimate.
-            oob_prediction_ :
-                array of shape = [n_samples] Prediction computed with out-of-bag estimate on the training set.
             is_fitted_ : bool flag indicating whenever fit has been called
             X_ : data used for fitting the forest
             y_ : data labels
@@ -915,7 +913,7 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
         if not isinstance(self.n_directions, int):
             raise ValueError('n_directions parameter must be an int')
 
-        # TODO Add oob score
+        self.oob_score_ = 0.0
 
         self.estimators_ = []
         for i in range(self.n_estimators):
@@ -927,6 +925,13 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
             tree.fit(X[idxs], y[idxs], check_input=False)
 
             self.estimators_.append(tree)
+
+            if self.oob_score:
+                idxs_oob = np.setdiff1d(np.array(range(y.size)), idxs)
+                self.oob_score_ += tree.score(X[idxs_oob], y[idxs_oob])
+
+        if self.oob_score:
+            self.oob_score_ /= self.n_estimators
 
         assert len(self.estimators_) == self.n_estimators
         self.is_fitted_ = True
@@ -941,6 +946,16 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
         return X
 
     def predict(self, X, check_input=True):
+        """Predict regression target for X.
+                Parameters
+                ----------
+                X : array-like, shape (n_samples, n_features)
+                    The input samples.
+                Returns
+                -------
+                y : array-like, shape = [n_samples]
+                    Array of predicted regression outputs.
+        """
 
         if check_input:
             # Check if fit had been called

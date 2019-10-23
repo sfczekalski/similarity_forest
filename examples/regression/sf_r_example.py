@@ -37,18 +37,20 @@ X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)
 
 # Fit predict for both classifiers
-sf = SimilarityForestRegressor(n_estimators=100)
+sf = SimilarityForestRegressor(n_estimators=100, oob_score=True)
 sf.fit(X_train, y_train)
 sf_pred = sf.predict(X_test)
 print(f'Similarity Forest R2 score: {r2_score(y_test, sf_pred)}')
+print(f'Similarity Forest oob R2 score: {sf.oob_score_}')
 
 
-rf = RandomForestRegressor(random_state=42)
+rf = RandomForestRegressor(random_state=42, oob_score=True)
 rf.fit(X_train, y_train)
 rf_pred = rf.predict(X_test)
 
 # Compare regressors' accuracy
 print(f'Random Forest R2 score: {r2_score(y_test, rf_pred)}')
+print(f'Random Forest oob R2 score: {rf.oob_score_}')
 
 '''# Scale predictions for plotting
 sf_pred = (sf_pred - np.min(sf_pred))/np.ptp(sf_pred)
