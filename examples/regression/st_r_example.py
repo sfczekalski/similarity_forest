@@ -38,12 +38,12 @@ X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)
 
 # Fit predict for both classifiers
-st = SimilarityTreeRegressor(sim_function=np.dot, max_depth=None, n_directions=1, sampling_strategy='discriminative')
+st = SimilarityTreeRegressor(sim_function=np.dot, max_depth=None, n_directions=1)
 st.fit(X_train, y_train)
 st_pred = st.predict(X_test)
 print(f'Similarity Tree R2 score: {r2_score(y_test, st_pred)}')
 print(f'Similarity Tree depth: {st.get_depth()}')
-
+print(st.get_params())
 
 dt = DecisionTreeRegressor(random_state=42)
 dt.fit(X_train, y_train)

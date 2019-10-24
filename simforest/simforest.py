@@ -402,14 +402,14 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
                  max_depth=None,
                  min_samples_split=2,
                  depth=1,
-                 sampling_strategy='discriminative'):
+                 discriminative_sampling=True):
         self.random_state = random_state
         self.n_directions = n_directions
         self.sim_function = sim_function
         self.max_depth = max_depth
         self.min_samples_split = min_samples_split
         self.depth = depth
-        self.sampling_stategy = sampling_strategy
+        self.discriminative_sampling = discriminative_sampling
 
     def apply(self, X, check_input=False):
         """Returns the index of the leaf that each sample is predicted as."""
@@ -500,8 +500,10 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
             return self._lhs.get_n_leaves() + self._rhs.get_n_leaves()
 
     def _sample_directions(self, random_state, y, n_directions=1):
-        """Sample a pair of data-points to draw splitting direction on them. Sampling is performed according to strategy
-            set in sampling_stategy parameter.
+        """Sample a pair of data-points to draw splitting direction on them.
+            By default sampling is performed according to achieve splits that seperate
+            data-points with different regression values.
+
             Parameters
             ----------
             random_state : random state object
@@ -514,8 +516,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         """
         # Choose two data-points to draw directions on
         for _ in range(n_directions):
-
-            if self.sampling_stategy == 'discriminative':
+            if self.discriminative_sampling:
                 first = random_state.choice(range(len(y)), replace=False)
                 first_value = y[first]
                 min_diff = np.std(y)
@@ -601,8 +602,6 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
 
         # Check parameters
         random_state = check_random_state(self.random_state)
-        if self.sampling_stategy not in ['discriminative', 'random']:
-            raise ValueError('Wrong sampling strategy! Possible options are: \'discriminative\' and \'random\'')
 
         if not isinstance(self.n_directions, int):
             raise ValueError('n_directions parameter must be an int')
@@ -866,7 +865,7 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
                 sim_function=np.dot,
                 max_depth=None,
                 oob_score=False,
-                sampling_strategy='discriminative',
+                discriminative_sampling=True,
                 bootstrap=True,
                 sub_sample_fraction=0.5):
         self.random_state = random_state
@@ -875,7 +874,7 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
         self.sim_function = sim_function
         self.max_depth = max_depth
         self.oob_score = oob_score
-        self.sampling_stategy = sampling_strategy
+        self.discriminative_sampling = discriminative_sampling
         self.bootstrap = bootstrap
         self.sub_sample_fraction = sub_sample_fraction
 
@@ -926,8 +925,6 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
 
         # Check input
         random_state = check_random_state(self.random_state)
-        if self.sampling_stategy not in ['discriminative', 'random']:
-            raise ValueError('Wrong sampling strategy! Possible options are: \'discriminative\' and \'random\'')
 
         if not isinstance(self.n_directions, int):
             raise ValueError('n_directions parameter must be an int')
@@ -942,7 +939,7 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
 
                 tree = SimilarityTreeRegressor(n_directions=self.n_directions, sim_function=self.sim_function,
                                                random_state=self.random_state, max_depth=self.max_depth,
-                                               sampling_strategy=self.sampling_stategy)
+                                               discriminative_sampling=self.discriminative_sampling)
                 tree.fit(X[idxs], y[idxs], check_input=False)
 
                 self.estimators_.append(tree)
@@ -957,7 +954,7 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
 
                 tree = SimilarityTreeRegressor(n_directions=self.n_directions, sim_function=self.sim_function,
                                                random_state=self.random_state, max_depth=self.max_depth,
-                                               sampling_strategy=self.sampling_stategy)
+                                               discriminative_sampling=self.discriminative_sampling)
                 tree.fit(X[idxs], y[idxs], check_input=False)
 
                 self.estimators_.append(tree)

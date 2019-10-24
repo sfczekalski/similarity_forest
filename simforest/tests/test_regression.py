@@ -161,13 +161,13 @@ def test_forest_apply_result_shape(data):
     assert apply_result.shape == (X.shape[0], clf.n_estimators)
 
 
-def test_similarity_tree_regressor_outlyingness_array(data):
+def test_similarity_tree_regressor_path_lengths_array(data):
     X, y = data
     clf = SimilarityTreeRegressor()
 
     clf.fit(X, y)
 
-    outlyingness = clf.outlyingness_(X)
+    outlyingness = clf.path_length_(X)
     assert outlyingness.shape == (X.shape[0],)
 
 

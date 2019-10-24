@@ -37,11 +37,10 @@ X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)
 
 # Fit predict for both classifiers
-sf = SimilarityForestRegressor(n_estimators=100, oob_score=True, sampling_strategy='discriminative', bootstrap=False)
+sf = SimilarityForestRegressor(n_estimators=100, oob_score=False, discriminative_sampling=True, bootstrap=False)
 sf.fit(X_train, y_train)
 sf_pred = sf.predict(X_test)
 print(f'Similarity Forest R2 score: {r2_score(y_test, sf_pred)}')
-print(f'Similarity Forest oob R2 score: {sf.oob_score_}')
 
 
 rf = RandomForestRegressor(random_state=42, oob_score=True)
