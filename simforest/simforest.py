@@ -341,9 +341,10 @@ class SimilarityForestClassifier(ForestClassifier):
 
 
 def weighted_variance(split_index, y):
-    """Calculate sum of weighted variances."""
+    """Calculate sum of left and right partition variances, weighted by their length."""
 
     assert len(y) > 1
+    assert split_index >= 1
     assert split_index <= len(y) - 1
 
     left_partition, right_partition = y[:split_index], y[split_index:]
@@ -355,6 +356,7 @@ def weighted_variance(split_index, y):
 class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
     """Similarity Tree regressor implementation.
             Similarity Trees are base models used as building blocks for Similarity Forest ensemble.
+
                 Parameters
                 ----------
                 random_state : int, random numbers generator seed
@@ -365,9 +367,10 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
                     The maximum depth of the tree. If None, then nodes are expanded until
                     all leaves are pure.
                 depth : int depth of the tree count
-                sampling_strategy : string, strategy used to sample data-points to split direction on them.
-                    Possible values are 'discriminative' for sampling points with regression values far away from each other,
-                    and 'random' for sampling randomly.
+                sampling_strategy : string, strategy used to sample data-points to draw splitting direction.
+                    Possible values are 'discriminative' for sampling points with regression values far away from
+                    each other, and 'random' for sampling randomly.
+
                 Attributes
                 ----------
                 is_fitted_ : bool flag indicating whenever fit has been called
@@ -379,7 +382,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
                 _p : first data-point used for drawing split direction in the current node
                 _q : second data-point used for drawing split direction in the current node
                 _similarities :
-                    ndarray of similarity values between two datapoints used for splitting and rest of training datapoints
+                    ndarray of similarity values between two data-points used for splitting and rest of training datapoints
                 _split_point = float similarity value decision boundary
                 _value = output value for current node, estimated based on training set
                 _is_leaf :
@@ -398,7 +401,6 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
                  sim_function=np.dot,
                  max_depth=None,
                  min_samples_split=2,
-                 min_impurity_decrease=0.0,
                  depth=1,
                  sampling_strategy='discriminative'):
         self.random_state = random_state
@@ -406,7 +408,6 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         self.sim_function = sim_function
         self.max_depth = max_depth
         self.min_samples_split = min_samples_split
-        self.min_impurity_decrease = min_impurity_decrease
         self.depth = depth
         self.sampling_stategy = sampling_strategy
 
@@ -458,10 +459,12 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
 
         if left:
             print(
-                f'Going left P: {self._p}, \t Q: {self._q}, \t split point: {self._split_point}, \t similarity: {similarity}')
+                f'Going left P: {self._p}, \t Q: {self._q}, \t split point: {self._split_point},'
+                f'\t similarity: {similarity}')
         else:
             print(
-                f'Going right P: {self._p}, \t Q: {self._q}, \t split point: {self._split_point}, \t similarity: {similarity}')
+                f'Going right P: {self._p}, \t Q: {self._q}, \t split point: {self._split_point},'
+                f'\t similarity: {similarity}')
 
         return t.decision_path(X, check_input=False)
 
@@ -487,8 +490,8 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
                 return r_depth + 1
 
     def get_n_leaves(self):
-        """Returns the number of leaves of the similarity tree.
-        """
+        """Returns the number of leaves of the similarity tree."""
+
         if self is None:
             return 0
         if self._lhs is None and self._rhs is None:
@@ -497,12 +500,14 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
             return self._lhs.get_n_leaves() + self._rhs.get_n_leaves()
 
     def _sample_directions(self, random_state, y, n_directions=1):
-        """
+        """Sample a pair of data-points to draw splitting direction on them. Sampling is performed according to strategy
+            set in sampling_stategy parameter.
             Parameters
             ----------
             random_state : random state object
             y : output vector
             n_directions : number of direction pairs to sample in order to choose the one providing the best split
+
             Returns
             -------
             generator of object pairs' indexes tuples to draw directions on
@@ -536,6 +541,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
             y : output vector
             p : first data-point used for drawing direction of the split
             q : second data-point used for drawing direction of the split
+
             Returns
             -------
             best_impurity_decrease : decrease of variance after the split
@@ -595,6 +601,11 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
 
         # Check parameters
         random_state = check_random_state(self.random_state)
+        if self.sampling_stategy not in ['discriminative', 'random']:
+            raise ValueError('Wrong sampling strategy! Possible options are: \'discriminative\' and \'random\'')
+
+        if not isinstance(self.n_directions, int):
+            raise ValueError('n_directions parameter must be an int')
 
         self.X_ = X
         self.y_ = y
@@ -629,12 +640,13 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         if self.max_depth is not None:
             if self.depth == self.max_depth:
                 self._is_leaf = True
+                self.is_fitted_ = True
                 return self
 
-        if self.min_samples_split is not None:
-            if len(self.y_) <= self.min_samples_split:
-                self._is_leaf = True
-                return self
+        if len(self.y_) <= self.min_samples_split:
+            self._is_leaf = True
+            self.is_fitted_ = True
+            return self
 
         # Sample n_direction discriminative directions and find the best one
         best_impurity = np.inf
@@ -653,18 +665,11 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
                 best_q = q
                 similarities = curr_similarities
 
-        # Split as long as induced impurity decrease is desirable
-        # N_T / N refers to proportion of points in the current node to points in the root node
-        N_T = len(y)
-        N = len(self._nodes_list[0].y_)
-
-        if (self._impurity - best_impurity) * N_T / N > self.min_impurity_decrease:
+        if self._impurity - best_impurity > 0.0:
             self._split_point = best_split_point
             self._p = best_p
             self._q = best_q
             self._similarities = np.array(similarities)
-
-            #print(f'impurity decrease: {(self._impurity - best_impurity) * N_T / N}')
 
             # Left- and right-hand side partitioning
             lhs_idxs = np.nonzero(self._similarities <= self._split_point)[0]
@@ -733,6 +738,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         """ Predict regression output of a single data-point.
             If current node is a leaf, return its prediction value,
             if not, traverse down the tree to find point's output
+
             Parameters
             ----------
             x : a data-point
@@ -779,6 +785,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         """ Get outlyingness path length of a single data-point.
             If current node is a leaf, return its depth,
             if not, traverse down the tree
+
             Parameters
             ----------
             x : a data-point
@@ -788,7 +795,6 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         """
 
         if self._is_leaf:
-            #print(self.depth)
             return self.depth
 
         assert self._p is not None
@@ -797,7 +803,6 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         t = self._lhs if self.sim_function(x, self._q) - self.sim_function(x,
                                                                            self._p) <= self._split_point else self._rhs
         if t is None:
-            #print(self.depth)
             return self.depth
         return t.row_path_length_(x)
 
@@ -852,8 +857,7 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
             unpruned trees which can potentially be very large on some data sets. To
             reduce memory consumption, the size of the trees should be
             controlled by setting those parameter values.
-            To obtain a deterministic behaviour during
-            fitting, ``random_state`` has to be fixed.
+            To obtain a deterministic behaviour during fitting, ``random_state`` has to be fixed.
     """
     def __init__(self,
                 random_state=1,
@@ -922,6 +926,8 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
 
         # Check input
         random_state = check_random_state(self.random_state)
+        if self.sampling_stategy not in ['discriminative', 'random']:
+            raise ValueError('Wrong sampling strategy! Possible options are: \'discriminative\' and \'random\'')
 
         if not isinstance(self.n_directions, int):
             raise ValueError('n_directions parameter must be an int')
@@ -1017,8 +1023,8 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
             X = self._validate_X_predict(X, check_input)
 
         path_lengths = np.mean([t.path_length_(X, check_input=False) for t in self.estimators_], axis=0)
-        #outlyingness = (outlyingness - np.min(outlyingness)) / np.ptp(outlyingness)
         n = X.size
+        # Scaling factor is chosen as an average tree length in BST, in the same fashion as in Isolation Forest
         scaling_factor = 2 * (math.log(n - 1) + 0.5772156649) - (2 * (n - 1) / n)
         score = np.array([1 - 2 ** (-pl/scaling_factor) for pl in path_lengths])
         return score
