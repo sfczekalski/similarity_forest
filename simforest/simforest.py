@@ -5,7 +5,7 @@ avaiable here: http://saketsathe.net/downloads/simforest.pdf
 """
 
 import numpy as np
-from sklearn.base import BaseEstimator, ClassifierMixin, is_classifier, is_regressor
+from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin, is_classifier, is_regressor
 from sklearn.ensemble.forest import ForestClassifier
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted, check_random_state
 from sklearn.utils.multiclass import unique_labels, check_classification_targets
@@ -1074,15 +1074,17 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
                                                      n_directions=self.n_directions,
                                                      sim_function=self.sim_function,
                                                      max_depth=self.max_depth,
-                                                     depth=self.depth + 1).fit(self.X_[lhs_idxs], self.y_[lhs_idxs],
-                                                                               check_input=False)
+                                                     depth=self.depth + 1,
+                                                     discriminative_sampling=self.discriminative_sampling).\
+                    fit(self.X_[lhs_idxs], self.y_[lhs_idxs], check_input=False)
 
                 self._rhs = SimilarityTreeRegressor(random_state=self.random_state,
                                                      n_directions=self.n_directions,
                                                      sim_function=self.sim_function,
                                                      max_depth=self.max_depth,
-                                                     depth=self.depth + 1).fit(self.X_[rhs_idxs], self.y_[rhs_idxs],
-                                                                               check_input=False)
+                                                     depth=self.depth + 1,
+                                                     discriminative_sampling=self.discriminative_sampling).\
+                    fit(self.X_[rhs_idxs], self.y_[rhs_idxs], check_input=False)
             else:
                 self.is_fitted_ = True
                 self._is_leaf = True
