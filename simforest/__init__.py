@@ -2,5 +2,4 @@ from .simforest import SimilarityTreeClassifier, SimilarityTreeRegressor, Simila
 
 from ._version import __version__
 
-__all__ = ['SimilarityTreeClassifier', 'SimilarityTreeRegressor', 'SimilarityForestRegressor',
-           '__version__']
+__all__ = ['SimilarityTreeClassifier', 'SimilarityTreeRegressor', 'SimilarityForestRegressor', '__version__']
