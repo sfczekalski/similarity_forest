@@ -5,11 +5,11 @@ avaiable here: http://saketsathe.net/downloads/simforest.pdf
 """
 
 import numpy as np
-from sklearn.base import BaseEstimator, ClassifierMixin, is_classifier
+from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin, is_classifier, is_regressor
 from sklearn.ensemble.forest import ForestClassifier
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted, check_random_state
 from sklearn.utils.multiclass import unique_labels, check_classification_targets
-
+import math
 
 def gini_index(split_index, y):
     left_partition, right_partition = y[:split_index], y[split_index:]
@@ -733,3 +733,697 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
             X = self._validate_X_predict(X, check_input)
 
         return np.array([t.apply(X, check_input=False) for t in self.estimators_]).transpose()
+
+
+def weighted_variance(split_index, y):
+    """Calculate sum of left and right partition variances, weighted by their length."""
+
+    assert len(y) > 1
+    assert split_index >= 1
+    assert split_index <= len(y) - 1
+
+    left_partition, right_partition = y[:split_index], y[split_index:]
+    left_proportion = len(left_partition) / len(y)
+
+    return left_proportion * np.var(left_partition) + (1 - left_proportion) * np.var(right_partition)
+
+
+class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
+    """Similarity Tree regressor implementation.
+            Similarity Trees are base models used as building blocks for Similarity Forest ensemble.
+
+                Parameters
+                ----------
+                random_state : int, random numbers generator seed
+                n_directions : int, number of discriminative directions to check at each split.
+                    The best direction is chosen, based on child nodes' purity.
+                sim_function : function used to measure similarity between data-points
+                max_depth : integer or None, optional (default=None)
+                    The maximum depth of the tree. If None, then nodes are expanded until
+                    all leaves are pure.
+                depth : int depth of the tree count
+                sampling_strategy : string, strategy used to sample data-points to draw splitting direction.
+                    Possible values are 'discriminative' for sampling points with regression values far away from
+                    each other, and 'random' for sampling randomly.
+
+                Attributes
+                ----------
+                is_fitted_ : bool flag indicating whenever fit has been called
+                X_ : data used for fitting the forest
+                y_ : training data outputs
+                _nodes_list : list of SimilarityTreeClassifier instances, that is tree nodes
+                _lhs : SimilarityTreeClassifier current node's left child node
+                _rhs : SimilarityTreeClassifier current node's right child node
+                _p : first data-point used for drawing split direction in the current node
+                _q : second data-point used for drawing split direction in the current node
+                _similarities :
+                    ndarray of similarity values between two data-points used for splitting and rest of training datapoints
+                _split_point = float similarity value decision boundary
+                _value = output value for current node, estimated based on training set
+                _is_leaf :
+                    bool indicating if current node is a leaf, because stopping createrion
+                    has been reached (depth == max_depth)
+                _node_id : int current node id
+
+        """
+
+    # List of all nodes in the tree, that is SimilarityTreeClassifier instances. Shared across all instances
+    _nodes_list = []
+
+    def __init__(self,
+                 random_state=1,
+                 n_directions=1,
+                 sim_function=np.dot,
+                 max_depth=None,
+                 min_samples_split=2,
+                 depth=1,
+                 discriminative_sampling=True):
+        self.random_state = random_state
+        self.n_directions = n_directions
+        self.sim_function = sim_function
+        self.max_depth = max_depth
+        self.min_samples_split = min_samples_split
+        self.depth = depth
+        self.discriminative_sampling = discriminative_sampling
+
+    def apply(self, X, check_input=False):
+        """Returns the index of the leaf that each sample is predicted as."""
+
+        if check_input:
+            # Check if fit had been called
+            check_is_fitted(self, ['X_', 'y_', 'is_fitted_'])
+
+            # Input validation
+            X = check_array(X)
+
+            X = self._validate_X_predict(X, check_input)
+
+        return np.array([self.apply_x(x) for x in X])
+
+    def apply_x(self, x, check_input=False):
+        """Returns the index of the leaf that sample is predicted as."""
+
+        if self._is_leaf:
+            return self._node_id
+
+        t = self._lhs if self.sim_function(x, self._q) - self.sim_function(x,
+                                                                           self._p) <= self._split_point else self._rhs
+        if t is None:
+            return self._node_id
+        return t.apply_x(x)
+
+    def decision_path(self, X, check_input=True):
+        """Return the decision path in the tree."""
+
+        if check_input:
+            # Check is fit had been called
+            check_is_fitted(self, ['X_', 'y_', 'is_fitted_'])
+
+            # Input validation
+            X = check_array(X)
+            X = self._validate_X_predict(X, check_input)
+
+        if self._is_leaf:
+            return f'In the leaf node, containing samples: \n {list(zip(self.X_, self.y_))}'
+
+        similarity = self.sim_function(X, self._q) - self.sim_function(X, self._p)
+        left = similarity <= self._split_point
+        t = self._lhs if left else self._rhs
+        if t is None:
+            return f'In the leaf node, containing samples: \n {list(zip(self.X_, self.y_))}'
+
+        if left:
+            print(
+                f'Going left P: {self._p}, \t Q: {self._q}, \t split point: {self._split_point},'
+                f'\t similarity: {similarity}')
+        else:
+            print(
+                f'Going right P: {self._p}, \t Q: {self._q}, \t split point: {self._split_point},'
+                f'\t similarity: {similarity}')
+
+        return t.decision_path(X, check_input=False)
+
+    def get_depth(self):
+        """Returns the depth of the decision tree.
+        The depth of a tree is the maximum distance between the root
+        and any leaf.
+        """
+
+        check_is_fitted(self, ['X_', 'y_', 'is_fitted_'])
+
+        if self is None:
+            return 0
+        elif self._lhs is None and self._rhs is None:
+            return 1
+        else:
+            l_depth = self._lhs.get_depth()
+            r_depth = self._rhs.get_depth()
+
+            if l_depth > r_depth:
+                return l_depth + 1
+            else:
+                return r_depth + 1
+
+    def get_n_leaves(self):
+        """Returns the number of leaves of the similarity tree."""
+
+        if self is None:
+            return 0
+        if self._lhs is None and self._rhs is None:
+            return 1
+        else:
+            return self._lhs.get_n_leaves() + self._rhs.get_n_leaves()
+
+    def _sample_directions(self, random_state, y, n_directions=1):
+        """Sample a pair of data-points to draw splitting direction on them.
+            By default sampling is performed according to achieve splits that seperate
+            data-points with different regression values.
+
+            Parameters
+            ----------
+            random_state : random state object
+            y : output vector
+            n_directions : number of direction pairs to sample in order to choose the one providing the best split
+
+            Returns
+            -------
+            generator of object pairs' indexes tuples to draw directions on
+        """
+        # Choose two data-points to draw directions on
+        for _ in range(n_directions):
+            if self.discriminative_sampling:
+                first = random_state.choice(range(len(y)), replace=False)
+                first_value = y[first]
+                min_diff = np.std(y)
+                different = np.where(np.abs(y - first_value) > min_diff)[0]
+                if len(different) == 0:
+                    first, second = random_state.choice(a=range(len(y)), size=2, replace=False)
+                else:
+                    second = random_state.choice(different, replace=False)
+
+            else:
+                first, second = random_state.choice(a=range(len(y)), size=2, replace=False)
+
+            assert first is not None
+            assert second is not None
+
+            yield first, second
+
+    def _find_split(self, X, y, p, q):
+        """ Find split among direction drew on pair of data-points
+            Parameters
+            ----------
+            X : all data-points
+            y : output vector
+            p : first data-point used for drawing direction of the split
+            q : second data-point used for drawing direction of the split
+
+            Returns
+            -------
+            best_impurity_decrease : decrease of variance after the split
+            best_p : first data point from pair providing the best impurity decrease
+            best_p : second data point from pair providing the best impurity decrease
+            best_split_point : split threshold
+        """
+        similarities = [self.sim_function(x, q) - self.sim_function(x, p) for x in X]
+        indices = sorted([i for i in range(len(y)) if not np.isnan(similarities[i])],
+                         key=lambda x: similarities[x])
+
+        y = y[indices]
+
+        best_impurity = np.inf
+        best_p = None
+        best_q = None
+        best_split_point = 0
+
+        n = len(y)
+        for i in range(n - 1):
+
+            impurity = weighted_variance(i+1, y[indices])
+
+            if impurity < best_impurity:
+                best_impurity = impurity
+                best_p = p
+                best_q = q
+
+                best_split_point = (similarities[indices[i]] + similarities[indices[i + 1]]) / 2
+
+        return best_impurity, best_p, best_q, best_split_point, similarities
+
+    def fit(self, X, y, check_input=True):
+        """Build a similarity tree regressor from the training set (X, y).
+               Parameters
+               ----------
+               X : array-like of any type, as long as suitable similarity function is provided
+                   The training input samples.
+               y : array-like, shape = [n_samples]
+                   The training outputs.
+
+               Returns
+               -------
+               self : object
+        """
+
+        # Check input
+        if check_input:
+            # Check that X and y have correct shape
+            X, y = check_X_y(X, y)
+
+            # Input validation, check it to be a non-empty 2D array containing only finite values
+            X = check_array(X)
+
+            # Check if provided similarity function applies to input
+            X = self._validate_X_predict(X, check_input)
+
+        # Check parameters
+        random_state = check_random_state(self.random_state)
+
+        if not isinstance(self.n_directions, int):
+            raise ValueError('n_directions parameter must be an int')
+
+        self.X_ = X
+        self.y_ = y
+        self._lhs = None
+        self._rhs = None
+        self._p = None
+        self._q = None
+        self._similarities = []
+        self._split_point = -np.inf
+        self._value = None
+        self._is_leaf = False
+        self.is_fitted_ = False
+        self._impurity = None
+
+        # Append self to the list of class instances
+        self._nodes_list.append(self)
+
+        # Current node id is length of all nodes list. Nodes are numbered from 1, the root node
+        self._node_id = len(self._nodes_list)
+
+        # Value of predicion
+        self._value = np.mean(self.y_)
+
+        # Current node's impurity
+        self._impurity = np.var(self.y_)
+
+        if self.y_.size == 1:
+            self._is_leaf = True
+            self.is_fitted_ = True
+            return self
+
+        if self.max_depth is not None:
+            if self.depth == self.max_depth:
+                self._is_leaf = True
+                self.is_fitted_ = True
+                return self
+
+        if len(self.y_) <= self.min_samples_split:
+            self._is_leaf = True
+            self.is_fitted_ = True
+            return self
+
+        # Sample n_direction discriminative directions and find the best one
+        best_impurity = np.inf
+        best_split_point = -np.inf
+        best_p = None
+        best_q = None
+        similarities = []
+
+        for i, j in self._sample_directions(random_state, self.y_, self.n_directions):
+
+            impurity, p, q, split_point, curr_similarities = self._find_split(X, y, X[i], X[j])
+            if impurity < best_impurity:
+                best_impurity = impurity
+                best_split_point = split_point
+                best_p = p
+                best_q = q
+                similarities = curr_similarities
+
+        if self._impurity - best_impurity > 0.0:
+            self._split_point = best_split_point
+            self._p = best_p
+            self._q = best_q
+            self._similarities = np.array(similarities)
+
+            # Left- and right-hand side partitioning
+            lhs_idxs = np.nonzero(self._similarities <= self._split_point)[0]
+            rhs_idxs = np.nonzero(self._similarities > self._split_point)[0]
+
+            if len(lhs_idxs) > 0 and len(rhs_idxs) > 0:
+                self._lhs = SimilarityTreeRegressor(random_state=self.random_state,
+                                                     n_directions=self.n_directions,
+                                                     sim_function=self.sim_function,
+                                                     max_depth=self.max_depth,
+                                                     depth=self.depth + 1,
+                                                     discriminative_sampling=self.discriminative_sampling).\
+                    fit(self.X_[lhs_idxs], self.y_[lhs_idxs], check_input=False)
+
+                self._rhs = SimilarityTreeRegressor(random_state=self.random_state,
+                                                     n_directions=self.n_directions,
+                                                     sim_function=self.sim_function,
+                                                     max_depth=self.max_depth,
+                                                     depth=self.depth + 1,
+                                                     discriminative_sampling=self.discriminative_sampling).\
+                    fit(self.X_[rhs_idxs], self.y_[rhs_idxs], check_input=False)
+            else:
+                self.is_fitted_ = True
+                self._is_leaf = True
+                return self
+
+        # Split has not been found
+        else:
+            self.is_fitted_ = True
+            self._is_leaf = True
+            return self
+
+        self.is_fitted_= True
+
+        return self
+
+    def _validate_X_predict(self, X, check_input):
+        """Validate X whenever one tries to predict, apply."""
+
+        X = check_array(X)
+
+        return X
+
+    def predict(self, X, check_input=True):
+        """Predict regression value for X.
+            Parameters
+            ----------
+            X : array-like, shape (n_samples, n_features)
+                The input samples.
+            Returns
+            -------
+            y : ndarray, shape (n_samples,)
+                Predicted regression values.
+        """
+
+        if check_input:
+            # Check if fit had been called
+            check_is_fitted(self, ['X_', 'y_', 'is_fitted_'])
+
+            # Input validation
+            X = check_array(X)
+
+            X = self._validate_X_predict(X, check_input)
+
+        return np.array([self.predict_row_output(x) for x in X])
+
+    def predict_row_output(self, x):
+        """ Predict regression output of a single data-point.
+            If current node is a leaf, return its prediction value,
+            if not, traverse down the tree to find point's output
+
+            Parameters
+            ----------
+            x : a data-point
+            Returns
+            -------
+            data-point's output
+        """
+
+        if self._is_leaf:
+            return self._value
+
+        assert self._p is not None
+        assert self._q is not None
+
+        t = self._lhs if self.sim_function(x, self._q) - self.sim_function(x, self._p) <= self._split_point else self._rhs
+        if t is None:
+            return self._value
+        return t.predict_row_output(x)
+
+    def path_length_(self, X, check_input=True):
+        """Get path length for instances of X.
+            Parameters
+            ----------
+            X : array-like, shape (n_samples, n_features)
+                The input samples.
+            Returns
+            -------
+            path_length : ndarray, shape (n_samples,)
+                The path_length for instances of X, according to a single tree.
+        """
+
+        if check_input:
+            # Check if fit had been called
+            check_is_fitted(self, ['X_', 'y_', 'is_fitted_'])
+
+            # Input validation
+            X = check_array(X)
+
+            X = self._validate_X_predict(X, check_input)
+
+        return np.array([self.row_path_length_(x) for x in X])
+
+    def row_path_length_(self, x):
+        """ Get outlyingness path length of a single data-point.
+            If current node is a leaf, return its depth,
+            if not, traverse down the tree
+
+            Parameters
+            ----------
+            x : a data-point
+            Returns
+            -------
+            data-point's path length, according to single a tree.
+        """
+
+        if self._is_leaf:
+            return self.depth
+
+        assert self._p is not None
+        assert self._q is not None
+
+        t = self._lhs if self.sim_function(x, self._q) - self.sim_function(x,
+                                                                           self._p) <= self._split_point else self._rhs
+        if t is None:
+            return self.depth
+        return t.row_path_length_(x)
+
+    @property
+    def feature_importances_(self):
+        """Return the feature importances."""
+        pass
+
+
+class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
+    """A similarity forest regressor.
+            A similarity forest is a meta estimator that fits a number of similarity tree
+            regressors on various sub-samples of the dataset and uses averaging to
+            improve the predictive accuracy and control over-fitting.
+            The sub-sample size is always the same as the original
+            input sample size but the samples are drawn with replacement.
+            Parameters
+            ----------
+            random_state : int, RandomState instance or None, optional (default=None)
+                If int, random_state is the seed used by the random number generator;
+                If RandomState instance, random_state is the random number generator;
+                If None, the random number generator is the RandomState instance used
+                by `np.random`.
+            n_estimators : integer, optional (default=20)
+                The number of trees in the forest.
+            n_directions : int, number of discriminative directions to check at each split.
+                            The best direction is chosen, based on child nodes' purity.
+            sim_function : function used to measure similarity between data-points
+            max_depth : integer or None, optional (default=None)
+                The maximum depth of the tree. If None, then nodes are expanded until
+                all leaves are pure.
+            oob_score : bool (default=False)
+                Whether to use out-of-bag samples to estimate the R^2 on unseen data.
+
+            Attributes
+            ----------
+            base_estimator_ : SimilarityTreeRegressor
+                The child estimator template used to create the collection of fitted
+                sub-estimators.
+            estimators_ : list of SimilarityTreeRegressors
+                The collection of fitted sub-estimators.
+            oob_score_ : float
+                Score of the training dataset obtained using an out-of-bag estimate.
+            is_fitted_ : bool flag indicating whenever fit has been called
+            X_ : data used for fitting the forest
+            y_ : data labels
+
+            Notes
+            -----
+            The default values for the parameters controlling the size of the trees
+            (``max_depth``) lead to fully grown and
+            unpruned trees which can potentially be very large on some data sets. To
+            reduce memory consumption, the size of the trees should be
+            controlled by setting those parameter values.
+            To obtain a deterministic behaviour during fitting, ``random_state`` has to be fixed.
+    """
+    def __init__(self,
+                random_state=1,
+                n_estimators=20,
+                n_directions=1,
+                sim_function=np.dot,
+                max_depth=None,
+                oob_score=False,
+                discriminative_sampling=True,
+                bootstrap=True,
+                sub_sample_fraction=0.5):
+        self.random_state = random_state
+        self.n_estimators = n_estimators
+        self.n_directions = n_directions
+        self.sim_function = sim_function
+        self.max_depth = max_depth
+        self.oob_score = oob_score
+        self.discriminative_sampling = discriminative_sampling
+        self.bootstrap = bootstrap
+        self.sub_sample_fraction = sub_sample_fraction
+
+    def apply(self, X, check_input=False):
+        """Returns the index of the leaf that each sample is predicted as."""
+
+        if check_input:
+            # Check if fit had been called
+            check_is_fitted(self, ['X_', 'y_', 'is_fitted_'])
+
+            # Input validation
+            X = check_array(X)
+
+            X = self._validate_X_predict(X, check_input)
+
+        return np.array([t.apply(X, check_input=False) for t in self.estimators_]).transpose()
+
+    def fit(self, X, y, check_input=True):
+        """Build a similarity forest regressor from the training set (X, y).
+                Parameters
+                ----------
+                X : array-like of any type, as long as suitable similarity function is provided
+                    The training input samples.
+                y : array-like, shape = [n_samples]
+                    The training outputs.
+
+                Returns
+                -------
+                self : object
+        """
+
+        # Check input
+        if check_input:
+            # Check that X and y have correct shape
+            X, y = check_X_y(X, y)
+
+            # Input validation, check it to be a non-empty 2D array containing only finite values
+            X = check_array(X)
+
+            # Check if provided similarity function applies to input
+            X = self._validate_X_predict(X, check_input)
+
+        y = np.atleast_1d(y)
+
+        self.X_ = X
+        self.y_ = y
+        self.base_estimator_ = SimilarityTreeRegressor
+
+        # Check input
+        random_state = check_random_state(self.random_state)
+
+        if not isinstance(self.n_directions, int):
+            raise ValueError('n_directions parameter must be an int')
+
+        self.oob_score_ = 0.0
+
+        self.estimators_ = []
+        for i in range(self.n_estimators):
+            if self.bootstrap:
+                all_idxs = range(y.size)
+                idxs = random_state.choice(all_idxs, y.size, replace=True)
+
+                tree = SimilarityTreeRegressor(n_directions=self.n_directions, sim_function=self.sim_function,
+                                               random_state=self.random_state, max_depth=self.max_depth,
+                                               discriminative_sampling=self.discriminative_sampling)
+                tree.fit(X[idxs], y[idxs], check_input=False)
+
+                self.estimators_.append(tree)
+
+                if self.oob_score:
+                    idxs_oob = np.setdiff1d(np.array(range(y.size)), idxs)
+                    self.oob_score_ += tree.score(X[idxs_oob], y[idxs_oob])
+            else:
+                all_idxs = range(y.size)
+                sample_size = int(self.sub_sample_fraction * y.size)
+                idxs = random_state.choice(all_idxs, sample_size, replace=False)
+
+                tree = SimilarityTreeRegressor(n_directions=self.n_directions, sim_function=self.sim_function,
+                                               random_state=self.random_state, max_depth=self.max_depth,
+                                               discriminative_sampling=self.discriminative_sampling)
+                tree.fit(X[idxs], y[idxs], check_input=False)
+
+                self.estimators_.append(tree)
+
+        if self.oob_score:
+            self.oob_score_ /= self.n_estimators
+
+        assert len(self.estimators_) == self.n_estimators
+        self.is_fitted_ = True
+
+        return self
+
+    def _validate_X_predict(self, X, check_input):
+        """Validate X whenever one tries to predict, apply."""
+
+        X = check_array(X)
+
+        return X
+
+    def predict(self, X, check_input=True):
+        """Predict regression target for X.
+                Parameters
+                ----------
+                X : array-like, shape (n_samples, n_features)
+                    The input samples.
+                Returns
+                -------
+                y : array-like, shape = [n_samples]
+                    Array of predicted regression outputs.
+        """
+
+        if check_input:
+            # Check if fit had been called
+            check_is_fitted(self, ['X_', 'y_', 'is_fitted_'])
+
+            # Input validation
+            X = check_array(X)
+
+            X = self._validate_X_predict(X, check_input)
+
+        return np.mean([t.predict(X) for t in self.estimators_], axis=0)
+
+    def outlyingness(self, X, check_input=True):
+        """Get outlyingness measure for X.
+            Parameters
+            ----------
+            X : array-like, shape (n_samples, n_features)
+                The input samples.
+            check_input : bool indicating if input values should be checked or not.
+            Returns
+            -------
+            outlyingness : ndarray, shape (n_samples,)
+                The outlyingness measure, values are scaled to fit within range between 0 and 1.
+        """
+
+        if check_input:
+            # Check if fit had been called
+            check_is_fitted(self, ['X_', 'y_', 'is_fitted_'])
+
+            # Input validation
+            X = check_array(X)
+
+            X = self._validate_X_predict(X, check_input)
+
+        path_lengths = np.mean([t.path_length_(X, check_input=False) for t in self.estimators_], axis=0)
+        n = X.size
+        # Scaling factor is chosen as an average tree length in BST, in the same fashion as in Isolation Forest
+        scaling_factor = 2 * (math.log(n - 1) + 0.5772156649) - (2 * (n - 1) / n)
+        score = np.array([1 - 2 ** (-pl/scaling_factor) for pl in path_lengths])
+        return score
+
+    @property
+    def feature_importances_(self):
+        """Return the feature importances."""
+        pass
