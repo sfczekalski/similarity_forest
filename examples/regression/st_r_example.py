@@ -10,10 +10,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-X, y = make_regression(n_features=4, n_informative=4, n_samples=1000, random_state=1)
+'''X, y = make_regression(n_features=4, n_informative=3, n_samples=1000, random_state=1)
 rng = np.random.RandomState(2)
 X += 2 * rng.uniform(size=X.shape)
-linearly_separable = (X, y)
+linearly_separable = (X, y)'''
 
 
 #X, y = load_svmlight_file('../data/mpg')
@@ -21,12 +21,12 @@ linearly_separable = (X, y)
 
 #X, y = make_friedman1(n_samples=1000, random_state=42)
 
-'''df = pd.read_csv('../data/AirQualityUCI.csv', sep=',')
-df.drop(columns=['Date', 'Time'], inplace=True)
+df = pd.read_csv('../data/AirQualityUCI.csv', sep=',')
+df.drop(columns=['Date', 'Time', 'AH', 'val1', 'val2', 'val3', 'val4', 'val5'], inplace=True)
 df.dropna(inplace=True)
-#print(df.columns)
+print(df.head())
 
-y, X = df.pop('RH'), df'''
+y, X = df.pop('RH'), df
 
 '''X, y = load_wine(return_X_y=True)'''
 
@@ -38,7 +38,7 @@ X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)
 
 # Fit predict for both classifiers
-st = SimilarityTreeRegressor(sim_function=np.dot, max_depth=None, n_directions=1)
+st = SimilarityTreeRegressor(criterion='step', max_depth=50, plot_splits=True)
 st.fit(X_train, y_train)
 st_pred = st.predict(X_test)
 print(f'Similarity Tree R2 score: {r2_score(y_test, st_pred)}')
