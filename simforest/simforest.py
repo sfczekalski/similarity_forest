@@ -11,6 +11,7 @@ from sklearn.utils.validation import check_X_y, check_array, check_is_fitted, ch
 from sklearn.utils.multiclass import unique_labels, check_classification_targets
 import math
 
+
 def gini_index(split_index, y):
     left_partition, right_partition = y[:split_index], y[split_index:]
 
@@ -752,39 +753,47 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
     """Similarity Tree regressor implementation.
             Similarity Trees are base models used as building blocks for Similarity Forest ensemble.
 
-                Parameters
-                ----------
-                random_state : int, random numbers generator seed
-                n_directions : int, number of discriminative directions to check at each split.
-                    The best direction is chosen, based on child nodes' purity.
-                sim_function : function used to measure similarity between data-points
-                max_depth : integer or None, optional (default=None)
-                    The maximum depth of the tree. If None, then nodes are expanded until
-                    all leaves are pure.
-                depth : int depth of the tree count
-                sampling_strategy : string, strategy used to sample data-points to draw splitting direction.
-                    Possible values are 'discriminative' for sampling points with regression values far away from
-                    each other, and 'random' for sampling randomly.
+            Parameters
+            ----------
+            random_state : int, random numbers generator seed
+            n_directions : int, number of discriminative directions to check at each split.
+                The best direction is chosen, based on child nodes' purity.
+            sim_function : function used to measure similarity between data-points
+            max_depth : integer or None, optional (default=None)
+                The maximum depth of the tree. If None, then nodes are expanded until
+                all leaves are pure.
+            depth : int depth of the tree count
+            discriminative_sampling : bool (default=True)
+                Whenever to use discriminative_sampling, that is a strategy used for choosing split points at each node.
+                If True, points are chosen in a way that difference between their regression value is greater that one
+                standard deviation of y distribution (in the current node).
+            criterion : str (default='variance')
+                Criterion used to determine split point at similarity line at each node.
+                The default 'variance' means that weighted variance of splitted y distributions is minimized.
+                Alternatively, 'step' can be chosen, in this case the split is chosen halfway between consecutive points
+                with most different y value.
+            plot_splits : bool (default=False)
+                If set to True, data points projected into similarity line are plotted. Might be helpful when determining
+                proper split criterion.
 
-                Attributes
-                ----------
-                is_fitted_ : bool flag indicating whenever fit has been called
-                X_ : data used for fitting the forest
-                y_ : training data outputs
-                _nodes_list : list of SimilarityTreeClassifier instances, that is tree nodes
-                _lhs : SimilarityTreeClassifier current node's left child node
-                _rhs : SimilarityTreeClassifier current node's right child node
-                _p : first data-point used for drawing split direction in the current node
-                _q : second data-point used for drawing split direction in the current node
-                _similarities :
-                    ndarray of similarity values between two data-points used for splitting and rest of training datapoints
-                _split_point = float similarity value decision boundary
-                _value = output value for current node, estimated based on training set
-                _is_leaf :
-                    bool indicating if current node is a leaf, because stopping createrion
-                    has been reached (depth == max_depth)
-                _node_id : int current node id
-
+            Attributes
+            ----------
+            is_fitted_ : bool flag indicating whenever fit has been called
+            X_ : data used for fitting the forest
+            y_ : training data outputs
+            _nodes_list : list of SimilarityTreeClassifier instances, that is tree nodes
+            _lhs : SimilarityTreeClassifier current node's left child node
+            _rhs : SimilarityTreeClassifier current node's right child node
+            _p : first data-point used for drawing split direction in the current node
+            _q : second data-point used for drawing split direction in the current node
+            _similarities :
+                ndarray of similarity values between two data-points used for splitting and rest of training datapoints
+            _split_point = float similarity value decision boundary
+            _value = output value for current node, estimated based on training set
+            _is_leaf :
+                bool indicating if current node is a leaf, because stopping createrion
+                has been reached (depth == max_depth)
+            _node_id : int current node id
         """
 
     # List of all nodes in the tree, that is SimilarityTreeClassifier instances. Shared across all instances
@@ -797,7 +806,9 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
                  max_depth=None,
                  min_samples_split=2,
                  depth=1,
-                 discriminative_sampling=True):
+                 discriminative_sampling=True,
+                 criterion='variance',
+                 plot_splits=False):
         self.random_state = random_state
         self.n_directions = n_directions
         self.sim_function = sim_function
@@ -805,6 +816,8 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         self.min_samples_split = min_samples_split
         self.depth = depth
         self.discriminative_sampling = discriminative_sampling
+        self.criterion = criterion
+        self.plot_splits = plot_splits
 
     def apply(self, X, check_input=False):
         """Returns the index of the leaf that each sample is predicted as."""
@@ -929,6 +942,70 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
 
             yield first, second
 
+    def draw_sim_line(self, s, p, q, split_point, y):
+        import matplotlib.pyplot as plt
+        from matplotlib import collections
+        import matplotlib as mpl
+
+        fig, ax = plt.subplots()
+        mpl.rc('image', cmap='bwr')
+
+        right = [True if s[i] > split_point else False for i in range(len(y))]
+        left = [True if s[i] <= split_point else False for i in range(len(y))]
+
+        # right-side lines
+        right_lines = []
+        for i in range(len(s)):
+            if right[i]:
+                pair = [(s[i], 0), (s[i], y[i])]
+                right_lines.append(pair)
+        linecoll_right = collections.LineCollection(right_lines)
+        r = ax.add_collection(linecoll_right)
+        r.set_alpha(0.9)
+        r.set_color('red')
+        r = ax.fill_between(s, 0, y, where=right)
+        r.set_alpha(0.3)
+        r.set_color('red')
+
+        # left-side lines
+        left_lines = []
+        for i in range(len(s)):
+            if not right[i]:
+                pair = [(s[i], 0), (s[i], y[i])]
+                left_lines.append(pair)
+        linecoll_left = collections.LineCollection(left_lines)
+        l = ax.add_collection(linecoll_left)
+        l.set_alpha(0.9)
+        l.set_color('blue')
+        l = ax.fill_between(s, 0, y, where=left)
+        l.set_alpha(0.3)
+        l.set_color('blue')
+
+        # dots at the top
+        plt.scatter(s, y, c=right, alpha=0.7)
+
+        # horizontal line
+        ax.axhline(c='grey')
+
+        # p and q
+        p_similarity = self.sim_function(p, q) - self.sim_function(p, p)
+        ax.axvline(p_similarity, c='green')
+        plt.text(p_similarity, np.max(y), 'p', c='green')
+
+        q_similarity = self.sim_function(q, q) - self.sim_function(q, p)
+        ax.axvline(q_similarity, c='green')
+        plt.text(q_similarity, np.max(y), 'q', c='green')
+
+        # split point
+        ax.axvline(split_point, c='green')
+        plt.text(split_point, np.min(y), 'split point', c='green', rotation=90)
+
+        # titles
+        plt.title(f'Split at depth {self.depth}, criterion: {self.criterion}')
+        plt.xlabel('Similarity')
+        plt.ylabel('y')
+        plt.show()
+
     def _find_split(self, X, y, p, q):
         """ Find split among direction drew on pair of data-points
             Parameters
@@ -945,10 +1022,9 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
             best_p : second data point from pair providing the best impurity decrease
             best_split_point : split threshold
         """
-        similarities = [self.sim_function(x, q) - self.sim_function(x, p) for x in X]
+        similarities = np.array([self.sim_function(x, q) - self.sim_function(x, p) for x in X])
         indices = sorted([i for i in range(len(y)) if not np.isnan(similarities[i])],
                          key=lambda x: similarities[x])
-
         y = y[indices]
 
         best_impurity = np.inf
@@ -957,16 +1033,30 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         best_split_point = 0
 
         n = len(y)
-        for i in range(n - 1):
 
-            impurity = weighted_variance(i+1, y[indices])
+        if self.criterion == 'variance':
+            for i in range(n - 1):
 
-            if impurity < best_impurity:
-                best_impurity = impurity
-                best_p = p
-                best_q = q
+                impurity = weighted_variance(i+1, y[indices])
 
-                best_split_point = (similarities[indices[i]] + similarities[indices[i + 1]]) / 2
+                if impurity < best_impurity:
+                    best_impurity = impurity
+                    best_p = p
+                    best_q = q
+
+                    best_split_point = (similarities[indices[i]] + similarities[indices[i + 1]]) / 2
+
+        elif self.criterion == 'step':
+            # index of element most different from it's consecutive one
+            s_idx = np.argmax(np.abs(np.ediff1d(similarities[indices])))
+
+            best_impurity = weighted_variance(s_idx+1, y[indices])
+            best_p = p
+            best_q = q
+            best_split_point = (similarities[indices[s_idx]] + similarities[indices[s_idx + 1]]) / 2
+
+        if self.plot_splits:
+            self.draw_sim_line(similarities[indices], best_p, best_q, best_split_point, y[indices])
 
         return best_impurity, best_p, best_q, best_split_point, similarities
 
@@ -1026,6 +1116,11 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         # Current node's impurity
         self._impurity = np.var(self.y_)
 
+        if self._impurity < 0.01:
+            self._is_leaf = True
+            self.is_fitted_ = True
+            return self
+
         if self.y_.size == 1:
             self._is_leaf = True
             self.is_fitted_ = True
@@ -1075,7 +1170,9 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
                                                      sim_function=self.sim_function,
                                                      max_depth=self.max_depth,
                                                      depth=self.depth + 1,
-                                                     discriminative_sampling=self.discriminative_sampling).\
+                                                     discriminative_sampling=self.discriminative_sampling,
+                                                     criterion=self.criterion,
+                                                     plot_splits=self.plot_splits).\
                     fit(self.X_[lhs_idxs], self.y_[lhs_idxs], check_input=False)
 
                 self._rhs = SimilarityTreeRegressor(random_state=self.random_state,
@@ -1083,7 +1180,9 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
                                                      sim_function=self.sim_function,
                                                      max_depth=self.max_depth,
                                                      depth=self.depth + 1,
-                                                     discriminative_sampling=self.discriminative_sampling).\
+                                                     discriminative_sampling=self.discriminative_sampling,
+                                                     criterion=self.criterion,
+                                                     plot_splits=self.plot_splits).\
                     fit(self.X_[rhs_idxs], self.y_[rhs_idxs], check_input=False)
             else:
                 self.is_fitted_ = True
@@ -1232,6 +1331,20 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
                 all leaves are pure.
             oob_score : bool (default=False)
                 Whether to use out-of-bag samples to estimate the R^2 on unseen data.
+            discriminative_sampling : bool (default=True)
+                Whenever to use discriminative_sampling, that is a strategy used for choosing split points at each node.
+                If True, points are chosen in a way that difference between their regression value is greater that one
+                standard deviation of y distribution (in the current node).
+            bootstrap : bool (default=True)
+                Whether bootstrap samples are used when building trees. If False, sub_sample_fraction of dataset
+                is used to build each tree.
+            sub_sample_fraction : float (default=0.5)
+                When bootstrap is set to False, sub_sample_fraction controls fraction of dataset used to build each tree
+            criterion : str (default='variance')
+                Criterion used to determine split point at similarity line at each node.
+                The default 'variance' means that weighted variance of splitted y distributions is minimized.
+                Alternatively, 'step' can be chosen, in this case the split is chosen halfway between consecutive points
+                with most different y value.
 
             Attributes
             ----------
@@ -1264,7 +1377,8 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
                 oob_score=False,
                 discriminative_sampling=True,
                 bootstrap=True,
-                sub_sample_fraction=0.5):
+                sub_sample_fraction=0.5,
+                criterion='variance'):
         self.random_state = random_state
         self.n_estimators = n_estimators
         self.n_directions = n_directions
@@ -1274,6 +1388,7 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
         self.discriminative_sampling = discriminative_sampling
         self.bootstrap = bootstrap
         self.sub_sample_fraction = sub_sample_fraction
+        self.criterion = criterion
 
     def apply(self, X, check_input=False):
         """Returns the index of the leaf that each sample is predicted as."""
@@ -1336,7 +1451,8 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
 
                 tree = SimilarityTreeRegressor(n_directions=self.n_directions, sim_function=self.sim_function,
                                                random_state=self.random_state, max_depth=self.max_depth,
-                                               discriminative_sampling=self.discriminative_sampling)
+                                               discriminative_sampling=self.discriminative_sampling,
+                                               criterion=self.criterion)
                 tree.fit(X[idxs], y[idxs], check_input=False)
 
                 self.estimators_.append(tree)

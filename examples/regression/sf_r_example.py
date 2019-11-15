@@ -1,9 +1,10 @@
 from simforest import SimilarityForestRegressor
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.datasets import make_regression, load_svmlight_file, load_wine, make_friedman1
+from sklearn.datasets import make_regression, load_svmlight_file, load_wine, make_friedman1, load_boston
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import r2_score
+from sklearn.metrics import r2_score, mean_squared_error
 from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.feature_selection import SelectKBest, f_regression
 import numpy as np
 from scipy.spatial import distance
 import pandas as pd
@@ -15,7 +16,7 @@ rng = np.random.RandomState(2)
 X += 2 * rng.uniform(size=X.shape)
 linearly_separable = (X, y)'''
 
-X, y = load_svmlight_file('../data/mpg')
+X, y = load_svmlight_file('../data/space_ga')
 X = X.toarray()
 
 #X, y = make_friedman1(n_samples=1000, random_state=42)
@@ -23,11 +24,22 @@ X = X.toarray()
 
 
 '''df = pd.read_csv('../data/AirQualityUCI.csv', sep=',')
-df.drop(columns=['Date', 'Time'], inplace=True)
+df.drop(columns=['Date', 'Time', 'AH', 'val1', 'val2', 'val3', 'val4', 'val5'], inplace=True)
 df.dropna(inplace=True)
 print(df.head())
 
 y, X = df.pop('RH'), df'''
+
+#X, y = load_boston(return_X_y=True)
+
+'''df = pd.read_csv('../data/winequality-white.csv', sep=';')
+df.dropna(inplace=True)
+print(df.head())
+
+y, X = df.pop('quality'), df'''
+
+
+#X = SelectKBest(f_regression, k=10).fit_transform(X, y)
 
 X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.3, random_state=42)
@@ -37,10 +49,12 @@ X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)
 
 # Fit predict for both classifiers
-sf = SimilarityForestRegressor(n_estimators=100, oob_score=False, discriminative_sampling=True, bootstrap=False)
+sf = SimilarityForestRegressor(n_estimators=100, criterion='variance')
 sf.fit(X_train, y_train)
 sf_pred = sf.predict(X_test)
 print(f'Similarity Forest R2 score: {r2_score(y_test, sf_pred)}')
+print(f'Similarity Forest MSE: {mean_squared_error(y_test, sf_pred)}')
+print(sf.get_params())
 
 
 rf = RandomForestRegressor(random_state=42, oob_score=True)
@@ -49,7 +63,8 @@ rf_pred = rf.predict(X_test)
 
 # Compare regressors' accuracy
 print(f'Random Forest R2 score: {r2_score(y_test, rf_pred)}')
-print(f'Random Forest oob R2 score: {rf.oob_score_}')
+print(f'Random Forest MSE: {mean_squared_error(y_test, rf_pred)}')
+print(f'Random Forest feature importances: {rf.feature_importances_}')
 
 '''# Scale predictions for plotting
 sf_pred = (sf_pred - np.min(sf_pred))/np.ptp(sf_pred)
