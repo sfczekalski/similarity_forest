@@ -9,6 +9,7 @@ scipy = "*"
 scikit-learn = "*"
 matplotlib = "*"
 pandas = "*"
+ineqpy = {git = "https://github.com/mmngreco/IneqPy"}
 
 [dev-packages]
 pytest = "*"

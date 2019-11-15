@@ -6,20 +6,10 @@ avaiable here: http://saketsathe.net/downloads/simforest.pdf
 
 import numpy as np
 from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin, is_classifier, is_regressor
-from sklearn.ensemble.forest import ForestClassifier
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted, check_random_state
 from sklearn.utils.multiclass import unique_labels, check_classification_targets
-import math
-
-
-def gini_index(split_index, y):
-    left_partition, right_partition = y[:split_index], y[split_index:]
-
-    left_gini = 1.0 - np.sum([(np.where(left_partition == cl)[0].size / len(left_partition)) ** 2 for cl in np.unique(y)])
-    right_gini = 1.0 - np.sum([(np.where(right_partition == cl)[0].size / len(right_partition)) ** 2 for cl in np.unique(y)])
-
-    left_prop = len(left_partition) / len(y)
-    return left_prop * left_gini + (1.0 - left_prop) * right_gini
+from simforest.criterion import gini_index, weighted_variance, evaluate_split
+from ineqpy import gini, atkinson, var
 
 
 class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
@@ -736,19 +726,6 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
         return np.array([t.apply(X, check_input=False) for t in self.estimators_]).transpose()
 
 
-def weighted_variance(split_index, y):
-    """Calculate sum of left and right partition variances, weighted by their length."""
-
-    assert len(y) > 1
-    assert split_index >= 1
-    assert split_index <= len(y) - 1
-
-    left_partition, right_partition = y[:split_index], y[split_index:]
-    left_proportion = len(left_partition) / len(y)
-
-    return left_proportion * np.var(left_partition) + (1 - left_proportion) * np.var(right_partition)
-
-
 class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
     """Similarity Tree regressor implementation.
             Similarity Trees are base models used as building blocks for Similarity Forest ensemble.
@@ -1035,7 +1012,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         n = len(y)
 
         if self.criterion == 'variance':
-            for i in range(n - 1):
+            '''for i in range(n - 1):
 
                 impurity = weighted_variance(i+1, y[indices])
 
@@ -1044,7 +1021,11 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
                     best_p = p
                     best_q = q
 
-                    best_split_point = (similarities[indices[i]] + similarities[indices[i + 1]]) / 2
+                    best_split_point = (similarities[indices[i]] + similarities[indices[i + 1]]) / 2'''
+            i, best_impurity = evaluate_split(y[indices], var)
+            best_p = p
+            best_q = q
+            best_split_point = (similarities[indices[i - 1]] + similarities[indices[i]]) / 2
 
         elif self.criterion == 'step':
             # index of element most different from it's consecutive one
@@ -1535,7 +1516,7 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
         path_lengths = np.mean([t.path_length_(X, check_input=False) for t in self.estimators_], axis=0)
         n = X.size
         # Scaling factor is chosen as an average tree length in BST, in the same fashion as in Isolation Forest
-        scaling_factor = 2 * (math.log(n - 1) + 0.5772156649) - (2 * (n - 1) / n)
+        scaling_factor = 2 * (np.log(n - 1) + 0.5772156649) - (2 * (n - 1) / n)
         score = np.array([1 - 2 ** (-pl/scaling_factor) for pl in path_lengths])
         return score
 
