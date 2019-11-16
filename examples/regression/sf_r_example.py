@@ -1,7 +1,7 @@
 from simforest import SimilarityForestRegressor
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.datasets import make_regression, load_svmlight_file, load_wine, make_friedman1, load_boston
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.metrics import r2_score, mean_squared_error
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.feature_selection import SelectKBest, f_regression
@@ -16,11 +16,10 @@ rng = np.random.RandomState(2)
 X += 2 * rng.uniform(size=X.shape)
 linearly_separable = (X, y)'''
 
-X, y = load_svmlight_file('../data/space_ga')
+X, y = load_svmlight_file('../data/abalone')
 X = X.toarray()
 
 #X, y = make_friedman1(n_samples=1000, random_state=42)
-#X, y = load_wine(return_X_y=True)
 
 
 '''df = pd.read_csv('../data/AirQualityUCI.csv', sep=',')
@@ -28,7 +27,9 @@ df.drop(columns=['Date', 'Time', 'AH', 'val1', 'val2', 'val3', 'val4', 'val5'], 
 df.dropna(inplace=True)
 print(df.head())
 
-y, X = df.pop('RH'), df'''
+y, X = df.pop('RH'), df
+min_max = MinMaxScaler()
+y = min_max.fit_transform(y.values.reshape(-1, 1))'''
 
 #X, y = load_boston(return_X_y=True)
 
@@ -39,7 +40,7 @@ print(df.head())
 y, X = df.pop('quality'), df'''
 
 
-#X = SelectKBest(f_regression, k=10).fit_transform(X, y)
+#X = SelectKBest(f_regression, k=8).fit_transform(X, y)
 
 X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.3, random_state=42)
@@ -54,7 +55,7 @@ sf.fit(X_train, y_train)
 sf_pred = sf.predict(X_test)
 print(f'Similarity Forest R2 score: {r2_score(y_test, sf_pred)}')
 print(f'Similarity Forest MSE: {mean_squared_error(y_test, sf_pred)}')
-print(sf.get_params())
+print(f'SF average tree depth: {np.mean([t.get_depth() for t in sf.estimators_])}')
 
 
 rf = RandomForestRegressor(random_state=42, oob_score=True)
@@ -64,6 +65,7 @@ rf_pred = rf.predict(X_test)
 # Compare regressors' accuracy
 print(f'Random Forest R2 score: {r2_score(y_test, rf_pred)}')
 print(f'Random Forest MSE: {mean_squared_error(y_test, rf_pred)}')
+print(f'RF average tree depth: {np.mean([t.get_depth() for t in rf.estimators_])}')
 print(f'Random Forest feature importances: {rf.feature_importances_}')
 
 '''# Scale predictions for plotting

@@ -17,7 +17,7 @@ X += 2 * rng.uniform(size=X.shape)
 linearly_separable = (X, y)'''
 
 
-X, y = load_svmlight_file('../data/space_ga')
+X, y = load_svmlight_file('../data/abalone')
 X = X.toarray()
 
 #X, y = make_friedman1(n_samples=1000, random_state=42)
@@ -48,7 +48,7 @@ X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)
 
 # Fit predict for both classifiers
-st = SimilarityTreeRegressor(discriminative_sampling=True, criterion='step', plot_splits=False)
+st = SimilarityTreeRegressor(discriminative_sampling=True, criterion='variance', plot_splits=True)
 st.fit(X_train, y_train)
 st_pred = st.predict(X_test)
 print(f'Similarity Tree R2 score: {r2_score(y_test, st_pred)}')

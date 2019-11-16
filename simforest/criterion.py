@@ -26,6 +26,15 @@ def weighted_variance(split_index, y):
     return left_proportion * np.var(left_partition) + (1 - left_proportion) * np.var(right_partition)
 
 
+def theil(y):
+    """Calculate Theil index of vector."""
+    assert len(y) > 0, 'Empty input vector'
+
+    epsilon = 0.00001
+    avg = np.mean(y) + epsilon
+    return np.sum([yi/avg * np.log(yi/avg + epsilon) for yi in y]) / len(y)
+
+
 def evaluate_split(X: List[float], eval_function: FunctionType, eval_objective: str = 'min',
                    min_group_size: int = 1) -> (int, float):
     """Finds optimal splitting point of X into two disjoint segments
@@ -51,7 +60,7 @@ def evaluate_split(X: List[float], eval_function: FunctionType, eval_objective: 
 
     if eval_objective == 'min':
         i = np.argmin(evals)
-        return min_group_size + i, evals[i]
     elif eval_objective == 'max':
         i = np.argmax(evals)
-        return min_group_size + i, evals[i]
+
+    return min_group_size + i, evals[i]

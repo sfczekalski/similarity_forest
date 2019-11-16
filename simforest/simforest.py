@@ -8,7 +8,7 @@ import numpy as np
 from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin, is_classifier, is_regressor
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted, check_random_state
 from sklearn.utils.multiclass import unique_labels, check_classification_targets
-from simforest.criterion import gini_index, weighted_variance, evaluate_split
+from simforest.criterion import gini_index, weighted_variance, evaluate_split, theil
 from ineqpy import gini, atkinson, var
 
 
@@ -782,6 +782,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
                  sim_function=np.dot,
                  max_depth=None,
                  min_samples_split=2,
+                 min_samples_leaf=1,
                  depth=1,
                  discriminative_sampling=True,
                  criterion='variance',
@@ -791,6 +792,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         self.sim_function = sim_function
         self.max_depth = max_depth
         self.min_samples_split = min_samples_split
+        self.min_samples_leaf = min_samples_leaf
         self.depth = depth
         self.discriminative_sampling = discriminative_sampling
         self.criterion = criterion
@@ -1011,7 +1013,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
 
         n = len(y)
 
-        if self.criterion == 'variance':
+        if self.criterion in ['variance', 'atkinson', 'theil']:
             '''for i in range(n - 1):
 
                 impurity = weighted_variance(i+1, y[indices])
@@ -1022,7 +1024,16 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
                     best_q = q
 
                     best_split_point = (similarities[indices[i]] + similarities[indices[i + 1]]) / 2'''
-            i, best_impurity = evaluate_split(y[indices], var)
+            if self.criterion == 'variance':
+                eval_function = var
+            elif self.criterion == 'atkinson':
+                eval_function = atkinson
+            elif self.criterion == 'theil':
+                eval_function = theil
+
+            i, best_impurity = evaluate_split(y[indices],
+                                              eval_function=eval_function,
+                                              min_group_size=self.min_samples_leaf)
             best_p = p
             best_q = q
             best_split_point = (similarities[indices[i - 1]] + similarities[indices[i]]) / 2
@@ -1355,6 +1366,8 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
                 n_directions=1,
                 sim_function=np.dot,
                 max_depth=None,
+                min_samples_split=2,
+                min_samples_leaf=1,
                 oob_score=False,
                 discriminative_sampling=True,
                 bootstrap=True,
@@ -1365,6 +1378,8 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
         self.n_directions = n_directions
         self.sim_function = sim_function
         self.max_depth = max_depth
+        self.min_samples_split = min_samples_split
+        self.min_samples_leaf = min_samples_leaf
         self.oob_score = oob_score
         self.discriminative_sampling = discriminative_sampling
         self.bootstrap = bootstrap
@@ -1432,6 +1447,8 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
 
                 tree = SimilarityTreeRegressor(n_directions=self.n_directions, sim_function=self.sim_function,
                                                random_state=self.random_state, max_depth=self.max_depth,
+                                               min_samples_split=self.min_samples_split,
+                                               min_samples_leaf=self.min_samples_leaf,
                                                discriminative_sampling=self.discriminative_sampling,
                                                criterion=self.criterion)
                 tree.fit(X[idxs], y[idxs], check_input=False)
