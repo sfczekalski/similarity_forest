@@ -9,6 +9,7 @@ scipy = "*"
 scikit-learn = "*"
 matplotlib = "*"
 pandas = "*"
+yellowbrick = "*"
 
 [dev-packages]
 pytest = "*"

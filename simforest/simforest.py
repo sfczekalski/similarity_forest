@@ -136,7 +136,10 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
                 first = random_state.choice(range(len(labels)), replace=False)
                 first_class = labels[first]
                 others = np.where(labels != first_class)[0]
-                second = random_state.choice(others, replace=False)
+                if len(others) == 0:
+                    first, second = random_state.choice(a=range(len(labels)), size=2, replace=False)
+                else:
+                    second = random_state.choice(others, replace=False)
             else:
                 first, second = random_state.choice(range(len(labels)), 2, replace=False)
 
@@ -359,9 +362,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
                 best_q = q
                 similarities = curr_similarities
 
-        # For classification check induced impurity
-        # For outlier detection don't. But for now it does not make difference
-        if True: #best_impurity < 1.0:
+        if best_impurity < 1.0:
             self._split_point = best_split_point
             self._p = best_p
             self._q = best_q
@@ -549,7 +550,13 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
         """
 
         if self._is_leaf:
-            return self.depth
+            '''n = len(self.y_)
+            c = 0
+            if n > 1:
+                c = 2 * (np.log(n - 1) + 0.5772156649) - (2 * (n - 1) / n)'''
+                #print(f'I got into leaf node, depth: {self.depth}, c: {c}')
+            #print(f'Got at depth {self.depth}, there is {len(self.y_)} elements, whole tree depth {self.get_depth()}')
+            return self.depth #+ c
 
         assert self._p is not None
         assert self._q is not None
@@ -916,10 +923,10 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
 
             X = self._validate_X_predict(X, check_input)
 
-        path_lengths = np.mean([t.path_length_(X, check_input=False) for t in self.estimators_], axis=0)
+        path_lengths = np.mean([t.path_length_(X, check_input=False) / t.get_depth() for t in self.estimators_], axis=0)
         n = X.size
-        # Scaling factor is chosen as an average tree length in BST, in the same fashion as in Isolation Forest
-        scaling_factor = 2 * (np.log(n - 1) + 0.5772156649) - (2 * (n - 1) / n)
+        '''# Isolation Forest scaling factor
+        scaling_factor = 2 * (np.log(n - 1) + np.euler_gamma) - (2 * (n - 1) / n)
 
         # Scores are opposite of the anomaly score defined in the original paper.
         scores = np.array([2 ** (-pl/scaling_factor) for pl in path_lengths])
@@ -933,9 +940,9 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
             # pass for now
             pass
         else:
-            raise ValueError('contamination should be set either to \'auto\' or a float value between 0.0 and 0.5')
+            raise ValueError('contamination should be set either to \'auto\' or a float value between 0.0 and 0.5')'''
 
-        return scores #- offset_
+        return path_lengths
 
     def predict_outliers(self, X, check_input=True):
 
@@ -950,7 +957,7 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
 
         decision_function_outliers = self.decision_function_outliers(X, check_input=False)
 
-        return np.array([1 if x <= 0 else -1 for x in decision_function_outliers])
+        return np.array([1 if x >= 0.5 else -1 for x in decision_function_outliers])
 
     def apply(self, X, check_input=True):
         """Apply trees in the forest to X, return leaf indices."""
@@ -1423,6 +1430,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         """
 
         if self._is_leaf:
+
             return self.depth
 
         assert self._p is not None
@@ -1431,7 +1439,9 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         t = self._lhs if self.sim_function(x, self._q) - self.sim_function(x,
                                                                            self._p) <= self._split_point else self._rhs
         if t is None:
-            return self.depth
+
+            return self.depth + c
+
         return t.row_path_length_(x)
 
     @property
@@ -1652,7 +1662,7 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
         n = X.size
         # Scaling factor is chosen as an average tree length in BST, in the same fashion as in Isolation Forest
         scaling_factor = 2 * (math.log(n - 1) + 0.5772156649) - (2 * (n - 1) / n)
-        score = np.array([1 - 2 ** (-pl/scaling_factor) for pl in path_lengths])
+        score = np.array([2 ** (-pl/scaling_factor) for pl in path_lengths])
         return score
 
     @property
