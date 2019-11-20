@@ -10,6 +10,8 @@ from sklearn.ensemble.forest import ForestClassifier
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted, check_random_state
 from sklearn.utils.multiclass import unique_labels, check_classification_targets
 import math
+from simforest.criterion import find_split_index
+
 
 def gini_index(split_index, y):
     left_partition, right_partition = y[:split_index], y[split_index:]
@@ -229,7 +231,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
         indices = sorted([i for i in range(len(y)) if not np.isnan(similarities[i])],
                          key=lambda x: similarities[x])
 
-        y = y[indices]
+        y = y[indices].astype(np.int32)
 
         best_impurity = 1.0
         best_p = None
@@ -237,18 +239,25 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
         best_split_point = 0
 
         n = len(y)
-
         if self.discriminative_sampling:
-            for i in range(n - 1):
 
-                impurity = gini_index(i+1, y[indices])
+            #import time
+            #start_time = time.time()
+            i, best_impurity = find_split_index(y, np.int32(n-1), self.classes)
+            #print(f'Time elapsed: {time.time() - start_time}')
+            best_split_point = (similarities[indices[i]] + similarities[indices[i + 1]]) / 2
+            best_p = p
+            best_q = q
+            '''for i in range(n - 1):
+
+                impurity = gini_index(i+1, y, self.classes)
 
                 if impurity < best_impurity:
                     best_impurity = impurity
                     best_p = p
                     best_q = q
 
-                    best_split_point = (similarities[indices[i]] + similarities[indices[i + 1]]) / 2
+                    best_split_point = (similarities[indices[i]] + similarities[indices[i + 1]]) / 2'''
         else:
             # random split point
             i = random_state.randint(low=0, high=n-1)
@@ -550,13 +559,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
         """
 
         if self._is_leaf:
-            '''n = len(self.y_)
-            c = 0
-            if n > 1:
-                c = 2 * (np.log(n - 1) + 0.5772156649) - (2 * (n - 1) / n)'''
-                #print(f'I got into leaf node, depth: {self.depth}, c: {c}')
-            #print(f'Got at depth {self.depth}, there is {len(self.y_)} elements, whole tree depth {self.get_depth()}')
-            return self.depth #+ c
+            return self.depth
 
         assert self._p is not None
         assert self._q is not None
@@ -762,8 +765,8 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
             y = np.copy(y)
 
         self.X_ = X
-        self.y_ = y
-        self.classes_ = unique_labels(y)
+        self.y_ = y.astype(np.int32)
+        self.classes_ = unique_labels(y).astype(np.int32)
         self.n_classes_ = self.classes_.shape[0]
         self.base_estimator_ = SimilarityTreeClassifier
 
@@ -786,7 +789,7 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
         self.estimators_ = []
 
         for i in range(self.n_estimators):
-            #current_random_state = check_random_state(self.random_state + i)
+
             if self.bootstrap:
                 all_idxs = range(y.size)
                 idxs = random_state.choice(all_idxs, y.size, replace=True)
@@ -799,6 +802,7 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
                 tree.fit(X[idxs], y[idxs], check_input=False)
 
                 self.estimators_.append(tree)
+                print(f'Zbudowałem drzewo {i}')
 
                 if self.oob_score:
                     idxs_oob = np.setdiff1d(np.array(range(y.size)), idxs)
@@ -929,10 +933,10 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
         scaling_factor = 2 * (np.log(n - 1) + np.euler_gamma) - (2 * (n - 1) / n)
 
         # Scores are opposite of the anomaly score defined in the original paper.
-        scores = np.array([2 ** (-pl/scaling_factor) for pl in path_lengths])
+        scores = np.array([2 ** (-pl/scaling_factor) for pl in path_lengths])'''
 
         if self.contamination == 'auto':
-            offset_ = -0.5
+            offset_ = 0.5
 
         elif isinstance(self.contamination, float):
             assert self.contamination > 0.0
@@ -940,9 +944,9 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
             # pass for now
             pass
         else:
-            raise ValueError('contamination should be set either to \'auto\' or a float value between 0.0 and 0.5')'''
+            raise ValueError('contamination should be set either to \'auto\' or a float value between 0.0 and 0.5')
 
-        return path_lengths
+        return path_lengths - offset_
 
     def predict_outliers(self, X, check_input=True):
 
@@ -957,7 +961,7 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
 
         decision_function_outliers = self.decision_function_outliers(X, check_input=False)
 
-        return np.array([1 if x >= 0.5 else -1 for x in decision_function_outliers])
+        return np.array([1 if x > 0.0 else -1 for x in decision_function_outliers])
 
     def apply(self, X, check_input=True):
         """Apply trees in the forest to X, return leaf indices."""
@@ -1440,7 +1444,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
                                                                            self._p) <= self._split_point else self._rhs
         if t is None:
 
-            return self.depth + c
+            return self.depth
 
         return t.row_path_length_(x)
 

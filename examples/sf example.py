@@ -7,16 +7,16 @@ from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 import numpy as np
 
-#X, y = make_blobs(n_samples=1000, centers=[(0, 0), (1, 1), (1.5, 1)], random_state=42)
+X, y = make_blobs(n_samples=1000, centers=[(0, 0), (1, 1), (1.5, 1)], random_state=42)
 
-X, y = load_svmlight_file('data/svmguide3')
-X = X.toarray()
+'''X, y = load_svmlight_file('data/svmguide3')
+X = X.toarray()'''
 
 X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.3, random_state=42)
 
 # Fit predict for both classifiers
-sf = SimilarityForestClassifier(n_estimators=20, max_depth=None, oob_score=True)
+sf = SimilarityForestClassifier(n_estimators=20, max_depth=None)
 sf.fit(X_train, y_train)
 sf_pred = sf.predict(X_test)
 sf_pred_train = sf.predict(X_train)
