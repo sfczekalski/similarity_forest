@@ -10,16 +10,14 @@ from scipy.spatial import distance
 from sklearn.utils import shuffle as sh
 
 # fetch data
-X, y = fetch_kddcup99(subset='http', random_state=42, return_X_y=True)
+'''X, y = fetch_kddcup99(subset='http', random_state=42, return_X_y=True)
 X, y = X.astype(np.float32), y.astype('str')
 
 # fix classes
 y_df = pd.DataFrame(y, columns=['class'])
 y_df.loc[y_df['class'] != 'normal.', 'class'] = -1
 y_df.loc[y_df['class'] == 'normal.', 'class'] = 1
-y = y_df.values
-le = LabelEncoder()
-y = le.fit_transform(y)
+y = y_df.values'''
 
 # smtp take all outliers aside
 '''outliers_indices = np.where(y == -1)[0]
@@ -53,7 +51,7 @@ y_df.loc[y_df['class'] == 'normal.', 'class'] = 1
 y = y_df.values'''
 
 # shuttle
-'''dataset = fetch_openml('shuttle')
+dataset = fetch_openml('shuttle')
 X = dataset.data
 y = dataset.target
 X, y = sh(X, y, random_state=1)
@@ -64,7 +62,7 @@ s = (y != 4)
 X = X[s, :]
 y = y[s]
 y[(y == 1)] = 1
-y[(y != 1)] = -1'''
+y[(y != 1)] = -1
 
 # forestcover
 '''dataset = fetch_covtype(shuffle=True, random_state=1)
@@ -104,8 +102,8 @@ print(confusion_matrix(y_test, IF_preds))
 # SF
 max_samples = 256
 max_depth = int(np.ceil(np.log2(max(max_samples, 2))))
-SF = SimilarityForestClassifier(sim_function=distance.euclidean, n_estimators=10, random_state=42, bootstrap=True,
-                                max_samples=max_samples, max_depth=None, discriminative_sampling=True)
+SF = SimilarityForestClassifier(sim_function=distance.euclidean, n_estimators=20, random_state=42, bootstrap=True,
+                                max_samples=max_samples, max_depth=15, discriminative_sampling=True)
 SF.fit(X_train, y_train)
 SF_preds = SF.predict_outliers(X_test)
 SF_decision_f = SF.decision_function_outliers(X_test)

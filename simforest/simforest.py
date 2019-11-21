@@ -240,24 +240,11 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
 
         n = len(y)
         if self.discriminative_sampling:
-
-            #import time
-            #start_time = time.time()
-            i, best_impurity = find_split_index(y, np.int32(n-1), self.classes)
-            #print(f'Time elapsed: {time.time() - start_time}')
+            i, best_impurity = find_split_index(y[indices], np.int32(n-1), self.classes)
             best_split_point = (similarities[indices[i]] + similarities[indices[i + 1]]) / 2
             best_p = p
             best_q = q
-            '''for i in range(n - 1):
 
-                impurity = gini_index(i+1, y, self.classes)
-
-                if impurity < best_impurity:
-                    best_impurity = impurity
-                    best_p = p
-                    best_q = q
-
-                    best_split_point = (similarities[indices[i]] + similarities[indices[i + 1]]) / 2'''
         else:
             # random split point
             i = random_state.randint(low=0, high=n-1)
@@ -342,9 +329,9 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
             raise ValueError('Wrong node class probability values.')
 
         # Return leaf node value
-        '''if self._is_pure():
+        if self._is_pure():
             self._is_leaf = True
-            return self'''
+            return self
 
         if len(self.y_) == 1:
             self._is_leaf = True
