@@ -8,7 +8,7 @@ import numpy as np
 from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin, is_classifier, is_regressor
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted, check_random_state
 from sklearn.utils.multiclass import unique_labels, check_classification_targets
-from simforest.criterion import gini_index, weighted_variance, evaluate_split, theil
+from simforest.rcriterion import gini_index, weighted_variance, evaluate_split, theil
 from ineqpy import gini, atkinson, var
 
 
@@ -270,6 +270,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
             self._p = best_p
             self._q = best_q
             self._similarities = np.array(similarities)
+            self.impurity = best_impurity
 
             # Left- and right-hand side partitioning
             lhs_idxs = np.nonzero(self._similarities <= self._split_point)[0]
