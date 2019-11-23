@@ -10,26 +10,27 @@ from scipy.spatial import distance
 from sklearn.utils import shuffle as sh
 
 # fetch data
-'''X, y = fetch_kddcup99(subset='http', random_state=42, return_X_y=True)
+X, y = fetch_kddcup99(subset='smtp', random_state=42, return_X_y=True)
 X, y = X.astype(np.float32), y.astype('str')
 
 # fix classes
 y_df = pd.DataFrame(y, columns=['class'])
 y_df.loc[y_df['class'] != 'normal.', 'class'] = -1
 y_df.loc[y_df['class'] == 'normal.', 'class'] = 1
-y = y_df.values'''
+y = y_df.values
 
 # smtp take all outliers aside
-'''outliers_indices = np.where(y == -1)[0]
+outliers_indices = np.where(y == -1)[0]
 inliers_indices = np.where(y == 1)[0]
 y_outliers = y[outliers_indices]
 y = y[inliers_indices]
 
 X_outliers = X[outliers_indices]
-X = X[inliers_indices]'''
+X = X[inliers_indices]
 
-# kddcup99 SF subset preprocessing
-'''lb = LabelBinarizer()
+'''# kddcup99 SF subset preprocessing
+X, y = fetch_kddcup99(subset='SF', random_state=42, return_X_y=True)
+lb = LabelBinarizer()
 x1 = lb.fit_transform(X[:, 1].astype(str))
 X = np.c_[X[:, :1], x1, X[:, 2:]]
 y = y.astype('str')
@@ -39,7 +40,8 @@ y_df.loc[y_df['class'] == 'normal.', 'class'] = 1
 y = y_df.values'''
 
 # kddcup99 SA subset preprocessing
-'''lb = LabelBinarizer()
+'''X, y = fetch_kddcup99(subset='SA', random_state=42, return_X_y=True)
+lb = LabelBinarizer()
 x1 = lb.fit_transform(X[:, 1].astype(str))
 x2 = lb.fit_transform(X[:, 2].astype(str))
 x3 = lb.fit_transform(X[:, 3].astype(str))
@@ -51,7 +53,7 @@ y_df.loc[y_df['class'] == 'normal.', 'class'] = 1
 y = y_df.values'''
 
 # shuttle
-dataset = fetch_openml('shuttle')
+'''dataset = fetch_openml('shuttle')
 X = dataset.data
 y = dataset.target
 X, y = sh(X, y, random_state=1)
@@ -62,7 +64,7 @@ s = (y != 4)
 X = X[s, :]
 y = y[s]
 y[(y == 1)] = 1
-y[(y != 1)] = -1
+y[(y != 1)] = -1'''
 
 # forestcover
 '''dataset = fetch_covtype(shuffle=True, random_state=1)
@@ -81,8 +83,8 @@ X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.3, random_state=42)
 
 # smtp concateate outliers to test set
-'''y_test = np.append(y_test, y_outliers)
-X_test = np.append(X_test, X_outliers, axis=0)'''
+y_test = np.append(y_test, y_outliers)
+X_test = np.append(X_test, X_outliers, axis=0)
 
 # scale
 scaler = StandardScaler()
@@ -102,8 +104,8 @@ print(confusion_matrix(y_test, IF_preds))
 # SF
 max_samples = 256
 max_depth = int(np.ceil(np.log2(max(max_samples, 2))))
-SF = SimilarityForestClassifier(sim_function=distance.euclidean, n_estimators=20, random_state=42, bootstrap=True,
-                                max_samples=max_samples, max_depth=15, discriminative_sampling=True)
+SF = SimilarityForestClassifier(sim_function=distance.euclidean, n_estimators=20, random_state=42, bootstrap=False,
+                                max_samples=256, max_depth=max_depth, discriminative_sampling=False)
 SF.fit(X_train, y_train)
 SF_preds = SF.predict_outliers(X_test)
 SF_decision_f = SF.decision_function_outliers(X_test)

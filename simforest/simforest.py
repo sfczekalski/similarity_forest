@@ -23,6 +23,20 @@ def gini_index(split_index, y):
     return left_prop * left_gini + (1.0 - left_prop) * right_gini
 
 
+def _h(n):
+    """A function estimating average external path length of Similarity Tree
+        Since Similarity Tree, the same as Isolation tree, has an equivalent structure to Binary Search Tree,
+        the estimation of average h for external node terminations is the same as the unsuccessful search in BST.
+        Parameters
+        ----------
+        n : int, number of objects used for tree construction
+        Returns
+        ----------
+        average external path length : int
+    """
+    return 2 * np.log(n - 1) + np.euler_gamma - 2 * (n - 1) / n
+
+
 class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
     """Similarity Tree classifier implementation.
         Similarity Trees are base models used as building blocks for Similarity Forest ensemble.
@@ -534,8 +548,9 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
 
     def row_path_length_(self, x):
         """ Get outlyingness path length of a single data-point.
-            If current node is a leaf, return its depth,
-            if not, traverse down the tree
+            If current node is a leaf, then return its depth, if not, traverse down the tree.
+            If number of objects in external node is more than one, then add an estimate of sub-tree depth,
+            if it was fully grown.
 
             Parameters
             ----------
@@ -546,7 +561,11 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
         """
 
         if self._is_leaf:
-            return self.depth
+            c = 0
+            n = len(self.y_)
+            if n > 1:
+                c = _h(n)
+            return self.depth + c
 
         assert self._p is not None
         assert self._q is not None
@@ -894,16 +913,21 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
         return self.classes_[np.argmax(self.predict_proba(X), axis=1)]
 
     def decision_function_outliers(self, X, check_input=True):
-        """Get outlyingness measure for X.
+        """Average anomaly score of X of the base classifiers.
+            The anomaly score of an input sample is computed as the mean anomaly score of the trees in the forest.
+            The measure of normality of an observation given a tree is the depth of the leaf containing this observation
+            which is equivalent to the number of splittings required to isolate this point.
+
             Parameters
             ----------
             X : array-like, shape (n_samples, n_features)
                 The input samples.
-            check_input : bool indicating if input values should be checked or not.
+            check_input : bool indicating if input should be checked or not.
             Returns
             -------
-            outlyingness : ndarray, shape (n_samples,)
-                The outlyingness measure, values are scaled to fit within range between 0 and 1.
+            scores : ndarray, shape (n_samples,)
+                The anomaly score of the input samples. The lower, the more abnormal.
+                Negative scores represent outliers, positive scores represent inliers.
         """
         if check_input:
             # Check if fit had been called
@@ -914,13 +938,17 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
 
             X = self._validate_X_predict(X, check_input)
 
-        path_lengths = np.mean([t.path_length_(X, check_input=False) / t.get_depth() for t in self.estimators_], axis=0)
-        n = X.size
-        '''# Isolation Forest scaling factor
-        scaling_factor = 2 * (np.log(n - 1) + np.euler_gamma) - (2 * (n - 1) / n)
+        # Average depth of leaf containing each sample
+        path_lengths = np.mean([t.path_length_(X, check_input=False) for t in self.estimators_], axis=0)
 
-        # Scores are opposite of the anomaly score defined in the original paper.
-        scores = np.array([2 ** (-pl/scaling_factor) for pl in path_lengths])'''
+        # Depths are normalized in the same fashion as in Isolation Forest
+        if self.max_samples is not None:
+            n = min(self.y_.size, self.max_samples)
+        else:
+            n = self.y_.size
+        c = _h(n)
+
+        scores = np.array([1 - 2 ** (-pl/c) for pl in path_lengths])
 
         if self.contamination == 'auto':
             offset_ = 0.5
@@ -933,9 +961,21 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
         else:
             raise ValueError('contamination should be set either to \'auto\' or a float value between 0.0 and 0.5')
 
-        return path_lengths - offset_
+        return scores - offset_
 
     def predict_outliers(self, X, check_input=True):
+        """Predict if a particular sample is an outlier or not.
+            Paramteres
+            ----------
+            X : array-like, shape (n_samples, n_features)
+                The input samples.
+            check_input : bool indicating if input should be checked or not.
+            Returns
+            -------
+            is_inlier : array, shape (n_samples,) For each observation, tells whether or not (+1 or -1) it should be
+            considered as an inlier according to the fitted model.
+
+        """
 
         if check_input:
             # Check if fit had been called

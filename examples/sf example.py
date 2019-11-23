@@ -10,7 +10,7 @@ import numpy as np
 
 #X, y = make_blobs(n_samples=1000, centers=[(0, 0), (1, 1), (1.5, 1)], random_state=42)
 
-X, y = load_svmlight_file('data/ionosphere_scale')
+X, y = load_svmlight_file('data/a1a')
 X = X.toarray()
 
 X_train, X_test, y_train, y_test = train_test_split(

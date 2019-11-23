@@ -22,9 +22,9 @@ cdef float gini_index(int split_index, int [:] y, int [:] classes, int len_y):
     cdef int [:] right_partition = y[split_index:]
     #cdef int len_y = y.shape[0]
     cdef Py_ssize_t len_left_partition = left_partition.shape[0]
-    cdef int len_left_partition2 = len_left_partition * len_left_partition
+    cdef long len_left_partition2 = len_left_partition * len_left_partition
     cdef Py_ssize_t len_right_partition = len_y - len_left_partition
-    cdef int len_right_partition2 = len_right_partition * len_right_partition
+    cdef long len_right_partition2 = len_right_partition * len_right_partition
 
     cdef Py_ssize_t n_classes = classes.shape[0]
 
