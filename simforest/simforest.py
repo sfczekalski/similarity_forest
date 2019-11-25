@@ -970,16 +970,16 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
             n = self.y_.size
         c = _h(n)
 
-        scores = np.array([1 - 2 ** (-pl/c) for pl in path_lengths])
+        scores = np.array([- 2 ** (-pl/c) for pl in path_lengths])
 
         if self.contamination == 'auto':
-            offset_ = 0.5
+            offset_ = -0.5
 
         elif isinstance(self.contamination, float):
             assert self.contamination > 0.0
             assert self.contamination < 0.5
-            # pass for now
-            pass
+
+            offset_ = np.percentile(scores, 100. * self.contamination)
         else:
             raise ValueError('contamination should be set either to \'auto\' or a float value between 0.0 and 0.5')
 
@@ -1010,7 +1010,9 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
 
         decision_function_outliers = self.decision_function_outliers(X, check_input=False)
 
-        return np.array([1 if x > 0.0 else -1 for x in decision_function_outliers])
+        is_inlier = np.ones(X.shape[0], dtype=int)
+        is_inlier[decision_function_outliers < 0] = -1
+        return is_inlier
 
     def apply(self, X, check_input=True):
         """Apply trees in the forest to X, return leaf indices."""
