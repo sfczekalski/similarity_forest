@@ -22,7 +22,7 @@ X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)'''
 
 # Fit predict for both classifiers
-sf = SimilarityForestClassifier(n_estimators=100, random_state=42, max_depth=None)
+sf = SimilarityForestClassifier(n_estimators=100, max_depth=None)
 sf.fit(X_train, y_train)
 sf_pred = sf.predict(X_test)
 sf_pred_train = sf.predict(X_train)

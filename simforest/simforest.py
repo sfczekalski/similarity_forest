@@ -85,13 +85,14 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
     _nodes_list = []
 
     def __init__(self,
-                 random_state=1,
+                 random_state=None,
                  n_directions=1,
                  sim_function=np.dot,
                  classes=None,
                  max_depth=None,
                  depth=1,
                  discriminative_sampling=True,
+                 most_different=False,
                  estimator_samples=None):
         self.random_state = random_state
         self.n_directions = n_directions
@@ -100,6 +101,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
         self.max_depth = max_depth
         self.depth = depth
         self.discriminative_sampling = discriminative_sampling
+        self.most_different = most_different
         self.estimator_samples = estimator_samples
 
     def get_depth(self):
@@ -253,24 +255,27 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
         y = y.astype(np.int32)
         classes = np.unique(y).astype(np.int32)
 
-        best_impurity = 1.0
+        best_impurity = None
         best_p = None
         best_q = None
-        best_split_point = 0
+        best_split_point = None
 
         n = len(y)
         if self.discriminative_sampling:
             i, best_impurity = find_split_index(y[indices], np.int32(n-1), classes)
-            best_split_point = (similarities[indices[i]] + similarities[indices[i + 1]]) / 2
-            best_p = p
-            best_q = q
 
         else:
-            # random split point
-            i = random_state.randint(low=0, high=n-1)
+            if self.most_different:
+                # most different consecutive elements:
+                i = np.argmax(np.abs(np.ediff1d(similarities[indices])))
+            else:
+                # random split point
+                i = random_state.randint(low=0, high=n-1)
             best_impurity = gini_index(i + 1, y[indices])
-            best_p = p
-            best_q = q
+
+        best_p = p
+        best_q = q
+        best_split_point = (similarities[indices[i]] + similarities[indices[i + 1]]) / 2
 
         #self.draw_sim_line(similarities[indices], best_p, best_q, best_split_point, y[indices])
 
@@ -314,7 +319,10 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
         self.n_classes_ = len(self.classes_)
 
         # Check parameters
-        random_state = check_random_state(self.random_state)
+        if self.random_state is not None:
+            random_state = check_random_state(self.random_state)
+        else:
+            random_state = np.random.RandomState()
 
         if not isinstance(self.n_directions, int):
             raise ValueError('n_directions parameter must be an int')
@@ -718,7 +726,7 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
             fitting, ``random_state`` has to be fixed.
         """
     def __init__(self,
-                 random_state=1,
+                 random_state=None,
                  n_estimators=20,
                  n_directions=1,
                  sim_function=np.dot,
@@ -727,7 +735,8 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
                  bootstrap=True,
                  max_samples=None,
                  contamination='auto',
-                 discriminative_sampling=True):
+                 discriminative_sampling=True,
+                 most_different=False):
         self.random_state = random_state
         self.n_estimators = n_estimators
         self.n_directions = n_directions
@@ -738,6 +747,7 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
         self.max_samples = max_samples
         self.contamination = contamination
         self.discriminative_sampling = discriminative_sampling
+        self.most_different = most_different
 
     def _validate_X_predict(self, X, check_input):
         """Validate X whenever one tries to predict, apply, predict_proba."""
@@ -788,7 +798,10 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
         '''
 
         # Check input
-        random_state = check_random_state(self.random_state)
+        if self.random_state is not None:
+            random_state = check_random_state(self.random_state)
+        else:
+            random_state = np.random.RandomState()
 
         if not isinstance(self.n_directions, int):
             raise ValueError('n_directions parameter must be an int')
