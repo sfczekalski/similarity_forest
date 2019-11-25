@@ -6,10 +6,9 @@ avaiable here: http://saketsathe.net/downloads/simforest.pdf
 
 import numpy as np
 from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin, is_classifier, is_regressor
-from sklearn.ensemble.forest import ForestClassifier
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted, check_random_state
 from sklearn.utils.multiclass import unique_labels, check_classification_targets
-import math
+from sklearn.preprocessing import LabelEncoder
 from simforest.criterion import find_split_index
 
 
@@ -34,6 +33,7 @@ def _h(n):
         ----------
         average external path length : int
     """
+    assert n - 1 > 0
     return 2 * np.log(n - 1) + np.euler_gamma - 2 * (n - 1) / n
 
 
@@ -245,7 +245,13 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
         indices = sorted([i for i in range(len(y)) if not np.isnan(similarities[i])],
                          key=lambda x: similarities[x])
 
-        y = y[indices].astype(np.int32)
+        y = np.array(y[indices])
+        if y.dtype != int:
+            encoder = LabelEncoder()
+            y = encoder.fit_transform(y)
+
+        y = y.astype(np.int32)
+        classes = np.unique(y).astype(np.int32)
 
         best_impurity = 1.0
         best_p = None
@@ -254,7 +260,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
 
         n = len(y)
         if self.discriminative_sampling:
-            i, best_impurity = find_split_index(y[indices], np.int32(n-1), self.classes)
+            i, best_impurity = find_split_index(y[indices], np.int32(n-1), classes)
             best_split_point = (similarities[indices[i]] + similarities[indices[i + 1]]) / 2
             best_p = p
             best_q = q
@@ -719,7 +725,7 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
                  max_depth=None,
                  oob_score=False,
                  bootstrap=True,
-                 max_samples='auto',
+                 max_samples=None,
                  contamination='auto',
                  discriminative_sampling=True):
         self.random_state = random_state
@@ -771,8 +777,8 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
             y = np.copy(y)
 
         self.X_ = X
-        self.y_ = y.astype(np.int32)
-        self.classes_ = unique_labels(y).astype(np.int32)
+        self.y_ = np.array(y)
+        self.classes_ = unique_labels(self.y_)
         self.n_classes_ = self.classes_.shape[0]
         self.base_estimator_ = SimilarityTreeClassifier
 
@@ -797,8 +803,8 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
         for i in range(self.n_estimators):
 
             if self.bootstrap:
-                all_idxs = range(y.size)
-                idxs = random_state.choice(all_idxs, y.size, replace=True)
+                all_idxs = range(self.y_.size)
+                idxs = random_state.choice(all_idxs, self.y_.size, replace=True)
 
                 tree = SimilarityTreeClassifier(classes=self.classes_, n_directions=self.n_directions,
                                                 sim_function=self.sim_function, random_state=self.random_state,
@@ -808,7 +814,6 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
                 tree.fit(X[idxs], y[idxs], check_input=False)
 
                 self.estimators_.append(tree)
-                print(f'Zbudowałem drzewo {i}')
 
                 if self.oob_score:
                     idxs_oob = np.setdiff1d(np.array(range(y.size)), idxs)
@@ -826,8 +831,12 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
                     sample_size = min(256, y.size)
                 elif isinstance(self.max_samples, float):
                     sample_size = int(self.max_samples * y.size)
+                    assert sample_size <= len(y), f'max_samples cannot be bigger than whole sample size \n' \
+                                                        f'max_samples is {sample_size}, sample is {len(self.y_)}'
                 elif isinstance(self.max_samples, int):
-                    sample_size = min(self.max_samples, y.size)
+                    sample_size = self.max_samples
+                    assert sample_size <= len(y), f'max_samples cannot be bigger than whole sample size \n' \
+                                                        f'max_samples is {sample_size}, sample is {len(self.y_)}'
                 else:
                     raise ValueError('max_samples should be \'auto\' or either float or int')
 
@@ -838,7 +847,7 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
                                                 max_depth=self.max_depth,
                                                 discriminative_sampling=self.discriminative_sampling,
                                                 estimator_samples=idxs)
-                tree.fit(X[idxs], y[idxs], check_input=False)
+                tree.fit(X[idxs], self.y_[idxs], check_input=False)
 
                 self.estimators_.append(tree)
 
@@ -1692,7 +1701,7 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
         path_lengths = np.mean([t.path_length_(X, check_input=False) for t in self.estimators_], axis=0)
         n = X.size
         # Scaling factor is chosen as an average tree length in BST, in the same fashion as in Isolation Forest
-        scaling_factor = 2 * (math.log(n - 1) + 0.5772156649) - (2 * (n - 1) / n)
+        scaling_factor = 2 * (np.log(n - 1) + 0.5772156649) - (2 * (n - 1) / n)
         score = np.array([2 ** (-pl/scaling_factor) for pl in path_lengths])
         return score
 

@@ -10,7 +10,7 @@ from scipy.spatial import distance
 from sklearn.utils import shuffle as sh
 
 # fetch data
-X, y = fetch_kddcup99(subset='smtp', random_state=42, return_X_y=True)
+X, y = fetch_kddcup99(subset='http', random_state=42, return_X_y=True)
 X, y = X.astype(np.float32), y.astype('str')
 
 # fix classes
@@ -20,16 +20,16 @@ y_df.loc[y_df['class'] == 'normal.', 'class'] = 1
 y = y_df.values
 
 # smtp take all outliers aside
-outliers_indices = np.where(y == -1)[0]
+'''outliers_indices = np.where(y == -1)[0]
 inliers_indices = np.where(y == 1)[0]
 y_outliers = y[outliers_indices]
 y = y[inliers_indices]
 
 X_outliers = X[outliers_indices]
-X = X[inliers_indices]
+X = X[inliers_indices]'''
 
-'''# kddcup99 SF subset preprocessing
-X, y = fetch_kddcup99(subset='SF', random_state=42, return_X_y=True)
+# kddcup99 SF subset preprocessing
+'''X, y = fetch_kddcup99(subset='SF', random_state=42, return_X_y=True)
 lb = LabelBinarizer()
 x1 = lb.fit_transform(X[:, 1].astype(str))
 X = np.c_[X[:, :1], x1, X[:, 2:]]
@@ -83,8 +83,8 @@ X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.3, random_state=42)
 
 # smtp concateate outliers to test set
-y_test = np.append(y_test, y_outliers)
-X_test = np.append(X_test, X_outliers, axis=0)
+'''y_test = np.append(y_test, y_outliers)
+X_test = np.append(X_test, X_outliers, axis=0)'''
 
 # scale
 scaler = StandardScaler()
@@ -104,7 +104,7 @@ print(confusion_matrix(y_test, IF_preds))
 # SF
 max_samples = 256
 max_depth = int(np.ceil(np.log2(max(max_samples, 2))))
-SF = SimilarityForestClassifier(sim_function=distance.euclidean, n_estimators=20, random_state=42, bootstrap=False,
+SF = SimilarityForestClassifier(sim_function=np.dot, n_estimators=20, random_state=42, bootstrap=False,
                                 max_samples=256, max_depth=max_depth, discriminative_sampling=False)
 SF.fit(X_train, y_train)
 SF_preds = SF.predict_outliers(X_test)

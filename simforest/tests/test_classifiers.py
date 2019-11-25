@@ -5,7 +5,7 @@ from sklearn.datasets import load_iris, make_blobs
 from sklearn.utils.testing import assert_array_equal
 from sklearn.utils.testing import assert_allclose
 from scipy.spatial import distance
-
+from simforest.criterion import find_split_index
 from simforest import SimilarityTreeClassifier, SimilarityForestClassifier
 
 
@@ -101,6 +101,7 @@ def test_probability_values_tree(data):
     preds = clf.predict_proba(X)
 
     assert_allclose(np.sum(preds, axis=1), np.ones(shape=y.shape))
+
 
 def test_similarity_forest_classifier_output_array_shape(data):
     X, y = data
@@ -206,3 +207,20 @@ def test_forest_apply_result_shape(data):
     apply_result = clf.apply(X)
 
     assert apply_result.shape == (X.shape[0], clf.n_estimators)
+
+
+def test_gini_split():
+    y = np.array([1, 1, 0], dtype=np.int32)
+    i, impurity = find_split_index(y, np.int32(2), np.unique(y))
+    assert i == 1
+    assert impurity == 0.0
+
+
+def test_similarity_forest_outliers_output_array_shape(data):
+    X, y = data
+    clf = SimilarityForestClassifier()
+
+    clf.fit(X, y)
+
+    y_pred = clf.predict_outliers(X)
+    assert y_pred.shape == (X.shape[0],)

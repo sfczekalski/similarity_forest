@@ -1,6 +1,4 @@
 cimport cython
-from cpython cimport array
-import array
 
 
 @cython.boundscheck(False)
