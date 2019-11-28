@@ -53,6 +53,13 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
                 The maximum depth of the tree. If None, then nodes are expanded until
                 all leaves are pure.
             depth : int depth of the tree count
+            discriminative_sampling : bool (default = True),
+                whenever to use strategy of finding optimal split (such that it minimizes Gini impurity of partitions)
+                or some other heuristics
+            most_different : bool (default = False)
+                when we don't use strategy of finding split minimizing Gini impurity, we may choose one that finds
+                most different consecutive elements, and splits at this point. Used for outlier detection.
+            estimator_samples : list of ints, indexes of objects used for fitting current tree
 
             Attributes
             ----------
@@ -696,6 +703,20 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
             oob_score : bool (default=False)
                 Whether to use out-of-bag samples to estimate
                 the generalization accuracy.
+            bootstrap : bool (default=True)
+                whenever to use bootstrap sampling when fitting trees, or a subsample of size described by max_samples
+            max_samples : int or float
+                size of subsamples used for fitting trees, if int then use number of objects provided, if float then
+                use fraction of whole sample
+            contamination : string or float (default='auto'), fraction of expected outliers in the data. If auto then
+                use algorithm criterion described in Isolation Forest paper. Float means fraction of objects that
+                 should be considered outliers.
+            discriminative_sampling : bool (default = True),
+                whenever to use strategy of finding optimal split (such that it minimizes Gini impurity of partitions)
+                or some other heuristics
+            most_different : bool (default = False)
+                when we don't use strategy of finding split minimizing Gini impurity, we may choose one that finds
+                most different consecutive elements, and splits at this point. Used for outlier detection.
 
             Attributes
             ----------
