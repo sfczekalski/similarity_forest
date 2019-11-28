@@ -7,6 +7,7 @@ from sklearn.utils.testing import assert_allclose
 from scipy.spatial import distance
 from simforest.criterion import find_split_index
 from simforest import SimilarityTreeClassifier, SimilarityForestClassifier
+from sklearn.model_selection import train_test_split
 
 
 @pytest.fixture
@@ -39,7 +40,6 @@ def test_classifier_attributes_tree(data):
 def test_default_attribute_value_tree():
 
     clf = SimilarityTreeClassifier()
-    assert clf.random_state == 1
     assert clf.n_directions == 1
     assert clf.sim_function == np.dot
 
@@ -126,7 +126,6 @@ def test_classifier_attributes_forest(data):
 def test_default_attribute_value_forest():
 
     clf = SimilarityForestClassifier()
-    assert clf.random_state == 1
     assert clf.n_directions == 1
     assert clf.sim_function == np.dot
 
@@ -224,3 +223,37 @@ def test_similarity_forest_outliers_output_array_shape(data):
 
     y_pred = clf.predict_outliers(X)
     assert y_pred.shape == (X.shape[0],)
+
+
+def test_similarity_forest_wrongly_the_same_pred(data):
+    """There should not be a situation when models predicts the same when there is no random_state set"""
+    X, y = data
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.3, random_state=42)
+
+    clf1 = SimilarityForestClassifier()
+    clf1.fit(X_train, y_train)
+    y_pred1 = clf1.predict_proba(X_test)
+
+    clf2 = SimilarityForestClassifier()
+    clf2.fit(X_train, y_train)
+    y_pred2 = clf2.predict_proba(X_test)
+
+    assert not np.array_equal(y_pred1, y_pred2)
+
+
+def test_similarity_forest_outliers_ranking_stability(data):
+    """There should not be a situation when models predicts the same when there is no random_state set"""
+    X, y = data
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.3, random_state=42)
+
+    clf = SimilarityForestClassifier()
+    clf.fit(X_train, y_train)
+    rcorrelations = clf.outliers_rank_stability(X_test, plot=False)
+    assert rcorrelations.shape == (9, 2)
+    assert rcorrelations[:, 0].all() >= -1
+    assert rcorrelations[:, 0].all() <= 1
+    assert rcorrelations[:, 1].all() >= 0
+    assert rcorrelations[:, 1].all() <= 1
+

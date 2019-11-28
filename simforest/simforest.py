@@ -10,6 +10,7 @@ from sklearn.utils.validation import check_X_y, check_array, check_is_fitted, ch
 from sklearn.utils.multiclass import unique_labels, check_classification_targets
 from sklearn.preprocessing import LabelEncoder
 from simforest.criterion import find_split_index
+from scipy.stats import spearmanr
 
 
 def gini_index(split_index, y):
@@ -403,7 +404,9 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
                                                      classes=self.classes_,
                                                      max_depth=self.max_depth,
                                                      depth=self.depth+1,
-                                                     discriminative_sampling=self.discriminative_sampling).\
+                                                     discriminative_sampling=self.discriminative_sampling,
+                                                     most_different=self.most_different,
+                                                     estimator_samples=lhs_idxs).\
                                                     fit(self.X_[lhs_idxs], self.y_[lhs_idxs], check_input=False)
 
                 self._rhs = SimilarityTreeClassifier(random_state=self.random_state,
@@ -412,7 +415,9 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
                                                      classes=self.classes_,
                                                      max_depth=self.max_depth,
                                                      depth=self.depth+1,
-                                                     discriminative_sampling=self.discriminative_sampling).\
+                                                     discriminative_sampling=self.discriminative_sampling,
+                                                     most_different=self.most_different,
+                                                     estimator_samples=rhs_idxs).\
                                                     fit(self.X_[rhs_idxs], self.y_[rhs_idxs], check_input=False)
             else:
                 self._is_leaf = True
@@ -818,11 +823,11 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
             if self.bootstrap:
                 all_idxs = range(self.y_.size)
                 idxs = random_state.choice(all_idxs, self.y_.size, replace=True)
-
                 tree = SimilarityTreeClassifier(classes=self.classes_, n_directions=self.n_directions,
                                                 sim_function=self.sim_function, random_state=self.random_state,
                                                 max_depth=self.max_depth,
                                                 discriminative_sampling=self.discriminative_sampling,
+                                                most_different=self.most_different,
                                                 estimator_samples=idxs)
                 tree.fit(X[idxs], y[idxs], check_input=False)
 
@@ -844,10 +849,16 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
                     sample_size = min(256, y.size)
                 elif isinstance(self.max_samples, float):
                     sample_size = int(self.max_samples * y.size)
+                    n = len(y)
+                    if sample_size > n:
+                        sample_size = n
                     assert sample_size <= len(y), f'max_samples cannot be bigger than whole sample size \n' \
                                                         f'max_samples is {sample_size}, sample is {len(self.y_)}'
                 elif isinstance(self.max_samples, int):
                     sample_size = self.max_samples
+                    n = len(y)
+                    if sample_size > n:
+                        sample_size = n
                     assert sample_size <= len(y), f'max_samples cannot be bigger than whole sample size \n' \
                                                         f'max_samples is {sample_size}, sample is {len(self.y_)}'
                 else:
@@ -859,6 +870,7 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
                                                 sim_function=self.sim_function, random_state=self.random_state,
                                                 max_depth=self.max_depth,
                                                 discriminative_sampling=self.discriminative_sampling,
+                                                most_different=self.most_different,
                                                 estimator_samples=idxs)
                 tree.fit(X[idxs], self.y_[idxs], check_input=False)
 
@@ -934,7 +946,7 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
 
         return self.classes_[np.argmax(self.predict_proba(X), axis=1)]
 
-    def decision_function_outliers(self, X, check_input=True):
+    def decision_function_outliers(self, X, check_input=True, n_estimators=None):
         """Average anomaly score of X of the base classifiers.
             The anomaly score of an input sample is computed as the mean anomaly score of the trees in the forest.
             The measure of normality of an observation given a tree is the depth of the leaf containing this observation
@@ -945,6 +957,9 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
             X : array-like, shape (n_samples, n_features)
                 The input samples.
             check_input : bool indicating if input should be checked or not.
+            n_estimators : int (default = self.n_estimators)
+                number of estimators to use when measuring outlyingness, don't change this value
+
             Returns
             -------
             scores : ndarray, shape (n_samples,)
@@ -960,8 +975,12 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
 
             X = self._validate_X_predict(X, check_input)
 
+        # By default, measure outlyingness using all sub-estimators
+        if n_estimators is None:
+            n_estimators = self.n_estimators
+
         # Average depth of leaf containing each sample
-        path_lengths = np.mean([t.path_length_(X, check_input=False) for t in self.estimators_], axis=0)
+        path_lengths = np.mean([t.path_length_(X, check_input=False) for t in self.estimators_[:n_estimators]], axis=0)
 
         # Depths are normalized in the same fashion as in Isolation Forest
         if self.max_samples is not None:
@@ -984,6 +1003,53 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
             raise ValueError('contamination should be set either to \'auto\' or a float value between 0.0 and 0.5')
 
         return scores - offset_
+
+    def outliers_rank_stability(self, X, plot=True):
+        """Check stability of outliers ranking with different number of subestimators.
+            We check 1, 2, 3, 5, 10, 20, 30, 50, 70 and 100 trees respectively
+            Paramaters
+            ----------
+                X : array, data to perform outlier detection
+                plot : bool, flag indicating, if a chart with rank stability would be plotted
+            Returns
+            ---------
+                rcorrelations : array of shape(number of estimators used for checing ranking stability, 2)
+                    First column represented Spearman correlation of ranking predicted with current number of trees,
+                    second column gives p-values
+        """
+
+        initial_decision_function = self.decision_function_outliers(X, check_input=True, n_estimators=1)
+        n_outliers = np.where(initial_decision_function <= 0)[0].size
+        order = initial_decision_function[::-1].argsort()
+
+        trees = [2, 3, 5, 10, 20, 30, 50, 70, 100]
+        rcorrelations = np.zeros(shape=(9, 2), dtype=np.float)
+
+        for idx, v in enumerate(trees):
+            decision_function = self.decision_function_outliers(X, check_input=False, n_estimators=v)
+            rcorr, p = spearmanr(initial_decision_function[::-1][order][:n_outliers],
+                                 decision_function[::-1][order][:n_outliers])
+
+            rcorrelations[idx] = rcorr, p
+            initial_decision_function = decision_function
+
+        if plot:
+            import matplotlib.pyplot as plt
+            from matplotlib.lines import Line2D
+
+            fig = plt.figure(figsize=(10, 6))
+            ax = fig.add_subplot(111)
+
+            line = Line2D(trees, rcorrelations[:, 0])
+            ax.add_line(line)
+            ax.set_xlim(trees[0], trees[-1])
+            ax.set_ylim(-0.2, 1.0)
+            ax.set_xlabel('Number of estimators')
+            ax.set_ylabel('Rcorrelation with previous value')
+
+            plt.show()
+
+        return rcorrelations
 
     def predict_outliers(self, X, check_input=True):
         """Predict if a particular sample is an outlier or not.

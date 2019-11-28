@@ -45,7 +45,6 @@ print(f'Similarity Forest oob score: {sf.oob_score_}')
 print(f'Similarity Forest log loss: {log_loss(y_test, sf_prob)}')
 print(f'Random Forest log loss: {log_loss(y_test, rf_prob)}')
 
-
 # Plot classifiers' predictions
 '''plt.scatter(X_test[:, 0], X_test[:, 1], marker='o', c=sf_pred,
             s=25, edgecolor='k', alpha=0.5)
