@@ -16,20 +16,18 @@ rng = np.random.RandomState(2)
 X += 2 * rng.uniform(size=X.shape)
 linearly_separable = (X, y)'''
 
-X, y = load_svmlight_file('../data/abalone')
-X = X.toarray()
+'''X, y = load_svmlight_file('../data/abalone')
+X = X.toarray()'''
 
 #X, y = make_friedman1(n_samples=1000, random_state=42)
 
 
-'''df = pd.read_csv('../data/AirQualityUCI.csv', sep=',')
+df = pd.read_csv('../data/AirQualityUCI.csv', sep=',')
 df.drop(columns=['Date', 'Time', 'AH', 'val1', 'val2', 'val3', 'val4', 'val5'], inplace=True)
 df.dropna(inplace=True)
 print(df.head())
 
 y, X = df.pop('RH'), df
-min_max = MinMaxScaler()
-y = min_max.fit_transform(y.values.reshape(-1, 1))'''
 
 #X, y = load_boston(return_X_y=True)
 
@@ -49,16 +47,8 @@ scaler = StandardScaler()
 X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)
 
-# Fit predict for both classifiers
-sf = SimilarityForestRegressor(n_estimators=100, criterion='variance')
-sf.fit(X_train, y_train)
-sf_pred = sf.predict(X_test)
-print(f'Similarity Forest R2 score: {r2_score(y_test, sf_pred)}')
-print(f'Similarity Forest MSE: {mean_squared_error(y_test, sf_pred)}')
-print(f'SF average tree depth: {np.mean([t.get_depth() for t in sf.estimators_])}')
 
-
-rf = RandomForestRegressor(random_state=42, oob_score=True)
+rf = RandomForestRegressor(random_state=42)
 rf.fit(X_train, y_train)
 rf_pred = rf.predict(X_test)
 
@@ -67,6 +57,14 @@ print(f'Random Forest R2 score: {r2_score(y_test, rf_pred)}')
 print(f'Random Forest MSE: {mean_squared_error(y_test, rf_pred)}')
 print(f'RF average tree depth: {np.mean([t.get_depth() for t in rf.estimators_])}')
 print(f'Random Forest feature importances: {rf.feature_importances_}')
+
+# Fit predict for both classifiers
+sf = SimilarityForestRegressor(n_estimators=20, max_depth=30, criterion='variance')
+sf.fit(X_train, y_train)
+sf_pred = sf.predict(X_test)
+print(f'Similarity Forest R2 score: {r2_score(y_test, sf_pred)}')
+print(f'Similarity Forest MSE: {mean_squared_error(y_test, sf_pred)}')
+print(f'SF average tree depth: {np.mean([t.get_depth() for t in sf.estimators_])}')
 
 '''# Scale predictions for plotting
 sf_pred = (sf_pred - np.min(sf_pred))/np.ptp(sf_pred)

@@ -6,6 +6,11 @@ import os
 
 from setuptools import find_packages, setup
 
+# Cython compiling
+from distutils.core import setup
+from Cython.Build import cythonize
+import numpy
+
 # get __version__ from _version.py
 ver_file = os.path.join('simforest', '_version.py')
 with open(ver_file) as f:
@@ -63,3 +68,9 @@ setup(name=DISTNAME,
       packages=find_packages(),
       install_requires=INSTALL_REQUIRES,
       extras_require=EXTRAS_REQUIRE)
+
+# Cython compiling
+setup(
+      ext_modules=cythonize("simforest/criterion.pyx", annotate=True),
+      include_path=[numpy.get_include()]
+)

@@ -10,6 +10,7 @@ from sklearn.utils.validation import check_X_y, check_array, check_is_fitted, ch
 from sklearn.utils.multiclass import unique_labels, check_classification_targets
 from simforest.rcriterion import gini_index, weighted_variance, evaluate_split, theil
 from ineqpy import gini, atkinson, var
+from simforest.criterion import find_split_variance
 
 
 class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
@@ -1010,31 +1011,15 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         best_impurity = np.inf
         best_p = None
         best_q = None
-        best_split_point = 0
+        best_split_point = None
 
         n = len(y)
 
         if self.criterion in ['variance', 'atkinson', 'theil']:
-            '''for i in range(n - 1):
 
-                impurity = weighted_variance(i+1, y[indices])
-
-                if impurity < best_impurity:
-                    best_impurity = impurity
-                    best_p = p
-                    best_q = q
-
-                    best_split_point = (similarities[indices[i]] + similarities[indices[i + 1]]) / 2'''
-            if self.criterion == 'variance':
-                eval_function = var
-            elif self.criterion == 'atkinson':
-                eval_function = atkinson
-            elif self.criterion == 'theil':
-                eval_function = theil
-
-            i, best_impurity = evaluate_split(y[indices],
-                                              eval_function=eval_function,
-                                              min_group_size=self.min_samples_leaf)
+            i, best_impurity = find_split_variance(y.astype(np.float32),
+                                                similarities[indices].astype(np.float32),
+                                                np.int32(n - 1))
             best_p = p
             best_q = q
             best_split_point = (similarities[indices[i - 1]] + similarities[indices[i]]) / 2
