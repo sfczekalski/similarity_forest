@@ -1,5 +1,5 @@
 cimport cython
-from libc.math cimport log
+from libc.math cimport log, fabs
 
 cdef extern from "math.h":
     float INFINITY
@@ -9,7 +9,6 @@ cdef extern from "math.h":
 @cython.wraparound(False)
 cdef float var_agg(int cnt, float sum1, float sum2):
     cdef float result = (sum2/(cnt + 0.01)) - (sum1/(cnt + 0.01))**2
-    #assert result > 0
     return result
 
 
@@ -57,7 +56,6 @@ cdef float weighted_variance(int split_index, float [:] y, int len_y):
 @cython.boundscheck(False)
 @cython.wraparound(False)
 cdef float variance(float [:] y, int array_size):
-    assert array_size >= 1
 
     cdef float array_sum = 0.0
     cdef int i = 0
@@ -147,7 +145,7 @@ cdef int cfind_split_index_var(float [:] y, float [:] s, int max_range, int len_
                 best_impurity : float, impurity after split
     """
 
-    cdef float best_impurity = float('inf')
+    cdef float best_impurity = INFINITY
     cdef int best_split_idx = -1
     cdef float curr_impurity = 0.0
 
@@ -211,16 +209,20 @@ def find_split_theil(float [:] y, float [:] s, int max_range):
 
     cdef int i = 0
     while i < max_range:
+
         if s[i]==s[i+1]:
             i += 1
             continue
+
         curr_impurity = theil_index(i+1, y, len_y)
+
         if curr_impurity < best_impurity:
             best_impurity = curr_impurity
             best_split_idx = i
 
         i += 1
 
+    assert best_split_idx >= 0, 'split index should be >= 0'
     return best_split_idx, best_impurity
 
 
@@ -235,12 +237,15 @@ cdef float theil_index(int split_index, float [:] y, int len_y):
     cdef float flen_left_partition = left_partition.shape[0]
     cdef float left_proportion = flen_left_partition / len_y
 
-    return left_proportion * theil(left_partition, len_left_partition) + \
+    cdef float result = left_proportion * theil(left_partition, len_left_partition) + \
            (1.0 - left_proportion) * theil(right_partition, len_right_partition)
 
+    assert result >= 0.0, 'result should be >= 0.0'
+    return result
 
 
 cdef float theil(float [:] y, int array_size):
+    assert array_size > 0, 'array of size 0'
 
     cdef float array_sum = 0.0
     cdef int i = 0
@@ -256,7 +261,12 @@ cdef float theil(float [:] y, int array_size):
     i = 0
     while i < array_size:
         t = y[i] / mean
+        if t == 0.0:
+            i = i + 1
+            continue
         theil = theil + t * log(t)
         i = i + 1
 
-    return theil / array_size
+    cdef float result = theil / array_size
+    assert result >= -0.1, 'result should be approximately >= 0.0'
+    return fabs(result)

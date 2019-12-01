@@ -5,6 +5,7 @@ from sklearn.datasets import load_boston
 from sklearn.utils.testing import assert_array_equal
 from sklearn.utils.testing import assert_allclose
 from scipy.spatial import distance
+from simforest.criterion import find_split_variance, find_split_theil
 
 from simforest import SimilarityTreeRegressor, SimilarityForestRegressor
 
@@ -181,3 +182,11 @@ def test_similarity_forest_regressor_outlyingness_array(data):
     assert outlyingness.shape == (X.shape[0],)
     assert outlyingness.all() <= 1.0
     assert outlyingness.all() >= 0.0
+
+
+def test_var_split():
+    y = np.array([1.5, 1.5, 0.0], dtype=np.float32)
+    s = np.array([1., 2., 3.], dtype=np.float32)
+    i, impurity = find_split_variance(y, s, np.int32(2))
+    assert i == 1
+    assert impurity == 0.0

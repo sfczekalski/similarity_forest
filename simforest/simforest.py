@@ -916,7 +916,11 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
                     second = random_state.choice(different, replace=False)
 
             else:
-                first, second = random_state.choice(a=range(len(y)), size=2, replace=False)
+                # sprawdzić, żeby nie wylosował kopii tego samego punktu (w przypadki próbki bootstrapowej to możliwe)
+                first = random_state.choice(range(len(y)), replace=False)
+                first_value = y[first]
+                different = np.where(np.abs(y - first_value) > 0.0)[0]
+                second = random_state.choice(different, replace=False)
 
             assert first is not None
             assert second is not None
@@ -1015,23 +1019,24 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
 
         n = len(y)
 
-        if self.criterion in ['variance', 'atkinson', 'theil']:
-
-            i, best_impurity = find_split_theil(y.astype(np.float32),
+        if self.criterion == 'variance':
+            i, best_impurity = find_split_variance(y.astype(np.float32),
                                                 similarities[indices].astype(np.float32),
                                                 np.int32(n - 1))
-            best_p = p
-            best_q = q
-            best_split_point = (similarities[indices[i]] + similarities[indices[i + 1]]) / 2
+
+        elif self.criterion == 'theil':
+            i, best_impurity = find_split_theil(y[indices].astype(np.float32),
+                                                   similarities[indices].astype(np.float32),
+                                                   np.int32(n - 1))
 
         elif self.criterion == 'step':
             # index of element most different from it's consecutive one
-            s_idx = np.argmax(np.abs(np.ediff1d(similarities[indices])))
+            i = np.argmax(np.abs(np.ediff1d(similarities[indices])))
+            best_impurity = weighted_variance(i+1, y[indices])
 
-            best_impurity = weighted_variance(s_idx+1, y[indices])
-            best_p = p
-            best_q = q
-            best_split_point = (similarities[indices[s_idx]] + similarities[indices[s_idx + 1]]) / 2
+        best_p = p
+        best_q = q
+        best_split_point = (similarities[indices[i]] + similarities[indices[i + 1]]) / 2
 
         if self.plot_splits:
             self.draw_sim_line(similarities[indices], best_p, best_q, best_split_point, y[indices])
@@ -1094,7 +1099,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         # Current node's impurity
         self._impurity = np.var(self.y_)
 
-        if self._impurity < 0.01:
+        if self._impurity < 0.001:
             self._is_leaf = True
             self.is_fitted_ = True
             return self
@@ -1410,6 +1415,10 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
 
             # Check if provided similarity function applies to input
             X = self._validate_X_predict(X, check_input)
+
+            if self.criterion == 'theil':
+                if not np.where(y >= 0)[0].size == y.size:
+                    raise ValueError('When using Theil index, one need to make sure y has all positive values')
 
         y = np.atleast_1d(y)
 
