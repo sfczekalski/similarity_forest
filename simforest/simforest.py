@@ -5,11 +5,11 @@ avaiable here: http://saketsathe.net/downloads/simforest.pdf
 """
 
 import numpy as np
-from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin, is_classifier, is_regressor
+from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin, is_classifier
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted, check_random_state
 from sklearn.utils.multiclass import unique_labels, check_classification_targets
-from simforest.rcriterion import gini_index, weighted_variance, evaluate_split, theil
-from ineqpy import gini, atkinson, var
+from simforest.rcriterion import gini_index, weighted_variance, evaluate_split
+from ineqpy import atkinson
 from simforest.criterion import find_split_variance, find_split_theil
 
 
@@ -1031,6 +1031,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
 
         elif self.criterion == 'atkinson':
             i, best_impurity = evaluate_split(y, atkinson)
+            i -= 1  # index calculated a bit differently
 
         elif self.criterion == 'step':
             # index of element most different from it's consecutive one

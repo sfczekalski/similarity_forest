@@ -13,18 +13,18 @@ import matplotlib.pyplot as plt
 
 #y = y + np.abs(np.min(y))
 
-X, y = load_svmlight_file('../data/space_ga')
+'''X, y = load_svmlight_file('../data/mpg')
 X = X.toarray()
-
+'''
 #X, y = make_friedman1(n_samples=1000, random_state=42)
 
 
-'''df = pd.read_csv('../data/AirQualityUCI.csv', sep=',')
+df = pd.read_csv('../data/AirQualityUCI.csv', sep=',')
 df.drop(columns=['Date', 'Time', 'AH', 'val1', 'val2', 'val3', 'val4', 'val5'], inplace=True)
 df.dropna(inplace=True)
 print(df.head())
 
-y, X = df.pop('RH'), df'''
+y, X = df.pop('RH'), df
 
 #X, y = load_boston(return_X_y=True)
 
@@ -56,7 +56,7 @@ print(f'RF average tree depth: {np.mean([t.get_depth() for t in rf.estimators_])
 print(f'Random Forest feature importances: {rf.feature_importances_}')
 
 # Fit predict for both classifiers
-sf = SimilarityForestRegressor(n_estimators=100, max_depth=None, random_state=42, criterion='atkinson', discriminative_sampling=True)
+sf = SimilarityForestRegressor(n_estimators=20, max_depth=30, random_state=42, criterion='step', discriminative_sampling=True)
 sf.fit(X_train, y_train)
 sf_pred = sf.predict(X_test)
 print(f'Similarity Forest R2 score: {r2_score(y_test, sf_pred)}')
