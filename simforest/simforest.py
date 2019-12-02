@@ -271,7 +271,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
             self._p = best_p
             self._q = best_q
             self._similarities = np.array(similarities)
-            self.impurity = best_impurity
+            self._impurity = best_impurity
 
             # Left- and right-hand side partitioning
             lhs_idxs = np.nonzero(self._similarities <= self._split_point)[0]
@@ -1028,6 +1028,9 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
             i, best_impurity = find_split_theil(y[indices].astype(np.float32),
                                                    similarities[indices].astype(np.float32),
                                                    np.int32(n - 1))
+
+        elif self.criterion == 'atkinson':
+            i, best_impurity = evaluate_split(y, atkinson)
 
         elif self.criterion == 'step':
             # index of element most different from it's consecutive one
