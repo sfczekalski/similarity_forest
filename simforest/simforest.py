@@ -749,8 +749,11 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
             criterion : str (default='variance')
                 Criterion used to determine split point at similarity line at each node.
                 The default 'variance' means that weighted variance of splitted y distributions is minimized.
-                Alternatively, 'step' can be chosen, in this case the split is chosen halfway between consecutive points
-                with most different y value.
+                Alternatively, we can choose:
+                    'step', in this case the split is chosen halfway between consecutive points
+                        with most different y value.
+                    'theil', at each split the Theil index will be minimized.
+                    'atkinson', at each split the Atkinson index will be minimized.
             plot_splits : bool (default=False)
                 If set to True, data points projected into similarity line are plotted. Might be helpful when determining
                 proper split criterion.
@@ -1072,6 +1075,10 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
             # Check if provided similarity function applies to input
             X = self._validate_X_predict(X, check_input)
 
+            if self.criterion == 'theil' or self.criterion == 'atkinson':
+                if not np.where(y >= 0)[0].size == y.size:
+                    raise ValueError('When using Theil or Atkinson indexes, one need to make sure y has all positive values')
+
         # Check parameters
         random_state = check_random_state(self.random_state)
 
@@ -1240,54 +1247,6 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
             return self._value
         return t.predict_row_output(x)
 
-    def path_length_(self, X, check_input=True):
-        """Get path length for instances of X.
-            Parameters
-            ----------
-            X : array-like, shape (n_samples, n_features)
-                The input samples.
-            Returns
-            -------
-            path_length : ndarray, shape (n_samples,)
-                The path_length for instances of X, according to a single tree.
-        """
-
-        if check_input:
-            # Check if fit had been called
-            check_is_fitted(self, ['X_', 'y_', 'is_fitted_'])
-
-            # Input validation
-            X = check_array(X)
-
-            X = self._validate_X_predict(X, check_input)
-
-        return np.array([self.row_path_length_(x) for x in X])
-
-    def row_path_length_(self, x):
-        """ Get outlyingness path length of a single data-point.
-            If current node is a leaf, return its depth,
-            if not, traverse down the tree
-
-            Parameters
-            ----------
-            x : a data-point
-            Returns
-            -------
-            data-point's path length, according to single a tree.
-        """
-
-        if self._is_leaf:
-            return self.depth
-
-        assert self._p is not None
-        assert self._q is not None
-
-        t = self._lhs if self.sim_function(x, self._q) - self.sim_function(x,
-                                                                           self._p) <= self._split_point else self._rhs
-        if t is None:
-            return self.depth
-        return t.row_path_length_(x)
-
     @property
     def feature_importances_(self):
         """Return the feature importances."""
@@ -1330,8 +1289,11 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
             criterion : str (default='variance')
                 Criterion used to determine split point at similarity line at each node.
                 The default 'variance' means that weighted variance of splitted y distributions is minimized.
-                Alternatively, 'step' can be chosen, in this case the split is chosen halfway between consecutive points
-                with most different y value.
+                Alternatively, we can choose:
+                    'step', in this case the split is chosen halfway between consecutive points
+                        with most different y value.
+                    'theil', at each split the Theil index will be minimized.
+                    'atkinson', at each split the Atkinson index will be minimized.
 
             Attributes
             ----------
@@ -1420,9 +1382,9 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
             # Check if provided similarity function applies to input
             X = self._validate_X_predict(X, check_input)
 
-            if self.criterion == 'theil':
+            if self.criterion == 'theil' or self.criterion == 'atkinson':
                 if not np.where(y >= 0)[0].size == y.size:
-                    raise ValueError('When using Theil index, one need to make sure y has all positive values')
+                    raise ValueError('When using Theil or Atkinson indexes, one need to make sure y has all positive values')
 
         y = np.atleast_1d(y)
 
@@ -1507,34 +1469,6 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
 
         return np.mean([t.predict(X) for t in self.estimators_], axis=0)
 
-    def outlyingness(self, X, check_input=True):
-        """Get outlyingness measure for X.
-            Parameters
-            ----------
-            X : array-like, shape (n_samples, n_features)
-                The input samples.
-            check_input : bool indicating if input values should be checked or not.
-            Returns
-            -------
-            outlyingness : ndarray, shape (n_samples,)
-                The outlyingness measure, values are scaled to fit within range between 0 and 1.
-        """
-
-        if check_input:
-            # Check if fit had been called
-            check_is_fitted(self, ['X_', 'y_', 'is_fitted_'])
-
-            # Input validation
-            X = check_array(X)
-
-            X = self._validate_X_predict(X, check_input)
-
-        path_lengths = np.mean([t.path_length_(X, check_input=False) for t in self.estimators_], axis=0)
-        n = X.size
-        # Scaling factor is chosen as an average tree length in BST, in the same fashion as in Isolation Forest
-        scaling_factor = 2 * (np.log(n - 1) + 0.5772156649) - (2 * (n - 1) / n)
-        score = np.array([1 - 2 ** (-pl/scaling_factor) for pl in path_lengths])
-        return score
 
     @property
     def feature_importances_(self):
