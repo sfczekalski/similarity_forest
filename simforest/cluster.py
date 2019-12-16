@@ -33,17 +33,15 @@ class SimilarityTreeCluster(BaseEstimator):
     def _sample_directions(self, random_state, X):
         n = X.shape[0]
         first = random_state.choice(range(n), replace=False)
+        others = np.unique(np.where(X - X[first] != 0)[0])
+        second = random_state.choice(others, replace=False)
+        '''print(f'Number of rows to choose first object: {n}')
+        print(X)
+        print(f'First: {X[first]}')
+        print(f'Number of rows to choose second object: {len(others)}')
+        print(X[others])'''
 
-        # dirty solution. Make sure the second point isn't a copy of the first (when using bootstrap it's possible)
-        # when we y information, we could compare that, now we don't
-        # TODO find a better one!
-        second = np.inf
-        for i in range(n):
-            second = random_state.choice(range(n), replace=False)
-            if not np.array_equal(X[second], X[first]):
-                break
-
-        assert second != np.inf, 'Error when choosing unique points to draw split direction. All points are the same.'
+        assert second != np.inf, f'Error when choosing unique points to draw split direction. All points are the same.'
         return first, second
 
     def _find_split(self, random_state, X, p, q):
@@ -51,7 +49,8 @@ class SimilarityTreeCluster(BaseEstimator):
         similarities = np.array([self.sim_function(x, q) - self.sim_function(x, p) for x in X], dtype=np.float16)
 
         i = random_state.randint(low=0, high=n-1)
-        return i, similarities
+        split_point = (similarities[i] + similarities[i + 1]) / 2
+        return split_point, similarities
 
     def fit(self, X, y=None, check_input=True):
         """Build a forest of trees from the training set (X, y=None)
@@ -84,7 +83,6 @@ class SimilarityTreeCluster(BaseEstimator):
         else:
             random_state = np.random.RandomState()
 
-        self.X_ = X
         self._lhs = None
         self._rhs = None
         self._p = None
@@ -101,7 +99,7 @@ class SimilarityTreeCluster(BaseEstimator):
         # Current node id is length of all nodes list. Nodes are numbered from 1, the root node
         self._node_id = len(self._nodes_list)
 
-        if self._is_pure():
+        if self._is_pure(X):
             self._is_leaf = True
             return self
 
@@ -115,7 +113,6 @@ class SimilarityTreeCluster(BaseEstimator):
         self._split_point, self._similarities = self._find_split(random_state, X, p, q)
         self._p = p
         self._q = q
-
 
         # Left- and right-hand side partitioning
         lhs_idxs = np.nonzero(self._similarities <= self._split_point)[0]
@@ -141,13 +138,59 @@ class SimilarityTreeCluster(BaseEstimator):
 
         return self
 
-    def _is_pure(self):
+    def _is_pure(self, X):
         """Check whenever current node containts all the same elements."""
 
-        return np.unique(self.X_).size == 1
+        return np.unique(X, axis=0).shape[0] == 1
+
+    def get_depth(self):
+        """Returns the depth of the decision tree.
+        The depth of a tree is the maximum distance between the root
+        and any leaf.
+        """
+
+        check_is_fitted(self, ['X_', 'is_fitted_'])
+
+        if self is None:
+            return 0
+        elif self._lhs is None and self._rhs is None:
+            return 1
+        else:
+            l_depth = self._lhs.get_depth()
+            r_depth = self._rhs.get_depth()
+
+            if l_depth > r_depth:
+                return l_depth + 1
+            else:
+                return r_depth + 1
 
     def st_distance(self, xi, xj):
-        pass
+        """Measure on what depth of the tree two objects split
+            Parameters
+            ----------
+                xi, xj : a pair of objects
+            Returns
+            ----------
+                depth : depth on which the pair split
+        """
+        if self._is_leaf:
+            return self.depth
+
+        path_i = self.sim_function(xi, self._q) - self.sim_function(xi, self._p) <= self._split_point
+        path_j = self.sim_function(xj, self._q) - self.sim_function(xj, self._p) <= self._split_point
+
+        assert path_i is not None
+        assert path_j is not None
+
+        if path_i == path_j:
+            # the same path, check if go left or right
+            if path_i:
+                return self._lhs.st_distance(xi, xj)
+            else:
+                return self._rhs.st_distance(xi, xj)
+        else:
+            # different path, return current depth
+            return self.depth
 
 
 class SimilarityForestCluster(BaseEstimator, ClusterMixin):
@@ -199,7 +242,6 @@ class SimilarityForestCluster(BaseEstimator, ClusterMixin):
             if not isinstance(self.n_directions, int):
                 raise ValueError('n_directions parameter must be an int')
 
-        self.X_ = X
         self.base_estimator_ = SimilarityTreeCluster
         if self.random_state is not None:
             random_state = check_random_state(self.random_state)
@@ -207,7 +249,7 @@ class SimilarityForestCluster(BaseEstimator, ClusterMixin):
             random_state = np.random.RandomState()
 
         self.estimators_ = []
-        n = self.X_.shape[0]
+        n = X.shape[0]
         for i in range(self.n_estimators):
             all_idxs = range(n)
             idxs = random_state.choice(all_idxs, n, replace=True)
@@ -238,7 +280,7 @@ class SimilarityForestCluster(BaseEstimator, ClusterMixin):
         idx = 0
         for c in range(n):
             for r in range(diagonal, n):
-                distance[idx] = euclidean(X[c], X[r])
+                distance[idx] = 1 / np.mean([t.st_distance(X[c], X[r]) for t in self.estimators_])
                 idx += 1
             diagonal += 1
 
