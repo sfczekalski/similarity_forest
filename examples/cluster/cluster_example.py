@@ -15,7 +15,6 @@ sf.fit(X)
 dist = sf.sf_distance(X)
 links = linkage(dist)
 clusters = fcluster(links, 3, criterion='maxclust')
-print(np.unique(clusters))
 
 pca = PCA(n_components=3, random_state=42).fit_transform(X, y)
 

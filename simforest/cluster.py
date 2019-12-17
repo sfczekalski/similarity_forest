@@ -31,9 +31,14 @@ class SimilarityTreeCluster(BaseEstimator):
         return X
 
     def _sample_directions(self, random_state, X):
+        """Return a pair of objects to draw split direction on.
+            It makes sure the two objects are different - in case of using bootstrap sample it's possible.
+
+        """
         n = X.shape[0]
         first = random_state.choice(range(n), replace=False)
         others = np.unique(np.where(X - X[first] != 0)[0])
+        assert len(others) > 0, 'All points are the same'
         second = random_state.choice(others, replace=False)
         '''print(f'Number of rows to choose first object: {n}')
         print(X)
@@ -41,33 +46,30 @@ class SimilarityTreeCluster(BaseEstimator):
         print(f'Number of rows to choose second object: {len(others)}')
         print(X[others])'''
 
-        assert second != np.inf, f'Error when choosing unique points to draw split direction. All points are the same.'
         return first, second
 
     def _find_split(self, random_state, X, p, q):
-        n = X.shape[0]
-        similarities = np.array([self.sim_function(x, q) - self.sim_function(x, p) for x in X], dtype=np.float16)
+        similarities = sorted([self.sim_function(x, q) - self.sim_function(x, p) for x in X])
+        split_point = random_state.uniform(low=np.min(similarities), high=np.max(similarities))
 
-        i = random_state.randint(low=0, high=n-1)
-        split_point = (similarities[i] + similarities[i + 1]) / 2
-        return split_point, similarities
+        return split_point, np.array(similarities, dtype=np.float16)
 
     def fit(self, X, y=None, check_input=True):
         """Build a forest of trees from the training set (X, y=None)
-                    Parameters
-                    ----------
-                    X : array-like matrix of shape = [n_samples, n_features]
-                        The training data samples.
-                    y : None
-                        y added to follow the API.
-                    Returns
-                    -------
-                    self : object.
-                """
+                Parameters
+                ----------
+                X : array-like matrix of shape = [n_samples, n_features]
+                    The training data samples.
+                y : None
+                    y added to follow the API.
+                Returns
+                -------
+                self : object.
+        """
         # Check input
         if check_input:
             # Check that X and y have correct shape
-            #X, y = check_X_y(X, y)
+            X, y = check_X_y(X, y)
 
             # Input validation, check it to be a non-empty 2D array containing only finite values
             X = check_array(X)
@@ -89,7 +91,6 @@ class SimilarityTreeCluster(BaseEstimator):
         self._q = None
         self._similarities = None
         self._split_point = -np.inf
-        self._value = None
         self._is_leaf = False
         self.is_fitted_ = False
 
@@ -109,10 +110,9 @@ class SimilarityTreeCluster(BaseEstimator):
                 return self
 
         i, j = self._sample_directions(random_state, X)
-        p, q = X[i], X[j]
-        self._split_point, self._similarities = self._find_split(random_state, X, p, q)
-        self._p = p
-        self._q = q
+        self._p, self._q  = X[i], X[j]
+        self._split_point, self._similarities = self._find_split(random_state, X, self._p, self._q  )
+
 
         # Left- and right-hand side partitioning
         lhs_idxs = np.nonzero(self._similarities <= self._split_point)[0]
@@ -133,6 +133,8 @@ class SimilarityTreeCluster(BaseEstimator):
                                               depth=self.depth+1). \
                 fit(X[rhs_idxs], check_input=False)
         else:
+            print(f'Similarities: {self._similarities}')
+            print(f'Split point: {self._split_point}')
             self._is_leaf = True
             return self
 
