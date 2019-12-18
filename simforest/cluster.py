@@ -1,15 +1,14 @@
 import numpy as np
 from scipy.spatial.distance import euclidean
-from scipy.cluster.hierarchy import linkage, dendrogram, fcluster
-from scipy.special import comb
+from scipy.cluster.hierarchy import linkage, fcluster
 from sklearn.base import BaseEstimator, ClusterMixin, TransformerMixin
 from sklearn.utils.validation import check_array, check_is_fitted, check_random_state, check_X_y
 from scipy.special import comb
 
 
 class SimilarityTreeCluster(BaseEstimator):
-    """A similarity tree clusterer.
-
+    """A similarity tree clusterer. It is a base model used as building blocks for Similarity Forest ensemble.
+        In case of clustering it is not intended to be used on its own.
 
             Parameters
             ----------
@@ -45,9 +44,6 @@ class SimilarityTreeCluster(BaseEstimator):
                 split threshold on the splitting direction
             _is_leaf : bool
                 indicates if current Node is a leaf
-            is_fitted_ : bool
-                indicates if the tree has been already fitted
-
 
     """
 
@@ -67,11 +63,9 @@ class SimilarityTreeCluster(BaseEstimator):
         self._similarities = None
         self._split_point = -np.inf
         self._is_leaf = False
-        self.is_fitted_ = False
 
-    def _validate_X_predict(self, X, check_input):
+    def _validate_X_predict(self, X):
         """Validate X whenever one tries to predict, apply, predict_proba."""
-
         X = check_array(X)
 
         return X
@@ -79,7 +73,12 @@ class SimilarityTreeCluster(BaseEstimator):
     def _sample_directions(self, random_state, X):
         """Return a pair of objects to draw split direction on.
             It makes sure the two objects are different - in case of using bootstrap sample it's possible.
-
+            Parameters
+                random _state : np.random.RandomState instance,
+                X : ndarray of shape = (n_samples, n_features)
+                    The training data samples.
+            Returns
+                first, second : a pair of integers, indexes of splitting points.
         """
         n = X.shape[0]
         first = random_state.choice(range(n), replace=False)
@@ -90,8 +89,27 @@ class SimilarityTreeCluster(BaseEstimator):
         return first, second
 
     def _find_split(self, random_state, X, p, q):
+        """Project all point on line drawn by p and q. Find a random split.
+            Parameters
+            ----------
+                random_state : np.random.RandomState instance
+                X : ndarray of shape = (n_samples, n_features)
+                    The training data samples.
+                p, q : a pair of split points
+            Returns
+            ----------
+                split_point : float
+                    similarities threshold for splitting
+                similarities : ndarray of shape (n_samples,)
+                    array of projections of points on splitting direction
+
+        """
         similarities = sorted([self.sim_function(x, q) - self.sim_function(x, p) for x in X])
-        split_point = random_state.uniform(low=np.min(similarities), high=np.max(similarities))
+        split_point = random_state.uniform(low=similarities[0], high=similarities[-1])
+
+        # try also:
+        #similarities = [self.sim_function(x, q) - self.sim_function(x, p) for x in X]
+        #split_point = random_state.uniform(low=np.min(similarities), high=np.min(similarities))
 
         return split_point, np.array(similarities, dtype=np.float16)
 
@@ -103,6 +121,8 @@ class SimilarityTreeCluster(BaseEstimator):
                     The training data samples.
                 y : None
                     y added to follow the API.
+                check_input : bool
+                    Whenever to check input samples or not. Don't change it unless you know what you're doing.
                 Returns
                 -------
                 self : object.
@@ -114,7 +134,7 @@ class SimilarityTreeCluster(BaseEstimator):
             X = check_array(X)
 
             # Check if provided similarity function applies to input
-            X = self._validate_X_predict(X, check_input)
+            X = self._validate_X_predict(X)
 
         if self.random_state is not None:
             random_state = check_random_state(self.random_state)
@@ -132,7 +152,7 @@ class SimilarityTreeCluster(BaseEstimator):
 
         i, j = self._sample_directions(random_state, X)
         self._p, self._q = X[i], X[j]
-        self._split_point, self._similarities = self._find_split(random_state, X, self._p, self._q  )
+        self._split_point, self._similarities = self._find_split(random_state, X, self._p, self._q)
 
 
         # Left- and right-hand side partitioning
@@ -168,7 +188,7 @@ class SimilarityTreeCluster(BaseEstimator):
         and any leaf.
         """
 
-        check_is_fitted(self, ['is_fitted_'])
+        check_is_fitted(self, ['_p', '_q', 'split_point'])
 
         if self is None:
             return 0
@@ -295,7 +315,7 @@ class SimilarityForestCluster(BaseEstimator, ClusterMixin):
         self.labels_ = None
         self.is_fitted_ = False
 
-    def _validate_X_predict(self, X, check_input):
+    def _validate_X_predict(self, X):
         """Validate X whenever one tries to predict, apply, predict_proba."""
 
         X = check_array(X)
@@ -310,17 +330,18 @@ class SimilarityForestCluster(BaseEstimator, ClusterMixin):
                         The training data samples.
                     y : None
                         y added to follow the API.
+                    check_input : bool
+                        whenever to check input samples or not. Don't change it unless you know what you're doing.
                 Returns
                 -------
                     self : object.
         """
-        # Check input
         if check_input:
             # Input validation, check it to be a non-empty 2D array containing only finite values
             X = check_array(X)
 
             # Check if provided similarity function applies to input
-            X = self._validate_X_predict(X, check_input)
+            X = self._validate_X_predict(X)
 
         self.base_estimator_ = SimilarityTreeCluster
         if self.random_state is not None:
@@ -335,8 +356,7 @@ class SimilarityForestCluster(BaseEstimator, ClusterMixin):
             idxs = random_state.choice(all_idxs, n, replace=True)
             tree = SimilarityTreeCluster(random_state=self.random_state,
                                          sim_function=self.sim_function,
-                                         max_depth=self.max_depth).\
-                fit(X[idxs], check_input=False)
+                                         max_depth=self.max_depth).fit(X[idxs], check_input=False)
 
             self.estimators_.append(tree)
 
@@ -344,10 +364,6 @@ class SimilarityForestCluster(BaseEstimator, ClusterMixin):
         self.is_fitted_ = True
 
         self.labels_ = self.predict_(X)
-        if isinstance(self.labels_, int):
-            pass
-        else:
-            assert self.labels_.shape[0] == X.shape[0]
 
         return self
 
@@ -381,6 +397,10 @@ class SimilarityForestCluster(BaseEstimator, ClusterMixin):
             ----------
                 X : array-like matrix of shape = [n_samples, n_features]
                     The input samples.
+                y : None
+                    Added to follow Sklearn API.
+                check_input : bool
+                    Whenever to check input samples or not. Don't change it unless you know what you're doing.
             Returns
             -------
                 p : array of shape = [n_samples,]
@@ -393,7 +413,7 @@ class SimilarityForestCluster(BaseEstimator, ClusterMixin):
             # Input validation
             X = check_array(X)
 
-            X = self._validate_X_predict(X, check_input)
+            X = self._validate_X_predict(X)
 
         self.distance_matrix = self.sf_distance(X)
         assert len(self.distance_matrix) == comb(X.shape[0], 2)
@@ -415,7 +435,7 @@ class SimilarityForestCluster(BaseEstimator, ClusterMixin):
                     X : array-like matrix of shape = [n_samples, n_features]
                         The training data samples.
                     y : None
-                        y added to follow the API.
+                        y added to follow Sklearn API.
                 Returns
                 -------
                     p : array of shape = [n_samples,]
