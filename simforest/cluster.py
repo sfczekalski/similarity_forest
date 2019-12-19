@@ -4,6 +4,7 @@ from scipy.cluster.hierarchy import linkage, fcluster
 from sklearn.base import BaseEstimator, ClusterMixin, TransformerMixin
 from sklearn.utils.validation import check_array, check_is_fitted, check_random_state, check_X_y
 from scipy.special import comb
+from joblib import Parallel, delayed, Memory
 
 
 class SimilarityTreeCluster(BaseEstimator):
@@ -12,11 +13,9 @@ class SimilarityTreeCluster(BaseEstimator):
 
             Parameters
             ----------
-            random_state : int, RandomState instance or None, optional (default=None)
+            random_state : int or None, optional (default=None)
                 If int, random_state is the seed used by the random number generator;
-                If RandomState instance, random_state is the random number generator;
-                If None, the random number generator is the RandomState instance used
-                by `np.random`.
+                If None, the random number generator is the RandomState instance used by `np.random`.
             sim_function : function used to measure similarity between data-points
             max_depth : integer or None, optional (default=None)
                 The maximum depth of the tree. If None, then nodes are expanded until
@@ -104,14 +103,15 @@ class SimilarityTreeCluster(BaseEstimator):
                     array of projections of points on splitting direction
 
         """
-        similarities = sorted([self.sim_function(x, q) - self.sim_function(x, p) for x in X])
+        similarities = np.array(sorted([self.sim_function(x, q) - self.sim_function(x, p) for x in X]),
+                                dtype=np.float16)
         split_point = random_state.uniform(low=similarities[0], high=similarities[-1])
 
         # try also:
         #similarities = [self.sim_function(x, q) - self.sim_function(x, p) for x in X]
         #split_point = random_state.uniform(low=np.min(similarities), high=np.min(similarities))
 
-        return split_point, np.array(similarities, dtype=np.float16)
+        return split_point, similarities
 
     def fit(self, X, y=None, check_input=True):
         """Build a forest of trees from the training set (X, y=None)
@@ -349,10 +349,11 @@ class SimilarityForestCluster(BaseEstimator, ClusterMixin):
         else:
             random_state = np.random.RandomState()
 
-        self.estimators_ = []
         n = X.shape[0]
+        all_idxs = range(n)
+
+        self.estimators_ = []
         for i in range(self.n_estimators):
-            all_idxs = range(n)
             idxs = random_state.choice(all_idxs, n, replace=True)
             tree = SimilarityTreeCluster(random_state=self.random_state,
                                          sim_function=self.sim_function,
@@ -383,11 +384,15 @@ class SimilarityForestCluster(BaseEstimator, ClusterMixin):
         idx = 0
         for c in range(n):
             for r in range(diagonal, n):
-                distance[idx] = 1 / np.mean([t.st_distance(X[c], X[r]) for t in self.estimators_])
+                distance[idx] = 1 / np.mean(Parallel(n_jobs=1)(delayed(self.single_tree_dist_)(
+                                                                            t, X[c], X[r]) for t in self.estimators_))
                 idx += 1
             diagonal += 1
 
         return distance
+
+    def single_tree_dist_(self, tree, xi, xj):
+        return tree.st_distance(xi, xj)
 
     def predict_(self, X, y=None, check_input=True):
         """Predict labels of the input samples' clusters.
