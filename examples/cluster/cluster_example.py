@@ -7,12 +7,14 @@ from sklearn.decomposition import PCA
 from mpl_toolkits.mplot3d import Axes3D
 from sklearn.cluster import AgglomerativeClustering
 from scipy.spatial.distance import sqeuclidean
-
+from simforest.cluster import SimilarityTreeClusterNew
 
 X, y = load_iris(return_X_y=True)
 
-sf = SimilarityForestCluster(random_state=42, sim_function=sqeuclidean)
-clusters = sf.fit_predict(X)
+sf = SimilarityTreeClusterNew(random_state=42)
+sf.fit(X)
+
+'''clusters = sf.fit_predict(X)
 dendrogram(sf.links)
 plt.show()
 
@@ -33,4 +35,4 @@ ax = Axes3D(fig)
 ax.scatter(pca[:, 0], pca[:, 1], pca[:, 2], marker='o', c=ahc_clusters,
            s=50, alpha=0.7)
 ax.set_title('AHC clusters')
-plt.show()
+plt.show()'''

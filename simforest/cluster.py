@@ -5,6 +5,84 @@ from sklearn.base import BaseEstimator, ClusterMixin, TransformerMixin
 from sklearn.utils.validation import check_array, check_is_fitted, check_random_state, check_X_y
 from scipy.special import comb
 from joblib import Parallel, delayed, Memory
+from simforest._cluster import CSimilarityTreeCluster
+
+
+class SimilarityTreeClusterNew(BaseEstimator):
+    """A similarity tree clusterer. It is a base model used as building blocks for Similarity Forest ensemble.
+        In case of clustering it is not intended to be used on its own.
+
+            Parameters
+            ----------
+            random_state : int or None, optional (default=None)
+                If int, random_state is the seed used by the random number generator;
+                If None, the random number generator is the RandomState instance used by `np.random`.
+            sim_function : function used to measure similarity between data-points
+            max_depth : integer or None, optional (default=None)
+                The maximum depth of the tree. If None, then nodes are expanded until
+                all leaves are pure.
+
+            Attributes
+            ----------
+            random_state : int, RandomState instance or None, optional (default=None)
+                If int, random_state is the seed used by the random number generator;
+                If RandomState instance, random_state is the random number generator;
+                If None, the random number generator is the RandomState instance used by np.random.
+            sim_function : a function used to measure similarity between points.
+            max_depth : int or None, optional (default=None)
+                The maximum depth of the tree. If None, then nodes are expanded until all leaves are pure or until all
+                leaves contain less than min_samples_split samples.
+
+    """
+
+    def __init__(self,
+                 random_state=None,
+                 sim_function=euclidean,
+                 max_depth=None,
+                 depth=1):
+        self.random_state = random_state
+        self.sim_function = sim_function
+        self.max_depth = max_depth
+        self._tree = None
+
+    def _validate_X_predict(self, X):
+        """Validate X whenever one tries to predict, apply, predict_proba."""
+        X = check_array(X)
+
+        return X
+
+    def fit(self, X, y=None, check_input=True):
+        """Build a forest of trees from the training set (X, y=None)
+                Parameters
+                ----------
+                X : array-like matrix of shape = [n_samples, n_features]
+                    The training data samples.
+                y : None
+                    y added to follow the API.
+                check_input : bool
+                    Whenever to check input samples or not. Don't change it unless you know what you're doing.
+                Returns
+                -------
+                self : object.
+        """
+        # Check input
+        if check_input:
+
+            # Input validation, check it to be a non-empty 2D array containing only finite values
+            X = check_array(X)
+
+            # Check if provided similarity function applies to input
+            X = self._validate_X_predict(X)
+
+            X = X.astype(np.float32)
+
+        if self.random_state is not None:
+            random_state = check_random_state(self.random_state)
+        else:
+            random_state = np.random.RandomState()
+
+        self._tree = CSimilarityTreeCluster()
+        self._tree.fit(X)
 
 
 class SimilarityTreeCluster(BaseEstimator):
@@ -188,7 +266,7 @@ class SimilarityTreeCluster(BaseEstimator):
         and any leaf.
         """
 
-        check_is_fitted(self, ['_p', '_q', 'split_point'])
+        check_is_fitted(self, ['is_fitted_'])
 
         if self is None:
             return 0
@@ -378,21 +456,17 @@ class SimilarityForestCluster(BaseEstimator, ClusterMixin):
                 dist : flat array of shape (n_samples choose k), that is number of all pairwise combination of input X
         """
         n = X.shape[0]
-        distance = np.ones(shape=(comb(n, 2).astype(int),), dtype=np.float32)
+        distance = np.ones(shape=(comb(n, 2).astype(int),), dtype=np.float16)
 
         diagonal = 1
         idx = 0
         for c in range(n):
             for r in range(diagonal, n):
-                distance[idx] = 1 / np.mean(Parallel(n_jobs=1)(delayed(self.single_tree_dist_)(
-                                                                            t, X[c], X[r]) for t in self.estimators_))
+                distance[idx] = 1 / np.mean([t.st_distance(X[c], X[r]) for t in self.estimators_])
                 idx += 1
             diagonal += 1
 
         return distance
-
-    def single_tree_dist_(self, tree, xi, xj):
-        return tree.st_distance(xi, xj)
 
     def predict_(self, X, y=None, check_input=True):
         """Predict labels of the input samples' clusters.
