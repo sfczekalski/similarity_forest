@@ -1,10 +1,8 @@
 from libc.stdlib cimport srand, rand, RAND_MAX, malloc, free
-from libc.math cimport floor
 from cpython.mem cimport PyMem_Malloc, PyMem_Realloc, PyMem_Free
 # https://cython.readthedocs.io/en/latest/src/tutorial/memory_allocation.html
 import numpy as np
 cimport numpy as np
-
 cimport cython
 from scipy.special import comb
 from sklearn.utils.validation import check_random_state
@@ -32,6 +30,8 @@ cdef class CSimilarityForestClusterer:
         self.estimators_ = []
         self.n_estimators = n_estimators
 
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
     cpdef fit(self, float [:, :] X):
 
         cdef int n = X.shape[0]
@@ -47,11 +47,11 @@ cdef class CSimilarityForestClusterer:
         cdef int [:] indicies
         for i in range(self.n_estimators):
             indicies = random_state.choice(range(n), n, replace=True).astype(np.int32)
+            self.estimators_.append(CSimilarityTreeCluster(**args).fit(X.base[indicies]))
 
-            tree = CSimilarityTreeCluster(**args).fit(X.base[indicies])
-            self.estimators_.append(tree)
-
-    '''cpdef np.ndarray predict(self, float [:, :] X):
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    cpdef np.ndarray predict(self, float [:, :] X):
         cdef int n = X.shape[0]
         cdef np.ndarray dinstance_matrix = np.ones(<int>comb(n, 2), dtype=np.float32)
         cdef float [:] view = dinstance_matrix
@@ -59,13 +59,18 @@ cdef class CSimilarityForestClusterer:
 
         cdef int diagonal = 1
         cdef int idx = 0
-        for c in range(n):
-            for r in range(diagonal, n):
-                view[idx] = 1 / <float>self.distance(X.base[c], X.base[r])
+        cdef float dist = 0.0
+        for i in range(n):
+            for j in range(diagonal, n):
+                for e in range(self.n_estimators):
+                    dist += self.estimators_[e].distance(X.base[i], X.base[j])
+
+                dist = dist/<float>self.n_estimators
+                view[idx] = 1 / <float>dist
                 idx += 1
             diagonal += 1
 
-        return dinstance_matrix'''
+        return dinstance_matrix
 
 
 cdef class CSimilarityTreeCluster:
@@ -118,10 +123,6 @@ cdef class CSimilarityTreeCluster:
     @cython.boundscheck(False)
     @cython.wraparound(False)
     cdef int sample_split_direction(self, float [:, :] X, int first):
-        if self.random_state > -1:
-            srand(self.random_state)
-        else:
-            srand(time(NULL))
         cdef int n = X.shape[0]
         cdef int m = X.shape[1]
         cdef float [:] first_row = X[first]
@@ -237,7 +238,7 @@ cdef class CSimilarityTreeCluster:
 
         return self
 
-    cdef int distance(self, float [:] xi, float [:] xj):
+    cpdef int distance(self, float [:] xi, float [:] xj):
         if self.is_leaf:
             return self.depth
 

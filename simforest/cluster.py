@@ -43,7 +43,8 @@ class SimilarityForestClusterNew(BaseEstimator):
         self.random_state = random_state
         self.sim_function = sim_function
         self.max_depth = max_depth
-        self.n_estimators=n_estimators
+        self.n_estimators = n_estimators
+        self._forest = None
 
     def _validate_X_predict(self, X):
         """Validate X whenever one tries to predict, apply, predict_proba."""
@@ -88,8 +89,21 @@ class SimilarityForestClusterNew(BaseEstimator):
         if self.n_estimators is not None:
             args['n_estimators'] = self.n_estimators
 
-        self._tree = CSimilarityForestClusterer(**args)
-        self._tree.fit(X)
+        self._forest = CSimilarityForestClusterer(**args)
+        self._forest.fit(X)
+
+    def predict(self, X, y=None, check_input=True):
+        if check_input:
+
+            # Input validation, check it to be a non-empty 2D array containing only finite values
+            X = check_array(X)
+
+            # Check if provided similarity function applies to input
+            X = self._validate_X_predict(X)
+
+            X = X.astype(np.float32)
+
+        return self._forest.predict(X)
 
 
 class SimilarityTreeClusterNew(BaseEstimator):
