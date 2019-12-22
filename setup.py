@@ -74,3 +74,12 @@ setup(
       ext_modules=cythonize("simforest/_cluster.pyx", annotate=True),
       include_dirs=[numpy.get_include()]
 )
+
+# Cython pytest-ing
+'''setup(
+  name='pytest',
+  ext_modules=cythonize(["*.pyx"], compiler_directives={
+      'embedsignature': True,
+      'boundscheck': False,
+      'wraparound': False}),
+)'''

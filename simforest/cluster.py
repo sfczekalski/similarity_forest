@@ -37,13 +37,12 @@ class SimilarityTreeClusterNew(BaseEstimator):
 
     def __init__(self,
                  random_state=None,
-                 sim_function=euclidean,
+                 sim_function='euclidean',
                  max_depth=None,
                  depth=1):
         self.random_state = random_state
         self.sim_function = sim_function
         self.max_depth = max_depth
-        self._tree = None
 
     def _validate_X_predict(self, X):
         """Validate X whenever one tries to predict, apply, predict_proba."""
@@ -81,8 +80,25 @@ class SimilarityTreeClusterNew(BaseEstimator):
         else:
             random_state = np.random.RandomState()
 
-        self._tree = CSimilarityTreeCluster()
+        if self.max_depth is None:
+            self.max_depth = -1
+
+        self._tree = CSimilarityTreeCluster(random_state=self.random_state,
+                                            max_depth=self.max_depth)
         self._tree.fit(X)
+
+    def predict(self, X, y=None, check_input=True):
+        if check_input:
+
+            # Input validation, check it to be a non-empty 2D array containing only finite values
+            X = check_array(X)
+
+            # Check if provided similarity function applies to input
+            X = self._validate_X_predict(X)
+
+            X = X.astype(np.float32)
+
+        return self._tree.predict(X)
 
 
 class SimilarityTreeCluster(BaseEstimator):

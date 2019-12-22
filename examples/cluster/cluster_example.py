@@ -1,7 +1,7 @@
 from simforest.cluster import SimilarityForestCluster
 import numpy as np
 from sklearn.datasets import load_iris
-from scipy.cluster.hierarchy import dendrogram
+from scipy.cluster.hierarchy import dendrogram, linkage, fcluster
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 from mpl_toolkits.mplot3d import Axes3D
@@ -11,11 +11,17 @@ from simforest.cluster import SimilarityTreeClusterNew
 
 X, y = load_iris(return_X_y=True)
 
-sf = SimilarityTreeClusterNew(random_state=42)
-sf.fit(X)
+csf = SimilarityTreeClusterNew(random_state=3, max_depth=15)
+csf.fit(X)
+import time
+start = time.time()
+distance_matrix = csf.predict(X)
+print(time.time() - start)
+links = linkage(distance_matrix)
+clusters = fcluster(links, 3, criterion='maxclust')
 
-'''clusters = sf.fit_predict(X)
-dendrogram(sf.links)
+
+dendrogram(links)
 plt.show()
 
 pca = PCA(n_components=3, random_state=42).fit_transform(X, y)
@@ -28,7 +34,7 @@ ax.set_title('Similarity Forest clusters')
 plt.show()
 
 
-ahc_clusters = AgglomerativeClustering(n_clusters=3, linkage='single').fit_predict(X)
+'''ahc_clusters = AgglomerativeClustering(n_clusters=3, linkage='single').fit_predict(X)
 
 fig = plt.figure()
 ax = Axes3D(fig)

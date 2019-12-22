@@ -5,7 +5,7 @@ from cpython.mem cimport PyMem_Malloc, PyMem_Realloc, PyMem_Free
 cimport numpy as np
 import numpy as np
 cimport cython
-from scipy.spatial.distance import sqeuclidean
+from scipy.special import comb
 
 cdef class CSimilarityTreeCluster:
 
@@ -22,8 +22,6 @@ cdef class CSimilarityTreeCluster:
     cdef CSimilarityTreeCluster _lhs
     cdef CSimilarityTreeCluster _rhs
 
-    '''def __init__(self):
-    self.is_leaf = 1'''
     def __cinit__(self,
                   int random_state=-1,
                   str sim_function='euclidean',
@@ -58,19 +56,19 @@ cdef class CSimilarityTreeCluster:
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
-    cdef int sample_split_direction(self, float [:, :] X, int first):
-        srand(self.random_state)
+    cpdef int sample_split_direction(self, float [:, :] X, int first):
+        # cpdef because it needs to be callable from tests
+        if self.random_state > -1:
+            srand(self.random_state)
         cdef int n = X.shape[0]
         cdef int m = X.shape[1]
         cdef float [:] first_row = X[first]
-        cdef int attempt = 0
         cdef int i = 0
         cdef int j = 0
 
         while i < n:
             # sample random row
-            #random_indice = <int>((rand()/<float>RAND_MAX) * n)
-            # iterate over its elements, if at least one differs - then its different than first_row, return random_indice
+            # iterate over its elements, if at least one differs - then its different than first_row
             while j < m:
                 if X[i, j] != first_row[j]:
                     return i
@@ -119,7 +117,8 @@ cdef class CSimilarityTreeCluster:
             i += 1
 
         # Find random split point
-        srand(self.random_state)
+        if self.random_state > -1:
+            srand(self.random_state)
         self._split_point = similarities_min + (similarities_max - similarities_min) * rand()/<float>RAND_MAX
 
         # Find indexes of points going left
@@ -148,7 +147,7 @@ cdef class CSimilarityTreeCluster:
             # sample p randomly
             if self.random_state > -1:
                 srand(self.random_state)
-            p = <int>(rand() / RAND_MAX) * n
+            p = <int>(rand()/<float>RAND_MAX * n)
 
             # sample q so that it's not a copy the same point
             q = self.sample_split_direction(X, p)
@@ -171,3 +170,37 @@ cdef class CSimilarityTreeCluster:
                                            depth=self.depth+1).fit(X.base[self.rhs_idxs])
 
         return self
+
+    cdef int distance(self, float [:] xi, float [:] xj):
+        if self.is_leaf:
+            return self.depth
+
+        cdef bint path_i = self.sqeuclidean(xi, self._q) - self.sqeuclidean(xi, self._p) <= self._split_point
+        cdef bint path_j = self.sqeuclidean(xj, self._q) - self.sqeuclidean(xj, self._p) <= self._split_point
+
+
+        if path_i == path_j:
+            # the same path, check if go left or right
+            if path_i:
+                return self._lhs.distance(xi, xj)
+            else:
+                return self._rhs.distance(xi, xj)
+        else:
+            # different path, return current depth
+            return self.depth
+
+
+    def predict(self, float [:, :] X):
+        cdef int n = X.shape[0]
+        cdef np.ndarray dinstance_matrix = np.ones(<int>comb(n, 2), dtype=np.float32)
+        cdef float [:] view = dinstance_matrix
+
+        cdef int diagonal = 1
+        cdef int idx = 0
+        for c in range(n):
+            for r in range(diagonal, n):
+                view[idx] = 1 / <float>self.distance(X.base[c], X.base[r])
+                idx += 1
+            diagonal += 1
+
+        return dinstance_matrix

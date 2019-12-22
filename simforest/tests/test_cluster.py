@@ -1,7 +1,7 @@
 import pytest
 import numpy as np
 from sklearn.datasets import load_iris, make_blobs
-from simforest.cluster import SimilarityTreeCluster, SimilarityForestCluster
+from simforest.cluster import SimilarityTreeCluster, SimilarityForestCluster, SimilarityTreeClusterNew
 from scipy.special import comb
 
 
