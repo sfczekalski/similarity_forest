@@ -2,10 +2,71 @@ from libc.stdlib cimport srand, rand, RAND_MAX, malloc, free
 from libc.math cimport floor
 from cpython.mem cimport PyMem_Malloc, PyMem_Realloc, PyMem_Free
 # https://cython.readthedocs.io/en/latest/src/tutorial/memory_allocation.html
-cimport numpy as np
 import numpy as np
+cimport numpy as np
+
 cimport cython
 from scipy.special import comb
+from sklearn.utils.validation import check_random_state
+cdef extern from "time.h" nogil:
+    ctypedef int time_t
+    time_t time(time_t*)
+
+
+cdef class CSimilarityForestClusterer:
+
+    cdef random_state
+    cdef str sim_function
+    cdef int max_depth
+    cdef list estimators_
+    cdef int n_estimators
+
+    def __cinit__(self,
+                  random_state=None,
+                  str sim_function='euclidean',
+                  int max_depth=-1,
+                  int n_estimators = 20):
+        self.random_state = random_state
+        self.sim_function= sim_function
+        self.max_depth = max_depth
+        self.estimators_ = []
+        self.n_estimators = n_estimators
+
+    cpdef fit(self, float [:, :] X):
+
+        cdef int n = X.shape[0]
+        cdef dict args = dict()
+
+        cdef random_state = check_random_state(self.random_state)
+        if self.random_state is not None:
+            args['random_state'] = self.random_state
+
+        if self.max_depth is not None:
+            args['max_depth'] = self.max_depth
+
+        cdef int [:] indicies
+        for i in range(self.n_estimators):
+            indicies = random_state.choice(range(n), n, replace=True).astype(np.int32)
+
+            tree = CSimilarityTreeCluster(**args).fit(X.base[indicies])
+            self.estimators_.append(tree)
+
+    '''cpdef np.ndarray predict(self, float [:, :] X):
+        cdef int n = X.shape[0]
+        cdef np.ndarray dinstance_matrix = np.ones(<int>comb(n, 2), dtype=np.float32)
+        cdef float [:] view = dinstance_matrix
+
+
+        cdef int diagonal = 1
+        cdef int idx = 0
+        for c in range(n):
+            for r in range(diagonal, n):
+                view[idx] = 1 / <float>self.distance(X.base[c], X.base[r])
+                idx += 1
+            diagonal += 1
+
+        return dinstance_matrix'''
+
 
 cdef class CSimilarityTreeCluster:
 
@@ -56,10 +117,11 @@ cdef class CSimilarityTreeCluster:
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
-    cpdef int sample_split_direction(self, float [:, :] X, int first):
-        # cpdef because it needs to be callable from tests
+    cdef int sample_split_direction(self, float [:, :] X, int first):
         if self.random_state > -1:
             srand(self.random_state)
+        else:
+            srand(time(NULL))
         cdef int n = X.shape[0]
         cdef int m = X.shape[1]
         cdef float [:] first_row = X[first]
@@ -97,7 +159,7 @@ cdef class CSimilarityTreeCluster:
 
         # Calculate similarities
         cdef int n = X.shape[0]
-        cdef np.ndarray array = np.empty(n, dtype=np.float32)
+        cdef np.ndarray array = np.zeros(n, dtype=np.float32)
         cdef float [:] similarities = array
 
         similarities[0] = self.sqeuclidean(X[0], self._q) - self.sqeuclidean(X[0], self._p)
@@ -119,13 +181,15 @@ cdef class CSimilarityTreeCluster:
         # Find random split point
         if self.random_state > -1:
             srand(self.random_state)
+        else:
+            srand(time(NULL))
         self._split_point = similarities_min + (similarities_max - similarities_min) * rand()/<float>RAND_MAX
 
         # Find indexes of points going left
         self.lhs_idxs = np.nonzero(array <= self._split_point)[0].astype(np.int32)
         self.rhs_idxs = np.nonzero(array > self._split_point)[0].astype(np.int32)
 
-    def fit(self, float [:, :] X):
+    cpdef fit(self, float [:, :] X):
         cdef int n = X.shape[0]
         if n <= 1:
             self.is_leaf = 1
@@ -147,6 +211,8 @@ cdef class CSimilarityTreeCluster:
             # sample p randomly
             if self.random_state > -1:
                 srand(self.random_state)
+            else:
+                srand(time(NULL))
             p = <int>(rand()/<float>RAND_MAX * n)
 
             # sample q so that it's not a copy the same point
@@ -190,10 +256,11 @@ cdef class CSimilarityTreeCluster:
             return self.depth
 
 
-    def predict(self, float [:, :] X):
+    cpdef np.ndarray predict(self, float [:, :] X):
         cdef int n = X.shape[0]
         cdef np.ndarray dinstance_matrix = np.ones(<int>comb(n, 2), dtype=np.float32)
         cdef float [:] view = dinstance_matrix
+
 
         cdef int diagonal = 1
         cdef int idx = 0

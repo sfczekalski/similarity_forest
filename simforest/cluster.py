@@ -5,7 +5,91 @@ from sklearn.base import BaseEstimator, ClusterMixin, TransformerMixin
 from sklearn.utils.validation import check_array, check_is_fitted, check_random_state, check_X_y
 from scipy.special import comb
 from joblib import Parallel, delayed, Memory
-from simforest._cluster import CSimilarityTreeCluster
+from simforest._cluster import CSimilarityTreeCluster, CSimilarityForestClusterer
+
+
+class SimilarityForestClusterNew(BaseEstimator):
+    """A similarity tree clusterer. It is a base model used as building blocks for Similarity Forest ensemble.
+        In case of clustering it is not intended to be used on its own.
+
+            Parameters
+            ----------
+            random_state : int or None, optional (default=None)
+                If int, random_state is the seed used by the random number generator;
+                If None, the random number generator is the RandomState instance used by `np.random`.
+            sim_function : function used to measure similarity between data-points
+            max_depth : integer or None, optional (default=None)
+                The maximum depth of the tree. If None, then nodes are expanded until
+                all leaves are pure.
+
+            Attributes
+            ----------
+            random_state : int, RandomState instance or None, optional (default=None)
+                If int, random_state is the seed used by the random number generator;
+                If RandomState instance, random_state is the random number generator;
+                If None, the random number generator is the RandomState instance used by np.random.
+            sim_function : a function used to measure similarity between points.
+            max_depth : int or None, optional (default=None)
+                The maximum depth of the tree. If None, then nodes are expanded until all leaves are pure or until all
+                leaves contain less than min_samples_split samples.
+
+    """
+
+    def __init__(self,
+                 random_state=None,
+                 sim_function='euclidean',
+                 max_depth=None,
+                 n_estimators=20):
+        self.random_state = random_state
+        self.sim_function = sim_function
+        self.max_depth = max_depth
+        self.n_estimators=n_estimators
+
+    def _validate_X_predict(self, X):
+        """Validate X whenever one tries to predict, apply, predict_proba."""
+        X = check_array(X)
+
+        return X
+
+    def fit(self, X, y=None, check_input=True):
+        """Build a forest of trees from the training set (X, y=None)
+                Parameters
+                ----------
+                X : array-like matrix of shape = [n_samples, n_features]
+                    The training data samples.
+                y : None
+                    y added to follow the API.
+                check_input : bool
+                    Whenever to check input samples or not. Don't change it unless you know what you're doing.
+                Returns
+                -------
+                self : object.
+        """
+        # Check input
+        if check_input:
+
+            # Input validation, check it to be a non-empty 2D array containing only finite values
+            X = check_array(X)
+
+            # Check if provided similarity function applies to input
+            X = self._validate_X_predict(X)
+
+            X = X.astype(np.float32)
+
+
+        args = dict()
+
+        if self.random_state is not None:
+            args['random_state'] = self.random_state
+
+        if self.max_depth is not None:
+            args['max_depth'] = self.max_depth
+
+        if self.n_estimators is not None:
+            args['n_estimators'] = self.n_estimators
+
+        self._tree = CSimilarityForestClusterer(**args)
+        self._tree.fit(X)
 
 
 class SimilarityTreeClusterNew(BaseEstimator):
@@ -75,16 +159,16 @@ class SimilarityTreeClusterNew(BaseEstimator):
 
             X = X.astype(np.float32)
 
+
+        args = dict()
+
         if self.random_state is not None:
-            random_state = check_random_state(self.random_state)
-        else:
-            random_state = np.random.RandomState()
+            args['random_state'] = self.random_state
 
-        if self.max_depth is None:
-            self.max_depth = -1
+        if self.max_depth is not None:
+            args['max_depth'] = self.max_depth
 
-        self._tree = CSimilarityTreeCluster(random_state=self.random_state,
-                                            max_depth=self.max_depth)
+        self._tree = CSimilarityTreeCluster(**args)
         self._tree.fit(X)
 
     def predict(self, X, y=None, check_input=True):
