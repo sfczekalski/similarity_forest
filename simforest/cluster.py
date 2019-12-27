@@ -6,6 +6,7 @@ from sklearn.utils.validation import check_array, check_is_fitted, check_random_
 from scipy.special import comb
 from joblib import Parallel, delayed, Memory
 from simforest._cluster import CSimilarityTreeCluster, CSimilarityForestClusterer
+import time
 
 
 class SimilarityForestCluster(BaseEstimator, ClusterMixin):
@@ -96,10 +97,14 @@ class SimilarityForestCluster(BaseEstimator, ClusterMixin):
             args['n_estimators'] = self.n_estimators
 
         self.forest_ = CSimilarityForestClusterer(**args)
+        fit_start = time.time()
         self.forest_.fit(X)
+        print(f'Fitted in: {time.time()-fit_start} s')
         self.estimators_ = self.forest_.estimators_
 
+        pred_start = time.time()
         self.distance_matrix_ = self.forest_.predict_(X)
+        print(f'Predicted in: {time.time() - pred_start} s')
         assert len(self.distance_matrix_) == comb(X.shape[0], 2)
         if len(self.distance_matrix_) == 0:
             return 0

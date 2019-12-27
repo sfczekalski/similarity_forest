@@ -5,6 +5,8 @@ cimport numpy as np
 cimport cython
 from scipy.special import comb
 from sklearn.utils.validation import check_random_state
+from cython.parallel import prange, parallel
+cimport openmp
 
 cdef class CSimilarityForestClusterer:
 
@@ -127,7 +129,7 @@ cdef class CSimilarityTreeCluster:
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
-    cdef float sqeuclidean(self, float [:] u, float [:] v) nogil:
+    cdef float sqeuclidean(self, float [:] u, float [:] v):
         cdef float result = 0.0
         cdef int n = u.shape[0]
         for i in range(n):
@@ -137,26 +139,35 @@ cdef class CSimilarityTreeCluster:
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
-    cdef void _find_split(self, np.ndarray[np.float32_t, ndim=2] X):
+    cdef float sqeuclidean_projection(self, float [:] xi) nogil:
+        cdef float result = 0.0
+        cdef int n = xi.shape[0]
+        cdef int i = 0
+        for i in range(n):
+            result += (xi[i] - self._q[i]) ** 2 - (xi[i] - self._p[i]) ** 2
+
+        return result
+
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    cdef void _find_split(self, float [:, :] X):
 
         # Calculate similarities
         cdef int n = X.shape[0]
         cdef np.ndarray[np.float32_t, ndim=1] array = np.zeros(n, dtype=np.float32)
         cdef float [:] similarities = array
 
-        similarities[0] = self.sqeuclidean(X[0], self._q) - self.sqeuclidean(X[0], self._p)
-        cdef float similarities_min = similarities[0]
-        cdef float similarities_max = similarities[0]
 
-        for i in range(1, n):
-            similarities[i] = self.sqeuclidean(X[i], self._q) - self.sqeuclidean(X[i], self._p)
+        cdef int num_threads = 4
+        if n < 12:
+            num_threads = 1
+        cdef int i = 0
+        # Read about different schedules https://cython.readthedocs.io/en/latest/src/userguide/parallelism.html
+        for i in prange(n, schedule='dynamic', nogil=True, num_threads=num_threads):
+            array[i] = self.sqeuclidean_projection(X[i])
 
-            if similarities[i] < similarities_min:
-                similarities_min = similarities[i]
-
-            if similarities[i] > similarities_max:
-                similarities_max = similarities[i]
-
+        cdef float similarities_min = np.min(array)
+        cdef float similarities_max = np.max(array)
 
         # Find random split point
         self._split_point = self._rng.uniform(similarities_min, similarities_max, 1)
@@ -218,8 +229,8 @@ cdef class CSimilarityTreeCluster:
         if self.is_leaf:
             return self.depth
 
-        cdef bint path_i = self.sqeuclidean(xi, self._q) - self.sqeuclidean(xi, self._p) <= self._split_point
-        cdef bint path_j = self.sqeuclidean(xj, self._q) - self.sqeuclidean(xj, self._p) <= self._split_point
+        cdef bint path_i = self.sqeuclidean_projection(xi) <= self._split_point
+        cdef bint path_j = self.sqeuclidean_projection(xj) <= self._split_point
 
         if path_i == path_j:
             # the same path, check if go left or right
