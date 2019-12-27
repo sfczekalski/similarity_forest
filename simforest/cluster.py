@@ -8,7 +8,7 @@ from joblib import Parallel, delayed, Memory
 from simforest._cluster import CSimilarityTreeCluster, CSimilarityForestClusterer
 
 
-class SimilarityForestClusterNew(BaseEstimator):
+class SimilarityForestCluster(BaseEstimator, ClusterMixin):
     """A similarity tree clusterer. It is a base model used as building blocks for Similarity Forest ensemble.
         In case of clustering it is not intended to be used on its own.
 
@@ -39,12 +39,13 @@ class SimilarityForestClusterNew(BaseEstimator):
                  random_state=None,
                  sim_function='euclidean',
                  max_depth=None,
+                 n_clusters=20,
                  n_estimators=20):
         self.random_state = random_state
         self.sim_function = sim_function
         self.max_depth = max_depth
+        self.n_clusters = n_clusters
         self.n_estimators = n_estimators
-        self._forest = None
 
     def _validate_X_predict(self, X):
         """Validate X whenever one tries to predict, apply, predict_proba."""
@@ -77,6 +78,11 @@ class SimilarityForestClusterNew(BaseEstimator):
 
             X = X.astype(np.float32)
 
+        self.estimators_ = None
+        self.forest_ = None
+        self.distance_matrix_ = None
+        self.links_ = None
+        self.labels_ = None
 
         args = dict()
 
@@ -89,24 +95,43 @@ class SimilarityForestClusterNew(BaseEstimator):
         if self.n_estimators is not None:
             args['n_estimators'] = self.n_estimators
 
-        self._forest = CSimilarityForestClusterer(**args)
-        self._forest.fit(X)
+        self.forest_ = CSimilarityForestClusterer(**args)
+        self.forest_.fit(X)
+        self.estimators_ = self.forest_.estimators_
 
-    def predict(self, X, y=None, check_input=True):
-        if check_input:
+        self.distance_matrix_ = self.forest_.predict_(X)
+        assert len(self.distance_matrix_) == comb(X.shape[0], 2)
+        if len(self.distance_matrix_) == 0:
+            return 0
 
-            # Input validation, check it to be a non-empty 2D array containing only finite values
-            X = check_array(X)
+        self.links_ = linkage(self.distance_matrix_)
 
-            # Check if provided similarity function applies to input
-            X = self._validate_X_predict(X)
+        clusters = fcluster(self.links_, self.n_clusters, criterion='maxclust')
+        # cluster labels should start from 0
+        clusters = clusters - 1
+        assert len(clusters) == X.shape[0]
+        self.labels_ = clusters
 
-            X = X.astype(np.float32)
+        return self
 
-        return self._forest.predict(X)
+    def fit_predict(self, X, y=None):
+        """Build a forest of trees from the training set (X, y=None) and return cluster labels
+                Parameters
+                ----------
+                    X : array-like matrix of shape = [n_samples, n_features]
+                        The training data samples.
+                    y : None
+                        y added to follow Sklearn API.
+                Returns
+                -------
+                    p : array of shape = [n_samples,]
+                    Predicted labels of the input samples' clusters.
+        """
+        self.fit(X)
+        return self.labels_
 
 
-class SimilarityTreeClusterNew(BaseEstimator):
+class SimilarityTreeCluster(BaseEstimator):
     """A similarity tree clusterer. It is a base model used as building blocks for Similarity Forest ensemble.
         In case of clustering it is not intended to be used on its own.
 
@@ -136,8 +161,7 @@ class SimilarityTreeClusterNew(BaseEstimator):
     def __init__(self,
                  random_state=None,
                  sim_function='euclidean',
-                 max_depth=None,
-                 depth=1):
+                 max_depth=None):
         self.random_state = random_state
         self.sim_function = sim_function
         self.max_depth = max_depth
@@ -185,21 +209,10 @@ class SimilarityTreeClusterNew(BaseEstimator):
         self._tree = CSimilarityTreeCluster(**args)
         self._tree.fit(X)
 
-    def predict(self, X, y=None, check_input=True):
-        if check_input:
-
-            # Input validation, check it to be a non-empty 2D array containing only finite values
-            X = check_array(X)
-
-            # Check if provided similarity function applies to input
-            X = self._validate_X_predict(X)
-
-            X = X.astype(np.float32)
-
-        return self._tree.predict(X)
+        return self
 
 
-class SimilarityTreeCluster(BaseEstimator):
+class PySimilarityTreeCluster(BaseEstimator):
     """A similarity tree clusterer. It is a base model used as building blocks for Similarity Forest ensemble.
         In case of clustering it is not intended to be used on its own.
 
@@ -352,13 +365,13 @@ class SimilarityTreeCluster(BaseEstimator):
         rhs_idxs = np.nonzero(self._similarities > self._split_point)[0]
 
         if len(lhs_idxs) > 0 and len(rhs_idxs) > 0:
-            self._lhs = SimilarityTreeCluster(random_state=self.random_state,
+            self._lhs = PySimilarityTreeCluster(random_state=self.random_state,
                                               sim_function=self.sim_function,
                                               max_depth=self.max_depth,
                                               depth=self.depth+1). \
                 fit(X[lhs_idxs], check_input=False)
 
-            self._rhs = SimilarityTreeCluster(random_state=self.random_state,
+            self._rhs = PySimilarityTreeCluster(random_state=self.random_state,
                                               sim_function=self.sim_function,
                                               max_depth=self.max_depth,
                                               depth=self.depth+1). \
@@ -424,7 +437,7 @@ class SimilarityTreeCluster(BaseEstimator):
             return self.depth
 
 
-class SimilarityForestCluster(BaseEstimator, ClusterMixin):
+class PySimilarityForestCluster(BaseEstimator, ClusterMixin):
     """A similarity forest clusterer.
             A similarity forest is a meta estimator that fits a number of similarity tree clusterers on various
             sub-samples of the dataset and computes pairwise similarities between objects by measuring the depth
@@ -467,9 +480,9 @@ class SimilarityForestCluster(BaseEstimator, ClusterMixin):
             max_depth : int or None, optional (default=None)
                 The maximum depth of the tree. If None, then nodes are expanded until all leaves are pure or until all
                 leaves contain less than min_samples_split samples.
-            base_estimator_ : SimilarityTreeCluster
+            base_estimator_ : PySimilarityTreeCluster
                 The child estimator template used to create the collection of fitted sub-estimators.
-            estimators_ : list of SimilarityTreeCluster
+            estimators_ : list of PySimilarityTreeCluster
                 The collection of fitted sub-estimators.
             distance_matrix : ndarray of shape (comb(n_samples,2),)
                 Array of distances between all points.
@@ -491,7 +504,7 @@ class SimilarityForestCluster(BaseEstimator, ClusterMixin):
     """
     def __init__(self,
                  random_state=None,
-                 n_clusters=3,
+                 n_clusters=8,
                  n_estimators=20,
                  sim_function=euclidean,
                  max_depth=None):
@@ -535,7 +548,7 @@ class SimilarityForestCluster(BaseEstimator, ClusterMixin):
             # Check if provided similarity function applies to input
             X = self._validate_X_predict(X)
 
-        self.base_estimator_ = SimilarityTreeCluster
+        self.base_estimator_ = PySimilarityTreeCluster
         if self.random_state is not None:
             random_state = check_random_state(self.random_state)
         else:
@@ -547,7 +560,7 @@ class SimilarityForestCluster(BaseEstimator, ClusterMixin):
         self.estimators_ = []
         for i in range(self.n_estimators):
             idxs = random_state.choice(all_idxs, n, replace=True)
-            tree = SimilarityTreeCluster(random_state=self.random_state,
+            tree = PySimilarityTreeCluster(random_state=self.random_state,
                                          sim_function=self.sim_function,
                                          max_depth=self.max_depth).fit(X[idxs], check_input=False)
 

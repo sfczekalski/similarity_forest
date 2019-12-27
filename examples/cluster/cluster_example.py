@@ -7,23 +7,15 @@ from sklearn.decomposition import PCA
 from mpl_toolkits.mplot3d import Axes3D
 from sklearn.cluster import AgglomerativeClustering
 from scipy.spatial.distance import sqeuclidean
-from simforest.cluster import SimilarityTreeClusterNew, SimilarityForestClusterNew
+from simforest.cluster import SimilarityTreeCluster, SimilarityForestCluster
 
 X, y = load_iris(return_X_y=True)
 import time
 start = time.time()
-csf = SimilarityForestClusterNew(random_state=1)
-csf.fit(X)
+csf = SimilarityForestCluster()
+clusters = csf.fit_predict(X)
 print(time.time() - start)
-
-start = time.time()
-distance_matrix = csf.predict(X)
-print(time.time() - start)
-
-links = linkage(distance_matrix)
-clusters = fcluster(links, 3, criterion='maxclust')
-
-dendrogram(links)
+dendrogram(csf.links_)
 plt.show()
 
 pca = PCA(n_components=3, random_state=42).fit_transform(X, y)
