@@ -4,6 +4,7 @@ from scipy.cluster.hierarchy import linkage, fcluster
 from sklearn.base import BaseEstimator, ClusterMixin, TransformerMixin
 from sklearn.utils.validation import check_array, check_is_fitted, check_random_state, check_X_y
 from scipy.special import comb
+from scipy.spatial.distance import squareform
 from joblib import Parallel, delayed, Memory
 from simforest._cluster import CSimilarityTreeCluster, CSimilarityForestClusterer
 import time
@@ -104,12 +105,11 @@ class SimilarityForestCluster(BaseEstimator, ClusterMixin):
 
         pred_start = time.time()
         self.distance_matrix_ = self.forest_.ppredict_(X)
-        print(f'Predicted in: {time.time() - pred_start} s')
-        assert len(self.distance_matrix_) == comb(X.shape[0], 2)
+        print(time.time() - pred_start)
         if len(self.distance_matrix_) == 0:
             return 0
 
-        self.links_ = linkage(self.distance_matrix_)
+        self.links_ = linkage(squareform(self.distance_matrix_))
 
         clusters = fcluster(self.links_, self.n_clusters, criterion='maxclust')
         # cluster labels should start from 0

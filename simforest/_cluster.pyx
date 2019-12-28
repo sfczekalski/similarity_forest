@@ -78,32 +78,42 @@ cdef class CSimilarityForestClusterer:
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
-    cpdef np.ndarray[np.float32_t, ndim=1] ppredict_(self, np.ndarray[np.float32_t, ndim=2] X):
+    cpdef np.ndarray[np.float32_t, ndim=2] ppredict_(self, np.ndarray[np.float32_t, ndim=2] X):
+        """
+        Notes
+        ------
+            In parallel implementation distance is calculated as a sum of 1/similarity across the trees,
+            instead of 1 / sum of similarities.
+            
+            Parallel implementation materializes the whole N*N distance matrix instead of comb(N, 2) flat array.
+            Possibly change it in the future.
+            
+        """
         cdef int n = X.shape[0]
+        cdef float [:, :] X_view = X
 
-        cdef np.ndarray[np.float32_t, ndim=1] dinstance_matrix = np.ones(<int>comb(n, 2), np.float32, order='c')
-        cdef float [:] dinstance_matrix_view = dinstance_matrix
+        cdef np.ndarray[np.float32_t, ndim=2] dinstance_matrix = np.zeros(shape=(n, n), dtype=np.float32)
+        cdef float [:, :] dinstance_matrix_view = dinstance_matrix
 
         cdef float similarity = 0.0
 
-        cdef int num_threads = 4
+        cdef int num_threads = 8
         cdef int diagonal = 1
-        cdef int idx = 0
         cdef int i = 0
         cdef int j = 0
         cdef int e = 0
+        cdef CSimilarityTreeCluster current_tree
+
         for e in range(self.n_estimators):
+            current_tree = self.estimators_[e]
             for i in range(n):
-                for j in range(diagonal, n):
-                    similarity += self.estimators_[e].distance(X[i], X[j])
-                    dinstance_matrix_view[idx] = 1 / <float>similarity
-                    similarity = 0.0
-                    idx += 1
+                for j in prange(n, nogil=True, schedule='dynamic', num_threads=num_threads):
+                    if i == j:
+                        continue
+                    similarity = current_tree.distance(X_view[i], X_view[j])
+                    dinstance_matrix_view[i, j] += 1 / <float>similarity
+                    dinstance_matrix_view[j, i] = dinstance_matrix_view[i, j]
 
-                diagonal += 1
-
-            idx = 0
-            diagonal = 1
 
         return dinstance_matrix
 
@@ -265,7 +275,7 @@ cdef class CSimilarityTreeCluster:
 
         return self
 
-    cpdef int distance(self, float [:] xi, float [:] xj):
+    cdef int distance(self, float [:] xi, float [:] xj) nogil:
         if self.is_leaf:
             return self.depth
 
