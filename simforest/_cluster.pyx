@@ -51,22 +51,59 @@ cdef class CSimilarityForestClusterer:
     @cython.wraparound(False)
     cpdef np.ndarray[np.float32_t, ndim=1] predict_(self, np.ndarray[np.float32_t, ndim=2] X):
         cdef int n = X.shape[0]
-        cdef np.ndarray[np.float32_t, ndim=1] dinstance_matrix = np.ones(<int>comb(n, 2), np.float32)
+        cdef np.ndarray[np.float32_t, ndim=1] dinstance_matrix = np.ones(<int>comb(n, 2), np.float32, order='c')
         cdef float [:] view = dinstance_matrix
 
-
+        cdef int num_threads = 4
         cdef int diagonal = 1
         cdef int idx = 0
-        cdef float dist = 0.0
+        cdef float similarity = 0.0
+        cdef int i = 0
+        cdef int j = 0
+        cdef int e = 0
         for i in range(n):
             for j in range(diagonal, n):
-                for e in range(self.n_estimators):
-                    dist += self.estimators_[e].distance(X[i], X[j])
+                for e in range(self.n_estimators,):
+                    similarity += self.estimators_[e].distance(X[i], X[j])
 
-                dist = dist/<float>self.n_estimators
-                view[idx] = 1 / <float>dist
+                # similarity is an average depth at which points split across all trees
+                #similarity = similarity/<float>self.n_estimators
+                # distance = 1 / similarity
+                view[idx] = 1 / <float>similarity
+                similarity = 0.0
                 idx += 1
             diagonal += 1
+
+        return dinstance_matrix
+
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    cpdef np.ndarray[np.float32_t, ndim=1] ppredict_(self, np.ndarray[np.float32_t, ndim=2] X):
+        cdef int n = X.shape[0]
+
+        cdef np.ndarray[np.float32_t, ndim=1] dinstance_matrix = np.ones(<int>comb(n, 2), np.float32, order='c')
+        cdef float [:] dinstance_matrix_view = dinstance_matrix
+
+        cdef float similarity = 0.0
+
+        cdef int num_threads = 4
+        cdef int diagonal = 1
+        cdef int idx = 0
+        cdef int i = 0
+        cdef int j = 0
+        cdef int e = 0
+        for e in range(self.n_estimators):
+            for i in range(n):
+                for j in range(diagonal, n):
+                    similarity += self.estimators_[e].distance(X[i], X[j])
+                    dinstance_matrix_view[idx] = 1 / <float>similarity
+                    similarity = 0.0
+                    idx += 1
+
+                diagonal += 1
+
+            idx = 0
+            diagonal = 1
 
         return dinstance_matrix
 
@@ -105,10 +142,12 @@ cdef class CSimilarityTreeCluster:
         cdef int n = X.shape[0]
         cdef int m = X.shape[1]
         cdef int pure = 1
+        cdef int i =0
+        cdef int j = 0
 
         for i in range(n-1):
             for j in range(m):
-                # found different raw! Not pure
+                # found different row! Not pure
                 if X[i, j] != X[i+1, j]:
                     pure = 0
                     break
@@ -129,9 +168,10 @@ cdef class CSimilarityTreeCluster:
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
-    cdef float sqeuclidean(self, float [:] u, float [:] v):
+    cdef float sqeuclidean(self, float [:] u, float [:] v) nogil:
         cdef float result = 0.0
         cdef int n = u.shape[0]
+        cdef int i = 0
         for i in range(n):
             result += (u[i] - v[i]) ** 2
 
@@ -154,7 +194,7 @@ cdef class CSimilarityTreeCluster:
 
         # Calculate similarities
         cdef int n = X.shape[0]
-        cdef np.ndarray[np.float32_t, ndim=1] array = np.zeros(n, dtype=np.float32)
+        cdef np.ndarray[np.float32_t, ndim=1] array = np.zeros(n, dtype=np.float32, order='c')
         cdef float [:] similarities = array
 
 
@@ -245,7 +285,7 @@ cdef class CSimilarityTreeCluster:
 
     cpdef np.ndarray[np.float32_t, ndim=1] predict_(self, np.ndarray[np.float32_t, ndim=2] X):
         cdef int n = X.shape[0]
-        cdef np.ndarray[np.float32_t, ndim=1] distance_matrix = np.ones(<int>comb(n, 2), dtype=np.float32)
+        cdef np.ndarray[np.float32_t, ndim=1] distance_matrix = np.ones(<int>comb(n, 2), dtype=np.float32, order='c')
         cdef float [:] view = distance_matrix
 
 

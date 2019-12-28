@@ -56,10 +56,10 @@ def artificial():
         X = df.values[:, 0:2]
 
         sf = SimilarityForestCluster(max_depth=5)
-        clusters = sf.fit(X)
-        '''plt.scatter(X[:, 0], X[:, 1], c=clusters, cmap='Set1', alpha=0.8)
+        clusters = sf.fit_predict(X)
+        plt.scatter(X[:, 0], X[:, 1], c=clusters, cmap='Set1', alpha=0.8)
         plt.title(file_name)
-        plt.show()'''
+        plt.show()
 
 
 def real_world():

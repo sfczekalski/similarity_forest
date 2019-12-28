@@ -103,7 +103,7 @@ class SimilarityForestCluster(BaseEstimator, ClusterMixin):
         self.estimators_ = self.forest_.estimators_
 
         pred_start = time.time()
-        self.distance_matrix_ = self.forest_.predict_(X)
+        self.distance_matrix_ = self.forest_.ppredict_(X)
         print(f'Predicted in: {time.time() - pred_start} s')
         assert len(self.distance_matrix_) == comb(X.shape[0], 2)
         if len(self.distance_matrix_) == 0:
