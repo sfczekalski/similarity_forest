@@ -1,15 +1,8 @@
-import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
+import pandas as pd
 from scipy.io.arff import loadarff
-from os import listdir
 from os.path import join
-from simforest.cluster import SimilarityForestCluster
-from scipy.spatial.distance import sqeuclidean
-from sklearn.decomposition import PCA
-from sklearn.utils.validation import check_array
 from sklearn.preprocessing import LabelEncoder, StandardScaler
-from sklearn.cluster import AgglomerativeClustering, KMeans
 
 
 def fix_dtypes(df):
@@ -40,7 +33,7 @@ def fix_col_names(df):
     return df
 
 
-def artificial():
+def preprocess():
     path = '../data/clustering_benchmark/artificial/'
     interesing = ['elly-2d10c13s.arff',
                   'engytime.arff',
@@ -95,11 +88,8 @@ def artificial():
                   'sizes5.arff'
                   ]
     for file_name in interesing:
-        try:
-            file = loadarff(join(path, file_name))
-        except NotImplementedError:
-            # Some datasets include string attributes, and loadarff can't handle them
-            continue
+        file = loadarff(join(path, file_name))
+
         df = pd.DataFrame(file[0])
         df = fix_dtypes(df)
         if df.shape[0] >= 2000:
@@ -107,49 +97,4 @@ def artificial():
         df = fix_col_names(df)
         X = df.values[:, 0:2]
 
-        sf = SimilarityForestCluster(max_depth=5)
-        clusters = sf.fit_predict(X)
-        print(file_name)
-        plt.scatter(X[:, 0], X[:, 1], c=clusters, cmap='Set1', alpha=0.8)
-        plt.title(file_name)
-        plt.show()
-
-
-def real_world():
-    path = '../data/clustering_benchmark/real-world/'
-    for file_name in listdir(path):
-        try:
-            file = loadarff(join(path, file_name))
-        except NotImplementedError:
-            # Some datasets include string attributes, and loadarff can't handle them
-            continue
-        df = pd.DataFrame(file[0])
-        if 'class' in df.columns:
-            class_column = 'class'
-            y, df = df.pop(class_column), df
-        elif 'Class' in df.columns:
-            class_column = 'Class'
-            y, df = df.pop(class_column), df
-        elif 'CLASS' in df.columns:
-            class_column = 'CLASS'
-            y, df = df.pop(class_column), df
-        else:
-            pass
-
-        df.fillna(0, inplace=True)
-        df = fix_dtypes(df)
-        '''if df.shape[0] >= 1000:
-            df = df.sample(n=1000)'''
-
-        if not file_name == 'balance-scale.arff':
-            df = StandardScaler().fit_transform(df)
-
-        sf = SimilarityForestCluster()
-        clusters = sf.fit_predict(df)
-
-        x = PCA(n_components=2, random_state=42).fit_transform(df)
-        plt.scatter(x[:, 0], x[:, 1], c=clusters)
-        plt.show()
-
-
-artificial()
+        yield file_name, X

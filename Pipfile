@@ -10,6 +10,8 @@ scikit-learn = "*"
 matplotlib = "*"
 pandas = "*"
 cython = "*"
+neptune-client = "*"
+psutil = "*"
 
 [dev-packages]
 pytest = "*"

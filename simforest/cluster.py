@@ -86,6 +86,7 @@ class SimilarityForestCluster(BaseEstimator, ClusterMixin):
         self.links_ = None
         self.labels_ = None
 
+
         args = dict()
 
         if self.random_state is not None:
@@ -98,24 +99,22 @@ class SimilarityForestCluster(BaseEstimator, ClusterMixin):
             args['n_estimators'] = self.n_estimators
 
         self.forest_ = CSimilarityForestClusterer(**args)
-        fit_start = time.time()
         self.forest_.fit(X)
-        print(f'Fitted in: {time.time()-fit_start} s')
         self.estimators_ = self.forest_.estimators_
 
-        pred_start = time.time()
-        self.distance_matrix_ = self.forest_.ppredict_(X)
-        print(time.time() - pred_start)
-        if len(self.distance_matrix_) == 0:
-            return 0
+        if X.shape[0] > 1:
+            self.distance_matrix_ = self.forest_.ppredict_(X)
 
-        self.links_ = linkage(squareform(self.distance_matrix_))
+            self.links_ = linkage(squareform(self.distance_matrix_))
 
-        clusters = fcluster(self.links_, self.n_clusters, criterion='maxclust')
-        # cluster labels should start from 0
-        clusters = clusters - 1
-        assert len(clusters) == X.shape[0]
-        self.labels_ = clusters
+            clusters = fcluster(self.links_, self.n_clusters, criterion='maxclust')
+            # cluster labels should start from 0
+            clusters = clusters - 1
+            assert len(clusters) == X.shape[0]
+            self.labels_ = clusters
+
+        else:
+            self.labels_ = 0
 
         return self
 

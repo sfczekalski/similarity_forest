@@ -6,10 +6,10 @@ from simforest.cluster import SimilarityForestCluster
 from sklearn.utils.estimator_checks import parametrize_with_checks
 
 
-@pytest.mark.parametrize("Estimator", [SimilarityTreeClassifier, SimilarityForestClassifier,
+'''@pytest.mark.parametrize("Estimator", [SimilarityTreeClassifier, SimilarityForestClassifier,
                                        SimilarityTreeRegressor, SimilarityForestRegressor])
 def test_all_estimators(Estimator):
-    return check_estimator(Estimator)
+    return check_estimator(Estimator)'''
 
 
 # This method runs all test independently, and reports all the fails
