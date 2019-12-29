@@ -12,6 +12,7 @@ pandas = "*"
 cython = "*"
 neptune-client = "*"
 psutil = "*"
+hdbscan = "*"
 
 [dev-packages]
 pytest = "*"

@@ -3,10 +3,12 @@ from scipy.spatial.distance import euclidean
 from scipy.cluster.hierarchy import linkage, fcluster
 from sklearn.base import BaseEstimator, ClusterMixin, TransformerMixin
 from sklearn.utils.validation import check_array, check_is_fitted, check_random_state, check_X_y
+from sklearn.metrics import silhouette_score
 from scipy.special import comb
 from scipy.spatial.distance import squareform
 from joblib import Parallel, delayed, Memory
 from simforest._cluster import CSimilarityTreeCluster, CSimilarityForestClusterer
+import hdbscan
 import time
 
 
@@ -42,11 +44,15 @@ class SimilarityForestCluster(BaseEstimator, ClusterMixin):
                  sim_function='euclidean',
                  max_depth=None,
                  n_clusters=20,
+                 threshold=1.0,
+                 technique='ahc',
                  n_estimators=20):
         self.random_state = random_state
         self.sim_function = sim_function
         self.max_depth = max_depth
         self.n_clusters = n_clusters
+        self.threshold = threshold
+        self.technique = technique
         self.n_estimators = n_estimators
 
     def _validate_X_predict(self, X):
@@ -105,9 +111,17 @@ class SimilarityForestCluster(BaseEstimator, ClusterMixin):
         if X.shape[0] > 1:
             self.distance_matrix_ = self.forest_.ppredict_(X)
 
-            self.links_ = linkage(squareform(self.distance_matrix_))
+            if self.technique == 'ahc':
+                self.links_ = linkage(squareform(self.distance_matrix_))
 
-            clusters = fcluster(self.links_, self.n_clusters, criterion='maxclust')
+                #clusters = fcluster(self.links_, t=self.threshold)
+                clusters = fcluster(self.links_, self.n_clusters, criterion='maxclust')
+
+            elif self.technique == 'hdbscan':
+                hdb = hdbscan.HDBSCAN(metric='precomputed')
+                hdb.fit(self.distance_matrix_.astype(float))
+                clusters = hdb.labels_
+
             # cluster labels should start from 0
             clusters = clusters - 1
             assert len(clusters) == X.shape[0]

@@ -35,15 +35,9 @@ def fix_col_names(df):
 
 def preprocess():
     path = '../data/clustering_benchmark/artificial/'
-    interesing = ['elly-2d10c13s.arff',
-                  'engytime.arff',
-                  'cluto-t5-8k.arff',
-                  'cluto-t5-8k.arff',
-                  '2d-3c-no123.arff',
+    interesing = ['2d-3c-no123.arff',
                   'dpb.arff',
                   'cure-t2-4k.arff',
-                  'birch-rg3.arff',
-                  'birch-rg3.arff',
                   'sizes3.arff',
                   '2d-10c.arff',
                   'DS-850.arff',

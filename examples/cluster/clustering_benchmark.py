@@ -6,10 +6,13 @@ from os import listdir
 from os.path import join
 from simforest.cluster import SimilarityForestCluster
 from scipy.spatial.distance import sqeuclidean
+from scipy.cluster.hierarchy import dendrogram
 from sklearn.decomposition import PCA
 from sklearn.utils.validation import check_array
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.cluster import AgglomerativeClustering, KMeans
+import hdbscan
+from sklearn.metrics import silhouette_score, davies_bouldin_score
 
 
 def fix_dtypes(df):
@@ -42,15 +45,10 @@ def fix_col_names(df):
 
 def artificial():
     path = '../data/clustering_benchmark/artificial/'
-    interesing = ['elly-2d10c13s.arff',
-                  'engytime.arff',
-                  'cluto-t5-8k.arff',
-                  'cluto-t5-8k.arff',
+    interesing = [
                   '2d-3c-no123.arff',
                   'dpb.arff',
                   'cure-t2-4k.arff',
-                  'birch-rg3.arff',
-                  'birch-rg3.arff',
                   'sizes3.arff',
                   '2d-10c.arff',
                   'DS-850.arff',
@@ -107,11 +105,31 @@ def artificial():
         df = fix_col_names(df)
         X = df.values[:, 0:2]
 
-        sf = SimilarityForestCluster(max_depth=5)
-        clusters = sf.fit_predict(X)
-        print(file_name)
-        plt.scatter(X[:, 0], X[:, 1], c=clusters, cmap='Set1', alpha=0.8)
-        plt.title(file_name)
+        figure, axs = plt.subplots(2, 2, figsize=(10, 10))
+
+        params = dict()
+        params['n_clusters'] = 20
+        params['max_depth'] = 5
+        params['n_estimators'] = 20
+        params['random_state'] = 1
+        params['technique'] = 'hdbscan'
+        sf = SimilarityForestCluster(**params)
+        sf_clusters = sf.fit_predict(X)
+        axs[0, 0].scatter(X[:, 0], X[:, 1], c=sf_clusters, cmap='Set1', alpha=0.8)
+        axs[0, 0].set_title('SimilarityForestCluster')
+
+        hdb_clusters = hdbscan.HDBSCAN().fit_predict(X)
+        axs[0, 1].scatter(X[:, 0], X[:, 1], c=hdb_clusters, cmap='Set1', alpha=0.8)
+        axs[0, 1].set_title('HDBSCAN')
+
+        ahc_clusters = AgglomerativeClustering(n_clusters=20).fit_predict(X)
+        axs[1, 0].scatter(X[:, 0], X[:, 1], c=ahc_clusters, cmap='Set1', alpha=0.8)
+        axs[1, 0].set_title('AHC')
+
+        kmeans_clusters = KMeans(n_clusters=20).fit_predict(X)
+        axs[1, 1].scatter(X[:, 0], X[:, 1], c=kmeans_clusters, cmap='Set1', alpha=0.8)
+        axs[1, 1].set_title('KMeans')
+
         plt.show()
 
 
