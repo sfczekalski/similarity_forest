@@ -7,8 +7,9 @@ import os
 from setuptools import find_packages, setup
 
 # Cython compiling
-from distutils.core import setup
+from distutils.core import setup, Extension
 from Cython.Build import cythonize
+from Cython.Distutils import build_ext
 import numpy
 
 # get __version__ from _version.py
@@ -70,7 +71,21 @@ setup(name=DISTNAME,
       extras_require=EXTRAS_REQUIRE)
 
 # Cython compiling
-setup(
+'''setup(
       ext_modules=cythonize("simforest/criterion.pyx", annotate=True),
       include_path=[numpy.get_include()]
+)'''
+
+ext_utils = Extension(
+    '_cluster'
+    , sources=['simforest/criterion.pyx']
+    , include_dirs=[numpy.get_include()]
+    , extra_compile_args=['-O3', '-march=native', '-ffast-math', '-fopenmp']
+    , extra_link_args=['-fopenmp']
+)
+setup(
+    name='_cluster',
+    setup_requires=['cython', 'numpy']
+    , cmdclass={'build_ext': build_ext}
+    , ext_modules=cythonize([ext_utils]),
 )

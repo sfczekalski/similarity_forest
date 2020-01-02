@@ -10,9 +10,7 @@ from scipy.spatial import distance
 import pandas as pd
 
 
-#y = y + np.abs(np.min(y))
-
-X, y = load_svmlight_file('../data/mpg')
+X, y = load_svmlight_file('../data/eunite2001')
 X = X.toarray()
 
 #X, y = make_friedman1(n_samples=1000, random_state=42)
@@ -35,7 +33,7 @@ y, X = df.pop('quality'), df'''
 
 
 #X = SelectKBest(f_regression, k=8).fit_transform(X, y)
-#y = y + np.abs(np.min(y))
+y = y + np.abs(np.min(y))
 X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.3, random_state=42)
 

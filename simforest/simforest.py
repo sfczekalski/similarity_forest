@@ -10,7 +10,7 @@ from sklearn.utils.validation import check_X_y, check_array, check_is_fitted, ch
 from sklearn.utils.multiclass import unique_labels, check_classification_targets
 from simforest.rcriterion import gini_index, weighted_variance, evaluate_split, theil
 from ineqpy import atkinson
-from simforest.criterion import find_split_variance, find_split_theil, find_split_atkinson
+from simforest.criterion import find_split_variance, find_split_theil, find_split_atkinson, pfind_split_atkinson
 from simforest.utils import plot_projection
 
 
@@ -212,8 +212,6 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
         if not isinstance(self.n_directions, int):
             raise ValueError('n_directions parameter must be an int')
 
-        self.X_ = X
-        self.y_ = y
         self._lhs = None
         self._rhs = None
         self._p = None
@@ -284,7 +282,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
                                                      sim_function=self.sim_function,
                                                      classes=self.classes_,
                                                      max_depth=self.max_depth,
-                                                     depth=self.depth+1).fit(self.X_[lhs_idxs], self.y_[lhs_idxs],
+                                                     depth=self.depth+1).fit(X[lhs_idxs], y[lhs_idxs],
                                                                              check_input=False)
 
                 self._rhs = SimilarityTreeClassifier(random_state=self.random_state,
@@ -292,7 +290,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
                                                      sim_function=self.sim_function,
                                                      classes=self.classes_,
                                                      max_depth=self.max_depth,
-                                                     depth=self.depth+1).fit(self.X_[rhs_idxs], self.y_[rhs_idxs],
+                                                     depth=self.depth+1).fit(X[rhs_idxs], y[rhs_idxs],
                                                                              check_input=False)
             else:
                 return self
@@ -453,13 +451,13 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
             X = self._validate_X_predict(X, check_input)
 
         if self._is_leaf:
-            return f'In the leaf node, containing samples: \n {list(zip(self.X_, self.y_))}'
+            return f'In the leaf node, containing samples: \n {list(zip(X, y))}'
 
         similarity = self.sim_function(X, self._q) - self.sim_function(X, self._p)
         left = similarity <= self._split_point
         t = self._lhs if left else self._rhs
         if t is None:
-            return f'In the leaf node, containing samples: \n {list(zip(self.X_, self.y_))}'
+            return f'In the leaf node, containing samples: \n {list(zip(X, y))}'
 
         if left:
             print(f'Going left P: {self._p}, \t Q: {self._q}, \t split point: {self._split_point}, \t similarity: {similarity}')
@@ -762,8 +760,6 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
             Attributes
             ----------
             is_fitted_ : bool flag indicating whenever fit has been called
-            X_ : data used for fitting the forest
-            y_ : training data outputs
             _nodes_list : list of SimilarityTreeClassifier instances, that is tree nodes
             _lhs : SimilarityTreeClassifier current node's left child node
             _rhs : SimilarityTreeClassifier current node's right child node
@@ -979,7 +975,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
             split_point : split threshold
             similarities : array of shape (n_samples,), values of similarity-values based projection
         """
-        similarities = np.array([self.sim_function(x, q) - self.sim_function(x, p) for x in X])
+        similarities = np.array([self.sim_function(x, q) - self.sim_function(x, p) for x in X], dtype=np.float32)
         indices = sorted([i for i in range(len(y)) if not np.isnan(similarities[i])],
                          key=lambda x: similarities[x])
         y = y[indices]
@@ -1048,8 +1044,6 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         if not isinstance(self.n_directions, int):
             raise ValueError('n_directions parameter must be an int')
 
-        self.X_ = X
-        self.y_ = y
         self._lhs = None
         self._rhs = None
         self._p = None
@@ -1068,24 +1062,24 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         self._node_id = len(self._nodes_list)
 
         # Value of predicion
-        self._value = np.mean(self.y_)
+        self._value = np.mean(y)
 
         # Current node's impurity
         if self.criterion == 'variance':
-            self._impurity = np.var(self.y_)
+            self._impurity = np.var(y)
         elif self.criterion == 'theil':
-            self._impurity = theil(self.y_)
+            self._impurity = theil(y)
         elif self.criterion == 'atkinson':
-            self._impurity = atkinson(self.y_)
+            self._impurity = atkinson(y)
         else:
             raise ValueError('Unknown split criterion')
 
-        if self._impurity < 0.001:
+        if y.size == 1:
             self._is_leaf = True
             self.is_fitted_ = True
             return self
 
-        if self.y_.size == 1:
+        if self._is_pure(y):
             self._is_leaf = True
             self.is_fitted_ = True
             return self
@@ -1096,7 +1090,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
                 self.is_fitted_ = True
                 return self
 
-        if len(self.y_) <= self.min_samples_split:
+        if len(y) <= self.min_samples_split:
             self._is_leaf = True
             self.is_fitted_ = True
             return self
@@ -1107,8 +1101,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         best_p = None
         best_q = None
         similarities = []
-
-        for i, j in self._sample_directions(random_state, self.y_, self.n_directions):
+        for i, j in self._sample_directions(random_state, y, self.n_directions):
 
             impurity, split_point, curr_similarities = self._find_split(X, y, X[i], X[j])
             if impurity < best_impurity:
@@ -1123,7 +1116,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
             self._split_point = best_split_point
             self._p = best_p
             self._q = best_q
-            self._similarities = np.array(similarities)
+            self._similarities = np.array(similarities, dtype=np.float32)
 
             # Left- and right-hand side partitioning
             lhs_idxs = np.nonzero(self._similarities <= self._split_point)[0]
@@ -1138,7 +1131,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
                                                      discriminative_sampling=self.discriminative_sampling,
                                                      criterion=self.criterion,
                                                      plot_splits=self.plot_splits).\
-                    fit(self.X_[lhs_idxs], self.y_[lhs_idxs], check_input=False)
+                    fit(X[lhs_idxs], y[lhs_idxs], check_input=False)
 
                 self._rhs = SimilarityTreeRegressor(random_state=self.random_state,
                                                      n_directions=self.n_directions,
@@ -1148,7 +1141,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
                                                      discriminative_sampling=self.discriminative_sampling,
                                                      criterion=self.criterion,
                                                      plot_splits=self.plot_splits).\
-                    fit(self.X_[rhs_idxs], self.y_[rhs_idxs], check_input=False)
+                    fit(X[rhs_idxs], y[rhs_idxs], check_input=False)
             else:
                 raise ValueError('Left- and right-hand-side indexes havn\'t been found,'
                                  'even though the split had been found')
@@ -1189,7 +1182,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
 
             X = self._validate_X_predict(X, check_input)
 
-        return np.array([self.predict_row_output(x) for x in X])
+        return np.array([self.predict_row_output(x) for x in X], dtype=np.float32)
 
     def predict_row_output(self, x):
         """ Predict regression output of a single data-point.
@@ -1214,6 +1207,11 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         if t is None:
             return self._value
         return t.predict_row_output(x)
+
+    def _is_pure(self, y):
+        """Check whenever current node containts only elements from one class."""
+
+        return np.unique(y).size == 1
 
     @property
     def feature_importances_(self):
@@ -1356,8 +1354,6 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
 
         y = np.atleast_1d(y)
 
-        self.X_ = X
-        self.y_ = y
         self.base_estimator_ = SimilarityTreeRegressor
 
         # Check input

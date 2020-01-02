@@ -1,5 +1,8 @@
+import numpy as np
+cimport numpy as np
 cimport cython
 from libc.math cimport log, fabs, sqrt
+from cython.parallel import prange, parallel
 
 cdef extern from "math.h":
     float INFINITY
@@ -301,7 +304,7 @@ cdef float theil_index(int split_index, float [:] y, int len_y):
     cdef float result = left_proportion * theil(left_partition, len_left_partition) + \
            (1.0 - left_proportion) * theil(right_partition, len_right_partition)
 
-    assert result >= 0.0, 'result should be >= 0.0'
+    assert result >= -0.1, 'Negative Atkinson index'
     return result
 
 @cython.boundscheck(False)
@@ -348,6 +351,40 @@ cdef float theil(float [:] y, int array_size):
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
+def pfind_split_atkinson(float [:] y, float [:] s, int max_range):
+    """This is a function calculating optimal split according to criterion of minimizing Atkinson index
+            Parameters
+            ---------
+                y : numpy array of type np.float32, array of objects' labels, order by objects' similarity
+                s : numpy array of type np.float32, array of similarities
+                max_range : np.int32, should be length of y array - 1, so at least one point is left in right partition
+            Returns
+            ---------
+                best_split_idx : int, index of element at which optimal split should be performed
+                best_impurity : float, impurity after split
+    """
+
+    cdef float best_impurity = INFINITY
+    cdef int best_split_idx = -1
+    cdef np.ndarray[np.float32_t, ndim=1] impurities = np.ones(shape=(max_range,), dtype=np.float32)
+    cdef float [:] impurities_view = impurities
+    cdef int len_y = y.shape[0]
+
+    cdef int i = 0
+    cdef int num_threads = 8
+    for i in prange(max_range, nogil=True, schedule='dynamic', num_threads=num_threads):
+        impurities_view[i] = atkinson_index(i+1, y, len_y)
+
+    # TODO make sure I've got the indexing right here
+    best_split_idx = np.argmin(impurities) - 1
+    best_impurity = atkinson_index(best_split_idx+1, y, len_y)
+
+
+    assert best_split_idx >= 0, 'split index should be >= 0'
+    return best_split_idx, best_impurity
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
 def find_split_atkinson(float [:] y, float [:] s, int max_range):
     """This is a function calculating optimal split according to criterion of minimizing Atkinson index
             Parameters
@@ -387,7 +424,7 @@ def find_split_atkinson(float [:] y, float [:] s, int max_range):
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef float atkinson_index(int split_index, float [:] y, int len_y):
+cdef float atkinson_index(int split_index, float [:] y, int len_y) nogil:
     """Calculate Atkinson index of given split array after splitting at given index
         Parameters
         ----------
@@ -410,12 +447,11 @@ cdef float atkinson_index(int split_index, float [:] y, int len_y):
     cdef float result = left_proportion * atkinson(left_partition, len_left_partition) + \
            (1.0 - left_proportion) * atkinson(right_partition, len_right_partition)
 
-    assert result >= -0.1, 'Negative Atkinson index'
     return result
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef float atkinson(float [:] y, int array_size):
+cdef float atkinson(float [:] y, int array_size) nogil:
     """Calculate Atkinson index of given array.
         Parameters 
         ----------
@@ -426,7 +462,6 @@ cdef float atkinson(float [:] y, int array_size):
             result : Atkinson index
     """
 
-    assert array_size > 0, 'array of size 0'
     if array_size == 1:
         return 0.0
 
@@ -434,9 +469,8 @@ cdef float atkinson(float [:] y, int array_size):
     cdef float array_sqrt_sum = 0.0
     cdef int i = 0
 
-    while i < array_size:
+    for i in range(array_size):
         array_sum = array_sum + y[i]
         array_sqrt_sum = array_sqrt_sum + sqrt(y[i])
-        i = i + 1
 
     return 1 - array_sqrt_sum ** 2 / (array_sum * array_size)
