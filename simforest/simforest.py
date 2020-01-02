@@ -8,9 +8,10 @@ import numpy as np
 from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin, is_classifier
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted, check_random_state
 from sklearn.utils.multiclass import unique_labels, check_classification_targets
-from simforest.rcriterion import gini_index, weighted_variance, evaluate_split
+from simforest.rcriterion import gini_index, weighted_variance, evaluate_split, theil
 from ineqpy import atkinson
 from simforest.criterion import find_split_variance, find_split_theil
+from simforest.utils import plot_projection
 
 
 class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
@@ -782,7 +783,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
     _nodes_list = []
 
     def __init__(self,
-                 random_state=1,
+                 random_state=None,
                  n_directions=1,
                  sim_function=np.dot,
                  max_depth=None,
@@ -891,6 +892,50 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         else:
             return self._lhs.get_n_leaves() + self._rhs.get_n_leaves()
 
+    def _sample_discriminative_direction(self, random_state, y):
+        """Sample a pair of data-points to draw splitting direction on them,
+            such that difference of their regression values is at least one std of all regression values distribution
+
+            Parameters
+            ----------
+                random_state : random state object
+                y : output vector
+
+            Returns
+            -------
+                a pair of data-points indexes to draw split direction on
+        """
+        first = random_state.choice(range(len(y)), replace=False)
+        first_value = y[first]
+        min_diff = np.std(y)
+        different = np.where(np.abs(y - first_value) > min_diff)[0]
+        # if current node is already too pure, sample data-points randomly
+        if len(different) == 0:
+            first, second = self._sample_random_direction(random_state, y)
+        else:
+            second = random_state.choice(different, replace=False)
+
+        return first, second
+
+    def _sample_random_direction(self, random_state, y):
+        """Randomly sample a pair of data-points to draw splitting direction on them
+
+                Parameters
+                ----------
+                    random_state : random state object
+                    y : output vector
+
+                Returns
+                -------
+                    a pair of data-points indexes to draw split direction on
+        """
+        first = random_state.choice(range(len(y)), replace=False)
+        first_value = y[first]
+        different = np.where(np.abs(y - first_value) > 0.0)[0]
+        second = random_state.choice(different, replace=False)
+
+        return first, second
+
     def _sample_directions(self, random_state, y, n_directions=1):
         """Sample a pair of data-points to draw splitting direction on them.
             By default sampling is performed according to achieve splits that seperate
@@ -909,90 +954,15 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         # Choose two data-points to draw directions on
         for _ in range(n_directions):
             if self.discriminative_sampling:
-                first = random_state.choice(range(len(y)), replace=False)
-                first_value = y[first]
-                min_diff = np.std(y)
-                different = np.where(np.abs(y - first_value) > min_diff)[0]
-                if len(different) == 0:
-                    first, second = random_state.choice(a=range(len(y)), size=2, replace=False)
-                else:
-                    second = random_state.choice(different, replace=False)
+                first, second = self._sample_discriminative_direction(random_state, y)
 
             else:
-                # sprawdzić, żeby nie wylosował kopii tego samego punktu (w przypadki próbki bootstrapowej to możliwe)
-                first = random_state.choice(range(len(y)), replace=False)
-                first_value = y[first]
-                different = np.where(np.abs(y - first_value) > 0.0)[0]
-                second = random_state.choice(different, replace=False)
+                first, second = self._sample_random_direction(random_state, y)
 
             assert first is not None
             assert second is not None
 
             yield first, second
-
-    def draw_sim_line(self, s, p, q, split_point, y):
-        import matplotlib.pyplot as plt
-        from matplotlib import collections
-        import matplotlib as mpl
-
-        fig, ax = plt.subplots()
-        mpl.rc('image', cmap='bwr')
-
-        right = [True if s[i] > split_point else False for i in range(len(y))]
-        left = [True if s[i] <= split_point else False for i in range(len(y))]
-
-        # right-side lines
-        right_lines = []
-        for i in range(len(s)):
-            if right[i]:
-                pair = [(s[i], 0), (s[i], y[i])]
-                right_lines.append(pair)
-        linecoll_right = collections.LineCollection(right_lines)
-        r = ax.add_collection(linecoll_right)
-        r.set_alpha(0.9)
-        r.set_color('red')
-        r = ax.fill_between(s, 0, y, where=right)
-        r.set_alpha(0.3)
-        r.set_color('red')
-
-        # left-side lines
-        left_lines = []
-        for i in range(len(s)):
-            if not right[i]:
-                pair = [(s[i], 0), (s[i], y[i])]
-                left_lines.append(pair)
-        linecoll_left = collections.LineCollection(left_lines)
-        l = ax.add_collection(linecoll_left)
-        l.set_alpha(0.9)
-        l.set_color('blue')
-        l = ax.fill_between(s, 0, y, where=left)
-        l.set_alpha(0.3)
-        l.set_color('blue')
-
-        # dots at the top
-        plt.scatter(s, y, c=right, alpha=0.7)
-
-        # horizontal line
-        ax.axhline(c='grey')
-
-        # p and q
-        p_similarity = self.sim_function(p, q) - self.sim_function(p, p)
-        ax.axvline(p_similarity, c='green')
-        plt.text(p_similarity, np.max(y), 'p', c='green')
-
-        q_similarity = self.sim_function(q, q) - self.sim_function(q, p)
-        ax.axvline(q_similarity, c='green')
-        plt.text(q_similarity, np.max(y), 'q', c='green')
-
-        # split point
-        ax.axvline(split_point, c='green')
-        plt.text(split_point, np.min(y), 'split point', c='green', rotation=90)
-
-        # titles
-        plt.title(f'Split at depth {self.depth}, criterion: {self.criterion}')
-        plt.xlabel('Similarity')
-        plt.ylabel('y')
-        plt.show()
 
     def _find_split(self, X, y, p, q):
         """ Find split among direction drew on pair of data-points
@@ -1005,50 +975,42 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
 
             Returns
             -------
-            best_impurity_decrease : decrease of variance after the split
-            best_p : first data point from pair providing the best impurity decrease
-            best_p : second data point from pair providing the best impurity decrease
-            best_split_point : split threshold
+            impurity : impurity induced by the split (value of criterion function)
+            split_point : split threshold
+            similarities : array of shape (n_samples,), values of similarity-values based projection
         """
         similarities = np.array([self.sim_function(x, q) - self.sim_function(x, p) for x in X])
         indices = sorted([i for i in range(len(y)) if not np.isnan(similarities[i])],
                          key=lambda x: similarities[x])
         y = y[indices]
-
-        best_impurity = np.inf
-        best_p = None
-        best_q = None
-        best_split_point = None
-
         n = len(y)
 
         if self.criterion == 'variance':
-            i, best_impurity = find_split_variance(y.astype(np.float32),
+            i, impurity = find_split_variance(y.astype(np.float32),
                                                 similarities[indices].astype(np.float32),
                                                 np.int32(n - 1))
 
         elif self.criterion == 'theil':
-            i, best_impurity = find_split_theil(y[indices].astype(np.float32),
+            i, impurity = find_split_theil(y[indices].astype(np.float32),
                                                    similarities[indices].astype(np.float32),
                                                    np.int32(n - 1))
 
         elif self.criterion == 'atkinson':
-            i, best_impurity = evaluate_split(y, atkinson)
+            i, impurity = evaluate_split(y, atkinson)
             i -= 1  # index calculated a bit differently
 
         elif self.criterion == 'step':
             # index of element most different from it's consecutive one
             i = np.argmax(np.abs(np.ediff1d(similarities[indices])))
-            best_impurity = weighted_variance(i+1, y[indices])
+            impurity = weighted_variance(i+1, y[indices])
 
-        best_p = p
-        best_q = q
-        best_split_point = (similarities[indices[i]] + similarities[indices[i + 1]]) / 2
+        split_point = (similarities[indices[i]] + similarities[indices[i + 1]]) / 2
 
         if self.plot_splits:
-            self.draw_sim_line(similarities[indices], best_p, best_q, best_split_point, y[indices])
+            plot_projection(similarities[indices], p, q, split_point, y[indices],
+                            self.sim_function, self.depth, self.criterion)
 
-        return best_impurity, best_p, best_q, best_split_point, similarities
+        return impurity, split_point, similarities
 
     def fit(self, X, y, check_input=True):
         """Build a similarity tree regressor from the training set (X, y).
@@ -1108,7 +1070,14 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         self._value = np.mean(self.y_)
 
         # Current node's impurity
-        self._impurity = np.var(self.y_)
+        if self.criterion == 'variance':
+            self._impurity = np.var(self.y_)
+        elif self.criterion == 'theil':
+            self._impurity = theil(self.y_)
+        elif self.criterion == 'atkinson':
+            self._impurity = atkinson(self.y_)
+        else:
+            raise ValueError('Unknown split criterion')
 
         if self._impurity < 0.001:
             self._is_leaf = True
@@ -1140,14 +1109,15 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
 
         for i, j in self._sample_directions(random_state, self.y_, self.n_directions):
 
-            impurity, p, q, split_point, curr_similarities = self._find_split(X, y, X[i], X[j])
+            impurity, split_point, curr_similarities = self._find_split(X, y, X[i], X[j])
             if impurity < best_impurity:
                 best_impurity = impurity
+                best_p = X[i]
+                best_q = X[j]
                 best_split_point = split_point
-                best_p = p
-                best_q = q
                 similarities = curr_similarities
 
+        # if split improves impurity
         if self._impurity - best_impurity > 0.0:
             self._split_point = best_split_point
             self._p = best_p
@@ -1179,17 +1149,14 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
                                                      plot_splits=self.plot_splits).\
                     fit(self.X_[rhs_idxs], self.y_[rhs_idxs], check_input=False)
             else:
-                self.is_fitted_ = True
-                self._is_leaf = True
-                return self
+                raise ValueError('Left- and right-hand-side indexes havn\'t been found,'
+                                 'even though the split had been found')
 
-        # Split has not been found
+        # Split doesn't improve impurity, stop growing a tree
         else:
             self.is_fitted_ = True
             self._is_leaf = True
             return self
-
-        self.is_fitted_= True
 
         return self
 
@@ -1318,7 +1285,7 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
             To obtain a deterministic behaviour during fitting, ``random_state`` has to be fixed.
     """
     def __init__(self,
-                random_state=1,
+                random_state=None,
                 n_estimators=20,
                 n_directions=1,
                 sim_function=np.dot,

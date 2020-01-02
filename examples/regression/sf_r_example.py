@@ -1,30 +1,29 @@
 from simforest import SimilarityForestRegressor
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.datasets import make_regression, load_svmlight_file, load_wine, make_friedman1, load_boston
-from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import r2_score, mean_squared_error
-from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.model_selection import train_test_split
 from sklearn.feature_selection import SelectKBest, f_regression
 import numpy as np
 from scipy.spatial import distance
 import pandas as pd
-import matplotlib.pyplot as plt
 
 
 #y = y + np.abs(np.min(y))
 
-'''X, y = load_svmlight_file('../data/mpg')
+X, y = load_svmlight_file('../data/mpg')
 X = X.toarray()
-'''
+
 #X, y = make_friedman1(n_samples=1000, random_state=42)
 
 
-df = pd.read_csv('../data/AirQualityUCI.csv', sep=',')
+'''df = pd.read_csv('../data/AirQualityUCI.csv', sep=',')
 df.drop(columns=['Date', 'Time', 'AH', 'val1', 'val2', 'val3', 'val4', 'val5'], inplace=True)
 df.dropna(inplace=True)
 print(df.head())
 
-y, X = df.pop('RH'), df
+y, X = df.pop('RH'), df'''
 
 #X, y = load_boston(return_X_y=True)
 
@@ -49,14 +48,12 @@ rf = RandomForestRegressor(random_state=42)
 rf.fit(X_train, y_train)
 rf_pred = rf.predict(X_test)
 
-# Compare regressors' accuracy
 print(f'Random Forest R2 score: {r2_score(y_test, rf_pred)}')
 print(f'Random Forest MSE: {mean_squared_error(y_test, rf_pred)}')
 print(f'RF average tree depth: {np.mean([t.get_depth() for t in rf.estimators_])}')
-print(f'Random Forest feature importances: {rf.feature_importances_}')
 
 # Fit predict for both classifiers
-sf = SimilarityForestRegressor(n_estimators=20, max_depth=30, random_state=42, criterion='step', discriminative_sampling=True)
+sf = SimilarityForestRegressor(criterion='atkinson')
 sf.fit(X_train, y_train)
 sf_pred = sf.predict(X_test)
 print(f'Similarity Forest R2 score: {r2_score(y_test, sf_pred)}')

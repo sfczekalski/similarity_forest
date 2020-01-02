@@ -304,7 +304,8 @@ cdef float theil_index(int split_index, float [:] y, int len_y):
     assert result >= 0.0, 'result should be >= 0.0'
     return result
 
-
+@cython.boundscheck(False)
+@cython.wraparound(False)
 cdef float theil(float [:] y, int array_size):
     """Calculate Theil index of given array.
         Parameters 
