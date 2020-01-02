@@ -10,7 +10,7 @@ from sklearn.utils.validation import check_X_y, check_array, check_is_fitted, ch
 from sklearn.utils.multiclass import unique_labels, check_classification_targets
 from simforest.rcriterion import gini_index, weighted_variance, evaluate_split, theil
 from ineqpy import atkinson
-from simforest.criterion import find_split_variance, find_split_theil
+from simforest.criterion import find_split_variance, find_split_theil, find_split_atkinson
 from simforest.utils import plot_projection
 
 
@@ -996,8 +996,9 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
                                                    np.int32(n - 1))
 
         elif self.criterion == 'atkinson':
-            i, impurity = evaluate_split(y, atkinson)
-            i -= 1  # index calculated a bit differently
+            i, impurity = find_split_atkinson(y[indices].astype(np.float32),
+                                                   similarities[indices].astype(np.float32),
+                                                   np.int32(n - 1))
 
         elif self.criterion == 'step':
             # index of element most different from it's consecutive one

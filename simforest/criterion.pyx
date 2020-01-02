@@ -1,5 +1,5 @@
 cimport cython
-from libc.math cimport log, fabs
+from libc.math cimport log, fabs, sqrt
 
 cdef extern from "math.h":
     float INFINITY
@@ -343,5 +343,100 @@ cdef float theil(float [:] y, int array_size):
         i = i + 1
 
     cdef float result = theil / array_size
-    assert result >= -0.1, 'result should be approximately >= 0.0'
-    return fabs(result)
+    assert result >= -0.1, 'Negative Theil index'
+    return result
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+def find_split_atkinson(float [:] y, float [:] s, int max_range):
+    """This is a function calculating optimal split according to criterion of minimizing Atkinson index
+            Parameters
+            ---------
+                y : numpy array of type np.float32, array of objects' labels, order by objects' similarity
+                s : numpy array of type np.float32, array of similarities
+                max_range : np.int32, should be length of y array - 1, so at least one point is left in right partition
+            Returns
+            ---------
+                best_split_idx : int, index of element at which optimal split should be performed
+                best_impurity : float, impurity after split
+    """
+
+    cdef float best_impurity = INFINITY
+    cdef int best_split_idx = -1
+    cdef float curr_impurity = INFINITY
+    cdef int len_y = y.shape[0]
+
+    cdef int i = 0
+    while i < max_range:
+
+        if s[i] == s[i+1]:
+            i += 1
+            continue
+
+        curr_impurity = atkinson_index(i+1, y, len_y)
+
+        if curr_impurity < best_impurity:
+            best_impurity = curr_impurity
+            best_split_idx = i
+
+        i += 1
+
+    assert best_split_idx >= 0, 'split index should be >= 0'
+    return best_split_idx, best_impurity
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+cdef float atkinson_index(int split_index, float [:] y, int len_y):
+    """Calculate Atkinson index of given split array after splitting at given index
+        Parameters
+        ----------
+            split_index : np.int32, index of array element to perform split
+            y : array of type np.float32, input array
+            len_y : np.int32, length of array
+        Returns
+        ----------
+            result : Atkinson index of given split array after splitting at given index
+    """
+
+    cdef float [:] left_partition = y[:split_index]
+    cdef float [:] right_partition = y[split_index:]
+    cdef int len_left_partition = left_partition.shape[0]
+    cdef int len_right_partition = len_y - len_left_partition
+
+    cdef float flen_left_partition = left_partition.shape[0]
+    cdef float left_proportion = flen_left_partition / len_y
+
+    cdef float result = left_proportion * atkinson(left_partition, len_left_partition) + \
+           (1.0 - left_proportion) * atkinson(right_partition, len_right_partition)
+
+    assert result >= -0.1, 'Negative Atkinson index'
+    return result
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+cdef float atkinson(float [:] y, int array_size):
+    """Calculate Atkinson index of given array.
+        Parameters 
+        ----------
+            y : array of type np.float32, input array
+            array_size : np.int32, length of array
+        Returns
+        ----------
+            result : Atkinson index
+    """
+
+    assert array_size > 0, 'array of size 0'
+    if array_size == 1:
+        return 0.0
+
+    cdef float array_sum = 0.0
+    cdef float array_sqrt_sum = 0.0
+    cdef int i = 0
+
+    while i < array_size:
+        array_sum = array_sum + y[i]
+        array_sqrt_sum = array_sqrt_sum + sqrt(y[i])
+        i = i + 1
+
+    return 1 - array_sqrt_sum ** 2 / (array_sum * array_size)

@@ -39,7 +39,6 @@ def test_regressor_attributes_tree(data):
 def test_default_attribute_value_tree():
 
     clf = SimilarityTreeRegressor()
-    assert clf.random_state == 1
     assert clf.n_directions == 1
     assert clf.sim_function == np.dot
 
@@ -98,7 +97,6 @@ def test_classifier_attributes_forest(data):
 def test_default_attribute_value_forest():
 
     clf = SimilarityForestRegressor()
-    assert clf.random_state == 1
     assert clf.n_directions == 1
     assert clf.sim_function == np.dot
 
