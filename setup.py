@@ -71,12 +71,12 @@ setup(name=DISTNAME,
       extras_require=EXTRAS_REQUIRE)
 
 # Cython compiling
-'''setup(
-      ext_modules=cythonize("simforest/criterion.pyx", annotate=True),
-      include_path=[numpy.get_include()]
-)'''
+setup(ext_modules=cythonize("simforest/criterion.pyx", annotate=True),
+      include_dirs=[numpy.get_include()],
+      extra_compile_args=['-O3', '-march=native', '-ffast-math', '-fopenmp'],
+      extra_link_args=['-fopenmp'])
 
-ext_utils = Extension(
+'''ext_utils = Extension(
     '_cluster'
     , sources=['simforest/criterion.pyx']
     , include_dirs=[numpy.get_include()]
@@ -88,4 +88,4 @@ setup(
     setup_requires=['cython', 'numpy']
     , cmdclass={'build_ext': build_ext}
     , ext_modules=cythonize([ext_utils]),
-)
+)'''

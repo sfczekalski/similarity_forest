@@ -81,7 +81,7 @@ cdef float weighted_variance(int split_index, float [:] y, int len_y):
             len_y : np.int32, length of array
         Returns
         ----------
-            result : Theil index of given split array after splitting at given index
+            result : variance of given split array after splitting at given index
     """
     cdef float [:] left_partition = y[:split_index]
     cdef float [:] right_partition = y[split_index:]
@@ -107,6 +107,8 @@ cdef float variance(float [:] y, int array_size):
         ----------
             result : variance
     """
+    if array_size == 0:
+        raise ValueError('Empty array!')
 
     cdef float array_sum = 0.0
     cdef int i = 0
@@ -178,6 +180,15 @@ def find_split_variance(float [:] y, float [:] s, int max_range):
 
     cdef int len_y = y.shape[0]
     cdef int best_split_idx = cfind_split_index_var(y, s, max_range, len_y)
+
+    if best_split_idx == -1:
+        '''print('Split hasn\'t been found!')
+        best_split_idx = np.argmax(np.abs(np.ediff1d(y)))
+        print(f'split_index: {best_split_idx}')
+        print(f'similarities: {np.asarray(s)}')
+        print(f'y: {np.asarray(y)}')'''
+        return best_split_idx, INFINITY
+
     cdef float best_impurity = weighted_variance(best_split_idx+1, y, len_y)
 
     return best_split_idx, best_impurity
@@ -275,7 +286,7 @@ def find_split_theil(float [:] y, float [:] s, int max_range):
 
         i += 1
 
-    assert best_split_idx >= 0, 'split index should be >= 0'
+    #assert best_split_idx >= 0, 'split index should be >= 0'
     return best_split_idx, best_impurity
 
 
@@ -349,6 +360,17 @@ cdef float theil(float [:] y, int array_size):
     assert result >= -0.1, 'Negative Theil index'
     return result
 
+'''@cython.boundscheck(False)
+@cython.wraparound(False)
+def pfind_split_atkinson(float [:] y, float [:] s, int max_range):
+    """Python wrapper for cpfind_split_atkinson function."""
+    cdef best_split_idx = cpfind_split_atkinson(y, s, max_range)
+    assert best_split_idx >= 0, 'split index should be >= 0'
+
+    cdef float best_impurity = atkinson_index(best_split_idx+1, y, max_range + 1)
+
+    return best_split_idx, best_impurity'''
+
 @cython.boundscheck(False)
 @cython.wraparound(False)
 def pfind_split_atkinson(float [:] y, float [:] s, int max_range):
@@ -372,15 +394,14 @@ def pfind_split_atkinson(float [:] y, float [:] s, int max_range):
 
     cdef int i = 0
     cdef int num_threads = 8
-    for i in prange(max_range, nogil=True, schedule='dynamic', num_threads=num_threads):
+    #for i in prange(max_range, nogil=True, schedule='dynamic', num_threads=num_threads):
+    for i in range(max_range):
         impurities_view[i] = atkinson_index(i+1, y, len_y)
 
     # TODO make sure I've got the indexing right here
-    best_split_idx = np.argmin(impurities) - 1
-    best_impurity = atkinson_index(best_split_idx+1, y, len_y)
+    best_split_idx = np.argmin(impurities)
+    best_impurity = impurities[best_split_idx]
 
-
-    assert best_split_idx >= 0, 'split index should be >= 0'
     return best_split_idx, best_impurity
 
 @cython.boundscheck(False)
@@ -418,7 +439,7 @@ def find_split_atkinson(float [:] y, float [:] s, int max_range):
 
         i += 1
 
-    assert best_split_idx >= 0, 'split index should be >= 0'
+    #assert best_split_idx >= 0, 'split index should be >= 0'
     return best_split_idx, best_impurity
 
 
@@ -461,6 +482,8 @@ cdef float atkinson(float [:] y, int array_size) nogil:
         ----------
             result : Atkinson index
     """
+    if array_size == 0:
+        raise ValueError('Empty array!')
 
     if array_size == 1:
         return 0.0

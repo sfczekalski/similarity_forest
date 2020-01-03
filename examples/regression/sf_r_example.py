@@ -8,10 +8,11 @@ from sklearn.feature_selection import SelectKBest, f_regression
 import numpy as np
 from scipy.spatial import distance
 import pandas as pd
+import xlrd
 
 
-X, y = load_svmlight_file('../data/eunite2001')
-X = X.toarray()
+'''X, y = load_svmlight_file('../data/abalone')
+X = X.toarray()'''
 
 #X, y = make_friedman1(n_samples=1000, random_state=42)
 
@@ -31,6 +32,12 @@ print(df.head())
 
 y, X = df.pop('quality'), df'''
 
+df = pd.read_csv('../data/machine.data')
+
+df = pd.concat([df, pd.get_dummies(df['adviser'])], axis=1)
+df.drop(columns=['adviser', '32/60', '199'], inplace=True)
+
+y, X = df.pop('198'), df
 
 #X = SelectKBest(f_regression, k=8).fit_transform(X, y)
 y = y + np.abs(np.min(y))
@@ -42,7 +49,7 @@ X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)
 
 
-rf = RandomForestRegressor(random_state=42)
+rf = RandomForestRegressor(random_state=1)
 rf.fit(X_train, y_train)
 rf_pred = rf.predict(X_test)
 
@@ -51,15 +58,15 @@ print(f'Random Forest MSE: {mean_squared_error(y_test, rf_pred)}')
 print(f'RF average tree depth: {np.mean([t.get_depth() for t in rf.estimators_])}')
 
 # Fit predict for both classifiers
-sf = SimilarityForestRegressor(criterion='atkinson')
+sf = SimilarityForestRegressor(criterion='theil')
 sf.fit(X_train, y_train)
 sf_pred = sf.predict(X_test)
 print(f'Similarity Forest R2 score: {r2_score(y_test, sf_pred)}')
 print(f'Similarity Forest MSE: {mean_squared_error(y_test, sf_pred)}')
 print(f'SF average tree depth: {np.mean([t.get_depth() for t in sf.estimators_])}')
 
-'''# Scale predictions for plotting
-sf_pred = (sf_pred - np.min(sf_pred))/np.ptp(sf_pred)
+# Scale predictions for plotting
+'''sf_pred = (sf_pred - np.min(sf_pred))/np.ptp(sf_pred)
 rf_pred = (rf_pred - np.min(rf_pred))/np.ptp(rf_pred)
 
 # Plot classifiers' predictions

@@ -863,7 +863,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         and any leaf.
         """
 
-        check_is_fitted(self, ['X_', 'y_', 'is_fitted_'])
+        check_is_fitted(self, ['is_fitted_'])
 
         if self is None:
             return 0
@@ -993,8 +993,8 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
 
         elif self.criterion == 'atkinson':
             i, impurity = find_split_atkinson(y[indices].astype(np.float32),
-                                                   similarities[indices].astype(np.float32),
-                                                   np.int32(n - 1))
+                                               similarities[indices].astype(np.float32),
+                                               np.int32(n - 1))
 
         elif self.criterion == 'step':
             # index of element most different from it's consecutive one
@@ -1104,6 +1104,12 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         for i, j in self._sample_directions(random_state, y, self.n_directions):
 
             impurity, split_point, curr_similarities = self._find_split(X, y, X[i], X[j])
+
+            if split_point == -1:
+                self.is_fitted_ = True
+                self._is_leaf = True
+                return self
+
             if impurity < best_impurity:
                 best_impurity = impurity
                 best_p = X[i]
@@ -1175,7 +1181,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
 
         if check_input:
             # Check if fit had been called
-            check_is_fitted(self, ['X_', 'y_', 'is_fitted_'])
+            check_is_fitted(self, ['is_fitted_'])
 
             # Input validation
             X = check_array(X)
@@ -1424,7 +1430,7 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
 
         if check_input:
             # Check if fit had been called
-            check_is_fitted(self, ['X_', 'y_', 'is_fitted_'])
+            check_is_fitted(self, ['is_fitted_'])
 
             # Input validation
             X = check_array(X)

@@ -13,6 +13,7 @@ ineqpy = {git = "https://github.com/mmngreco/IneqPy"}
 
 [dev-packages]
 pytest = "*"
+xlrd = "*"
 
 [requires]
 python_version = "3.7"
