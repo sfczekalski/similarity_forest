@@ -337,7 +337,6 @@ cdef float theil(float [:] y, int array_size):
 
     cdef float array_sum = 0.0
     cdef int i = 0
-    # sprawdzić czy w obecnej partycji wszystkie y są takie same
     while i < array_size:
         array_sum = array_sum + y[i]
         i = i + 1
@@ -445,7 +444,7 @@ def find_split_atkinson(float [:] y, float [:] s, int max_range):
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef float atkinson_index(int split_index, float [:] y, int len_y) nogil:
+cdef float atkinson_index(int split_index, float [:] y, int len_y):
     """Calculate Atkinson index of given split array after splitting at given index
         Parameters
         ----------
@@ -472,7 +471,7 @@ cdef float atkinson_index(int split_index, float [:] y, int len_y) nogil:
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef float atkinson(float [:] y, int array_size) nogil:
+cdef float atkinson(float [:] y, int array_size):
     """Calculate Atkinson index of given array.
         Parameters 
         ----------
@@ -495,5 +494,8 @@ cdef float atkinson(float [:] y, int array_size) nogil:
     for i in range(array_size):
         array_sum = array_sum + y[i]
         array_sqrt_sum = array_sqrt_sum + sqrt(y[i])
+
+    if array_sum  == 0.0:
+        return 0.0
 
     return 1 - array_sqrt_sum ** 2 / (array_sum * array_size)

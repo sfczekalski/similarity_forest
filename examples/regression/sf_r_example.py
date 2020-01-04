@@ -1,7 +1,7 @@
 from simforest import SimilarityForestRegressor
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.datasets import make_regression, load_svmlight_file, load_wine, make_friedman1, load_boston
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.metrics import r2_score, mean_squared_error
 from sklearn.model_selection import train_test_split
 from sklearn.feature_selection import SelectKBest, f_regression
@@ -10,6 +10,14 @@ from scipy.spatial import distance
 import pandas as pd
 import xlrd
 
+
+def get_forest_fires_dataset():
+    df = pd.read_csv('../data/forestfires.csv')
+    df['month'] = LabelEncoder().fit_transform(df['month'])
+    df['day'] = LabelEncoder().fit_transform(df['day'])
+    y, X = df.pop('area'), df
+
+    return y, X
 
 '''X, y = load_svmlight_file('../data/abalone')
 X = X.toarray()'''
@@ -32,12 +40,10 @@ print(df.head())
 
 y, X = df.pop('quality'), df'''
 
-df = pd.read_csv('../data/machine.data')
-
-df = pd.concat([df, pd.get_dummies(df['adviser'])], axis=1)
-df.drop(columns=['adviser', '32/60', '199'], inplace=True)
-
-y, X = df.pop('198'), df
+df = pd.read_csv('../data/yacht_hydrodynamics.csv', header=None)
+print(df.columns)
+print(df.head())
+'''y, X = get_forest_fires_dataset()
 
 #X = SelectKBest(f_regression, k=8).fit_transform(X, y)
 y = y + np.abs(np.min(y))
@@ -48,7 +54,6 @@ scaler = StandardScaler()
 X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)
 
-
 rf = RandomForestRegressor(random_state=1)
 rf.fit(X_train, y_train)
 rf_pred = rf.predict(X_test)
@@ -58,12 +63,12 @@ print(f'Random Forest MSE: {mean_squared_error(y_test, rf_pred)}')
 print(f'RF average tree depth: {np.mean([t.get_depth() for t in rf.estimators_])}')
 
 # Fit predict for both classifiers
-sf = SimilarityForestRegressor(criterion='theil')
+sf = SimilarityForestRegressor(criterion='atkinson')
 sf.fit(X_train, y_train)
 sf_pred = sf.predict(X_test)
 print(f'Similarity Forest R2 score: {r2_score(y_test, sf_pred)}')
 print(f'Similarity Forest MSE: {mean_squared_error(y_test, sf_pred)}')
-print(f'SF average tree depth: {np.mean([t.get_depth() for t in sf.estimators_])}')
+print(f'SF average tree depth: {[t.get_depth() for t in sf.estimators_]}')'''
 
 # Scale predictions for plotting
 '''sf_pred = (sf_pred - np.min(sf_pred))/np.ptp(sf_pred)
