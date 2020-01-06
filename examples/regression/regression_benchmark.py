@@ -10,7 +10,14 @@ import numpy as np
 from scipy.stats import ttest_ind
 import pandas as pd
 import gc
-from scipy.spatial.distance import sqeuclidean
+
+
+def downcast_dtypes(df):
+    float_cols = [c for c in df if df[c].dtype == "float64"]
+    int_cols = [c for c in df if df[c].dtype in ["int64", "int32"]]
+    df[float_cols] = df[float_cols].astype(np.float32)
+    df[int_cols] = df[int_cols].astype(np.int16)
+    return df
 
 
 def get_hardware_dataset():
@@ -97,9 +104,16 @@ def get_energy_efficiency_cooling():
     return y, X
 
 
-def get_yacht_hydrodynamics_dataset():
-    df = pd.read_csv('../data/yacht_hydrodynamics.csv', header=None)
-    y, X = df.pop(6), df
+def get_who_dataset():
+    df = pd.read_csv('../data/Life Expectancy Data.csv')
+    '''df['Country'] = LabelEncoder().fit_transform(df['Country'])
+    df['Status'] = LabelEncoder().fit_transform(df['Status'])'''
+    df = pd.concat([df, pd.get_dummies(df['Country'])], axis=1)
+    df = pd.concat([df, pd.get_dummies(df['Status'])], axis=1)
+    df.drop(columns=['Country', 'Status'], inplace=True)
+    df.dropna(inplace=True)
+    df = downcast_dtypes(df)
+    y, X = df.pop('Life expectancy '), df
 
     return y, X
 
@@ -111,25 +125,24 @@ params['criterion'] = 'variance'
 params['discriminative_sampling'] = True
 params['max_depth'] = None
 params['n_estimators'] = 100
-params['sim_function'] = sqeuclidean
 
 
 # set experiment properties
-n_iterations = 30
+n_iterations = 10
 
 # store mse for t-test
 rf_mse = np.zeros(shape=(n_iterations,), dtype=np.float32)
 sf_mse = np.zeros(shape=(n_iterations,), dtype=np.float32)
 
 # create experiment
-neptune.create_experiment(name='Regression yacht hydrodynamics variance sqeuclidean',
+neptune.create_experiment(name='Regression WHO life expectancy variance different from mean',
                           params=params,
                           properties={'n_iterations': n_iterations,
-                                      'dataset': 'yacht hydrodynamics'})
+                                      'dataset': 'WHO life expectancy'})
 
 
 # load and prepare data
-y, X = get_yacht_hydrodynamics_dataset()
+y, X = get_who_dataset()
 y = y + np.abs(np.min(y))
 
 X_train, X_test, y_train, y_test = train_test_split(

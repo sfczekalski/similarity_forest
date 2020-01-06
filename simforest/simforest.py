@@ -1001,7 +1001,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
             i = np.argmax(np.abs(np.ediff1d(similarities[indices])))
             impurity = weighted_variance(i+1, y[indices])
 
-        split_point = (similarities[indices[i]] + similarities[indices[i + 1]]) / 2
+        split_point = similarities[indices[i]]
 
         if self.plot_splits:
             plot_projection(similarities[indices], p, q, split_point, y[indices],
@@ -1097,18 +1097,13 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
 
         # Sample n_direction discriminative directions and find the best one
         best_impurity = np.inf
-        best_split_point = -np.inf
+        best_split_point = None
         best_p = None
         best_q = None
         similarities = []
         for i, j in self._sample_directions(random_state, y, self.n_directions):
 
             impurity, split_point, curr_similarities = self._find_split(X, y, X[i], X[j])
-
-            if split_point == -1:
-                self.is_fitted_ = True
-                self._is_leaf = True
-                return self
 
             if impurity < best_impurity:
                 best_impurity = impurity
@@ -1117,6 +1112,11 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
                 best_split_point = split_point
                 similarities = curr_similarities
 
+        if best_split_point is None:
+            self.is_fitted_ = True
+            self._is_leaf = True
+            return self
+
         # if split improves impurity
         if self._impurity - best_impurity > 0.0:
             self._split_point = best_split_point
@@ -1124,9 +1124,10 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
             self._q = best_q
             self._similarities = np.array(similarities, dtype=np.float32)
 
+            e = 0.0000001
             # Left- and right-hand side partitioning
-            lhs_idxs = np.nonzero(self._similarities <= self._split_point)[0]
-            rhs_idxs = np.nonzero(self._similarities > self._split_point)[0]
+            lhs_idxs = np.nonzero(self._similarities - self._split_point < e)[0]
+            rhs_idxs = np.nonzero(self._similarities - self._split_point > 0)[0]
 
             if len(lhs_idxs) > 0 and len(rhs_idxs) > 0:
                 self._lhs = SimilarityTreeRegressor(random_state=self.random_state,

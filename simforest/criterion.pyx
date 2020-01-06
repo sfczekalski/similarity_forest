@@ -208,7 +208,7 @@ cdef int cfind_split_index_var(float [:] y, float [:] s, int max_range, int len_
                 best_split_idx : np.int32, index of element at which optimal split should be performed
     """
 
-    cdef float best_impurity = INFINITY
+    cdef float best_impurity = np.inf
     cdef int best_split_idx = -1
     cdef float curr_impurity = 0.0
 
@@ -266,9 +266,9 @@ def find_split_theil(float [:] y, float [:] s, int max_range):
                 best_impurity : float, impurity after split
     """
 
-    cdef float best_impurity = INFINITY
+    cdef float best_impurity = np.inf
     cdef int best_split_idx = -1
-    cdef float curr_impurity = INFINITY
+    cdef float curr_impurity = np.inf
     cdef int len_y = y.shape[0]
 
     cdef int i = 0
@@ -385,7 +385,7 @@ def pfind_split_atkinson(float [:] y, float [:] s, int max_range):
                 best_impurity : float, impurity after split
     """
 
-    cdef float best_impurity = INFINITY
+    cdef float best_impurity = np.inf
     cdef int best_split_idx = -1
     cdef np.ndarray[np.float32_t, ndim=1] impurities = np.ones(shape=(max_range,), dtype=np.float32)
     cdef float [:] impurities_view = impurities

@@ -40,10 +40,30 @@ print(df.head())
 
 y, X = df.pop('quality'), df'''
 
-df = pd.read_csv('../data/yacht_hydrodynamics.csv', header=None)
-print(df.columns)
-print(df.head())
-'''y, X = get_forest_fires_dataset()
+
+def downcast_dtypes(df):
+    float_cols = [c for c in df if df[c].dtype == "float64"]
+    int_cols = [c for c in df if df[c].dtype in ["int64", "int32"]]
+    df[float_cols] = df[float_cols].astype(np.float32)
+    df[int_cols] = df[int_cols].astype(np.int16)
+    return df
+
+
+def get_who_dataset():
+    df = pd.read_csv('../data/Life Expectancy Data.csv')
+    '''df['Country'] = LabelEncoder().fit_transform(df['Country'])
+    df['Status'] = LabelEncoder().fit_transform(df['Status'])'''
+    df = pd.concat([df, pd.get_dummies(df['Country'])], axis=1)
+    df = pd.concat([df, pd.get_dummies(df['Status'])], axis=1)
+    df.drop(columns=['Country', 'Status'], inplace=True)
+    df.dropna(inplace=True)
+    df = downcast_dtypes(df)
+    y, X = df.pop('Life expectancy '), df
+
+    return y, X
+
+
+y, X = get_who_dataset()
 
 #X = SelectKBest(f_regression, k=8).fit_transform(X, y)
 y = y + np.abs(np.min(y))
@@ -63,12 +83,12 @@ print(f'Random Forest MSE: {mean_squared_error(y_test, rf_pred)}')
 print(f'RF average tree depth: {np.mean([t.get_depth() for t in rf.estimators_])}')
 
 # Fit predict for both classifiers
-sf = SimilarityForestRegressor(criterion='atkinson')
+sf = SimilarityForestRegressor(criterion='theil', n_estimators=100, n_directions=2)
 sf.fit(X_train, y_train)
 sf_pred = sf.predict(X_test)
 print(f'Similarity Forest R2 score: {r2_score(y_test, sf_pred)}')
 print(f'Similarity Forest MSE: {mean_squared_error(y_test, sf_pred)}')
-print(f'SF average tree depth: {[t.get_depth() for t in sf.estimators_]}')'''
+print(f'SF average tree depth: {[t.get_depth() for t in sf.estimators_]}')
 
 # Scale predictions for plotting
 '''sf_pred = (sf_pred - np.min(sf_pred))/np.ptp(sf_pred)
