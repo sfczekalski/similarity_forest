@@ -1001,7 +1001,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
             i = np.argmax(np.abs(np.ediff1d(similarities[indices])))
             impurity = weighted_variance(i+1, y[indices])
 
-        split_point = similarities[indices[i]]
+        split_point = (similarities[indices[i]] + similarities[indices[i+1]]) / 2
 
         if self.plot_splits:
             plot_projection(similarities[indices], p, q, split_point, y[indices],
