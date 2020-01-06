@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from scipy.io.arff import loadarff
 from os.path import join
+from os import listdir
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 
 
@@ -92,3 +93,37 @@ def preprocess():
         X = df.values[:, 0:2]
 
         yield file_name, X
+
+
+def preprocess_real_world():
+    path = '../data/clustering_benchmark/real-world/'
+
+    for file_name in listdir(path):
+        try:
+            file = loadarff(join(path, file_name))
+        except NotImplementedError:
+            continue
+
+        df = pd.DataFrame(file[0])
+        df = fix_dtypes(df)
+        if df.shape[0] >= 2000:
+            df = df.sample(n=2000)
+        if df.shape[1] > 35:
+            continue
+        df = fix_col_names(df)
+        print(df.head())
+        X = df.values
+
+        yield file_name, X
+
+
+'''path = '../data/clustering_benchmark/real-world/'
+file_name = 'sonar.arff'
+file = loadarff(join(path, file_name))
+df = pd.DataFrame(file[0])
+df = fix_dtypes(df)
+if df.shape[0] >= 2000:
+    df = df.sample(n=2000)
+
+print(df.columns)
+print(np.unique(df['Class']))'''
