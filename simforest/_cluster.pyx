@@ -8,6 +8,66 @@ from sklearn.utils.validation import check_random_state
 from cython.parallel import prange, parallel
 cimport openmp
 
+# projection function type definition
+ctypedef float (*f_type)(float [:] xi, float [:] p, float [:] q) nogil
+"""This type represents a function type for a function that calculates projection of data-points on split direction.
+    Parameters
+    ----------
+        xi : memoryview of ndarray, a data-point to be projected
+        p : memoryview of ndarray, first data-point used for drawing split direction
+        q : memoryview of ndarray, second data-point used for drawing split direction
+    Returns 
+    ----------
+        float, value of projection on given split direction
+"""
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+cdef float dot(float [:] u, float [:] v) nogil:
+    cdef float result = 0.0
+    cdef int n = u.shape[0]
+    cdef int i = 0
+    for i in range(n):
+        result += u[i] * v[i]
+
+    return result
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+cdef float dot_projection(float [:] xi, float [:] p, float [:] q) nogil:
+    cdef float result = 0.0
+    cdef int n = xi.shape[0]
+    cdef int i = 0
+
+    for i in range(n):
+        result += xi[i] * q[i] - xi[i] * p[i]
+
+    return result
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+cdef float sqeuclidean(self, float [:] u, float [:] v) nogil:
+    cdef float result = 0.0
+    cdef int n = u.shape[0]
+    cdef int i = 0
+    for i in range(n):
+        result += (u[i] - v[i]) ** 2
+
+    return result
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+cdef float sqeuclidean_projection(float [:] xi, float [:] p, float [:] q) nogil:
+    cdef float result = 0.0
+    cdef int n = xi.shape[0]
+    cdef int i = 0
+
+    for i in range(n):
+        result += (xi[i] - q[i]) ** 2 - (xi[i] - p[i]) ** 2
+
+    return result
+
 cdef class CSimilarityForestClusterer:
 
     cdef random_state
@@ -37,8 +97,10 @@ cdef class CSimilarityForestClusterer:
         if self.random_state is not None:
             args['random_state'] = self.random_state
 
-        if self.max_depth is not None:
+        if self.max_depth != -1:
             args['max_depth'] = self.max_depth
+
+        args['sim_function'] = self.sim_function
 
         cdef int [:] indicies
         for i in range(self.n_estimators):
@@ -97,7 +159,7 @@ cdef class CSimilarityForestClusterer:
 
         cdef float similarity = 0.0
 
-        cdef int num_threads = 8
+        cdef int num_threads = 10
         cdef int diagonal = 1
         cdef int i = 0
         cdef int j = 0
@@ -133,6 +195,7 @@ cdef class CSimilarityTreeCluster:
     cdef CSimilarityTreeCluster _lhs
     cdef CSimilarityTreeCluster _rhs
     cdef _rng
+    cdef f_type projection
 
     def __cinit__(self,
                   random_state=None,
@@ -148,11 +211,11 @@ cdef class CSimilarityTreeCluster:
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
-    cdef int is_pure(self, float [:, :] X):
+    cdef int is_pure(self, float [:, :] X) nogil:
         cdef int n = X.shape[0]
         cdef int m = X.shape[1]
         cdef int pure = 1
-        cdef int i =0
+        cdef int i = 0
         cdef int j = 0
 
         for i in range(n-1):
@@ -175,63 +238,16 @@ cdef class CSimilarityTreeCluster:
         #assert len(others) > 0, 'All points are the same'
         return self._rng.choice(others, replace=False)
 
-
     @cython.boundscheck(False)
     @cython.wraparound(False)
-    cdef float sqeuclidean(self, float [:] u, float [:] v) nogil:
-        cdef float result = 0.0
-        cdef int n = u.shape[0]
-        cdef int i = 0
-        for i in range(n):
-            result += (u[i] - v[i]) ** 2
-
-        return result
-
-    @cython.boundscheck(False)
-    @cython.wraparound(False)
-    cdef float sqeuclidean_projection(self, float [:] xi) nogil:
-        cdef float result = 0.0
-        cdef int n = xi.shape[0]
-        cdef int i = 0
-        for i in range(n):
-            result += (xi[i] - self._q[i]) ** 2 - (xi[i] - self._p[i]) ** 2
-
-        return result
-
-    @cython.boundscheck(False)
-    @cython.wraparound(False)
-    cdef float dot(self, float [:] u, float [:] v) nogil:
-        cdef float result = 0.0
-        cdef int n = u.shape[0]
-        cdef int i = 0
-        for i in range(n):
-            result += u[i] * v[i]
-
-        return result
-
-    @cython.boundscheck(False)
-    @cython.wraparound(False)
-    cdef float dot_projection(self, float [:] xi) nogil:
-        cdef float result = 0.0
-        cdef int n = xi.shape[0]
-        cdef int i = 0
-        cdef float [:] p = self._p
-        cdef float [:] q = self._q
-
-        for i in range(n):
-            result += xi[i] * q[i] - xi[i] * p[i]
-
-        return result
-
-    @cython.boundscheck(False)
-    @cython.wraparound(False)
-    cdef void _find_split(self, float [:, :] X):
+    cdef void _find_split(self, float [:, :] X, f_type projection):
 
         # Calculate similarities
         cdef int n = X.shape[0]
         cdef np.ndarray[np.float32_t, ndim=1] array = np.zeros(n, dtype=np.float32, order='c')
         cdef float [:] similarities = array
-
+        cdef float [:] p = self._p
+        cdef float [:] q = self._q
 
         cdef int num_threads = 4
         if n < 12:
@@ -239,8 +255,7 @@ cdef class CSimilarityTreeCluster:
         cdef int i = 0
         # Read about different schedules https://cython.readthedocs.io/en/latest/src/userguide/parallelism.html
         for i in prange(n, schedule='dynamic', nogil=True, num_threads=num_threads):
-            #array[i] = self.sqeuclidean_projection(X[i])
-            array[i] = self.dot_projection(X[i])
+            similarities[i] = projection(X[i], p, q)
 
         cdef float similarities_min = np.min(array)
         cdef float similarities_max = np.max(array)
@@ -284,7 +299,14 @@ cdef class CSimilarityTreeCluster:
         self._p = X[p]
         self._q = X[q]
 
-        self._find_split(X)
+        if self.sim_function == 'dot':
+            self.projection = dot_projection
+        elif self.sim_function == 'euclidean':
+            self.projection = sqeuclidean_projection
+        else:
+            raise ValueError('Unknown similarity function')
+
+        self._find_split(X, self.projection)
 
         # if split has been found
         if X[self.lhs_idxs].shape[0] > 0 and X[self.rhs_idxs].shape[0] > 0:
@@ -307,10 +329,8 @@ cdef class CSimilarityTreeCluster:
         if self.is_leaf:
             return self.depth
 
-        #cdef bint path_i = self.sqeuclidean_projection(xi) <= self._split_point
-        #cdef bint path_j = self.sqeuclidean_projection(xj) <= self._split_point
-        cdef bint path_i = self.dot_projection(xi) <= self._split_point
-        cdef bint path_j = self.dot_projection(xj) <= self._split_point
+        cdef bint path_i = self.projection(xi, self._p, self._q) <= self._split_point
+        cdef bint path_j = self.projection(xj, self._p, self._q) <= self._split_point
 
         if path_i == path_j:
             # the same path, check if go left or right
@@ -327,7 +347,6 @@ cdef class CSimilarityTreeCluster:
         cdef int n = X.shape[0]
         cdef np.ndarray[np.float32_t, ndim=1] distance_matrix = np.ones(<int>comb(n, 2), dtype=np.float32, order='c')
         cdef float [:] view = distance_matrix
-
 
         cdef int diagonal = 1
         cdef int idx = 0
