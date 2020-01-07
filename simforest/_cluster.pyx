@@ -200,6 +200,31 @@ cdef class CSimilarityTreeCluster:
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
+    cdef float dot(self, float [:] u, float [:] v) nogil:
+        cdef float result = 0.0
+        cdef int n = u.shape[0]
+        cdef int i = 0
+        for i in range(n):
+            result += u[i] * v[i]
+
+        return result
+
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    cdef float dot_projection(self, float [:] xi) nogil:
+        cdef float result = 0.0
+        cdef int n = xi.shape[0]
+        cdef int i = 0
+        cdef float [:] p = self._p
+        cdef float [:] q = self._q
+
+        for i in range(n):
+            result += xi[i] * q[i] - xi[i] * p[i]
+
+        return result
+
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
     cdef void _find_split(self, float [:, :] X):
 
         # Calculate similarities
@@ -215,6 +240,7 @@ cdef class CSimilarityTreeCluster:
         # Read about different schedules https://cython.readthedocs.io/en/latest/src/userguide/parallelism.html
         for i in prange(n, schedule='dynamic', nogil=True, num_threads=num_threads):
             array[i] = self.sqeuclidean_projection(X[i])
+            #array[i] = self.dot_projection(X[i])
 
         cdef float similarities_min = np.min(array)
         cdef float similarities_max = np.max(array)
@@ -281,6 +307,8 @@ cdef class CSimilarityTreeCluster:
 
         cdef bint path_i = self.sqeuclidean_projection(xi) <= self._split_point
         cdef bint path_j = self.sqeuclidean_projection(xj) <= self._split_point
+        #cdef bint path_i = self.dot_projection(xi) <= self._split_point
+        #cdef bint path_j = self.dot_projection(xj) <= self._split_point
 
         if path_i == path_j:
             # the same path, check if go left or right

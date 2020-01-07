@@ -29,7 +29,6 @@ def fix_col_names(df):
         df.columns = ['x1', 'x2']
     else:
         print(f'DF shape: {df.shape}')
-        print(df.head())
 
     return df
 
@@ -111,14 +110,17 @@ def preprocess_real_world():
         if df.shape[1] > 35:
             continue
         df = fix_col_names(df)
+        print(file_name)
+        print(df.columns)
         print(df.head())
+        print()
         X = df.values
 
         yield file_name, X
 
 
 '''path = '../data/clustering_benchmark/real-world/'
-file_name = 'sonar.arff'
+file_name = 'vehicle.arff'
 file = loadarff(join(path, file_name))
 df = pd.DataFrame(file[0])
 df = fix_dtypes(df)
@@ -126,4 +128,7 @@ if df.shape[0] >= 2000:
     df = df.sample(n=2000)
 
 print(df.columns)
+print(df.shape)
 print(np.unique(df['Class']))'''
+
+#preprocess_real_world()

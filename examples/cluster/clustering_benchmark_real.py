@@ -10,8 +10,14 @@ from scipy.stats import ttest_ind
 from scipy.io.arff import loadarff
 from os.path import join
 import pandas as pd
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
 
 path = '../data/clustering_benchmark/real-world/'
+
+'''
+
+'''
 
 datasets = [
     {'file_name': 'glass.arff',
@@ -25,7 +31,32 @@ datasets = [
      'n_clusters': 2},
     {'file_name': 'wine.arff',
      'class_col': 'class',
-     'n_clusters': 3}
+     'n_clusters': 3},
+    {'file_name': 'balance-scale.arff',
+     'class_col': 'class',
+     'n_clusters': 3},
+    {'file_name': 'german.arff',
+     'class_col': 'CLASS',
+     'n_clusters': 2},
+    {'file_name': 'cpu.arff',
+     'class_col': 'class',
+     'n_clusters': 20},
+    {'file_name': 'ecoli.arff',
+     'class_col': 'class',
+     'n_clusters': 8},
+    {'file_name': 'segment.arff',
+     'class_col': 'class',
+     'n_clusters': 7},
+    {'file_name': 'vehicle.arff',
+     'class_col': 'Class',
+     'n_clusters': 4},
+    {'file_name': 'vowel.arff',
+     'class_col': 'Class',
+     'n_clusters': 11},
+    {'file_name': 'zoo.arff',
+     'class_col': 'class',
+     'n_clusters': 7}
+
 ]
 
 
@@ -43,21 +74,23 @@ for file_name, class_col, n_clusters in get_datasets(datasets):
 
     df.drop(columns=[class_col], inplace=True)
     X = df.values
+    X = StandardScaler().fit_transform(X)
 
     # select project
     neptune.init('sfczekalski/similarity-forest')
 
     params = dict()
     params['max_depth'] = None
-    params['n_estimators'] = 100
+    params['n_estimators'] = 1
     params['technique'] = 'ahc'
     params['n_clusters'] = n_clusters
 
     # set experiment properties
-    n_iterations = 30
+    n_iterations = 20
+    plot = True
 
     # create experiment
-    neptune.create_experiment(name=f'Clustering {file_name}',
+    neptune.create_experiment(name=f'Clustering {file_name} plot dot',
                               params=params,
                               properties={'n_iterations': n_iterations,
                                           'dataset': file_name,
@@ -83,6 +116,18 @@ for file_name, class_col, n_clusters in get_datasets(datasets):
         neptune.log_metric('AHC Davies Bouldin score', davies_bouldin_score(X, ahc_clusters))
         ahc_silhouette[i] = silhouette_score(X, ahc_clusters)
         ahc_db[i] = davies_bouldin_score(X, ahc_clusters)
+
+        if plot:
+            if X.shape[1] > 2:
+                X = PCA(random_state=42).fit_transform(X)
+            figure, axs = plt.subplots(1, 2, figsize=(10, 5))
+            axs[0].scatter(X[:, 0], X[:, 1], c=sf_clusters, cmap='Set1', alpha=0.6)
+            axs[0].set_title('SimilarityForestCluster')
+            axs[1].scatter(X[:, 0], X[:, 1], c=ahc_clusters, cmap='Set1', alpha=0.6)
+            axs[1].set_title('AHC')
+            neptune.log_image('Plot', plt.gcf())
+            plt.clf()
+            plt.close()
 
 
     # log results
