@@ -171,11 +171,11 @@ cdef class CSimilarityForestClusterer:
                 The training data samples.
             Returns
             -------
-            dinstance_matrix : ndarray of shape = comb(n_samples, 2) containing the distances
+            distance_matrix : ndarray of shape = comb(n_samples, 2) containing the distances
         """
         cdef int n = X.shape[0]
-        cdef np.ndarray[np.float32_t, ndim=1] dinstance_matrix = np.ones(<int>comb(n, 2), np.float32, order='c')
-        cdef float [:] view = dinstance_matrix
+        cdef np.ndarray[np.float32_t, ndim=1] distance_matrix = np.ones(<int>comb(n, 2), np.float32, order='c')
+        cdef float [:] view = distance_matrix
 
         cdef int num_threads = 4
         cdef int diagonal = 1
@@ -197,7 +197,7 @@ cdef class CSimilarityForestClusterer:
                 idx += 1
             diagonal += 1
 
-        return dinstance_matrix
+        return distance_matrix
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
@@ -209,7 +209,7 @@ cdef class CSimilarityForestClusterer:
                 The training data samples.
             Returns
             -------
-            dinstance_matrix : ndarray of shape = [n_samples, n_samples] containing the distances
+            distance_matrix : ndarray of shape = [n_samples, n_samples] containing the distances
 
         Notes
         ------
@@ -222,8 +222,8 @@ cdef class CSimilarityForestClusterer:
         cdef int n = X.shape[0]
         cdef float [:, :] X_view = X
 
-        cdef np.ndarray[np.float32_t, ndim=2] dinstance_matrix = np.zeros(shape=(n, n), dtype=np.float32)
-        cdef float [:, :] dinstance_matrix_view = dinstance_matrix
+        cdef np.ndarray[np.float32_t, ndim=2] distance_matrix = np.zeros(shape=(n, n), dtype=np.float32)
+        cdef float [:, :] distance_matrix_view = distance_matrix
 
         cdef float similarity = 0.0
 
@@ -241,14 +241,15 @@ cdef class CSimilarityForestClusterer:
                     if i == j:
                         continue
                     similarity = current_tree.distance(X_view[i], X_view[j])
-                    dinstance_matrix_view[i, j] += 1 / <float>similarity
-                    dinstance_matrix_view[j, i] = dinstance_matrix_view[i, j]
+                    distance_matrix_view[i, j] += 1 / <float>similarity
+                    distance_matrix_view[j, i] = distance_matrix_view[i, j]
 
 
-        return dinstance_matrix
+        return distance_matrix
 
 
 cdef class CSimilarityTreeCluster:
+    """Similarity Tree clusterer."""
 
     cdef random_state
     cdef str sim_function
@@ -472,7 +473,7 @@ cdef class CSimilarityTreeCluster:
                 The training data samples.
             Returns
             -------
-            dinstance_matrix : ndarray of shape = comb(n_samples, 2) containing the distances
+            distance_matrix : ndarray of shape = comb(n_samples, 2) containing the distances
         """
         cdef int n = X.shape[0]
         cdef np.ndarray[np.float32_t, ndim=1] distance_matrix = np.ones(<int>comb(n, 2), dtype=np.float32, order='c')
