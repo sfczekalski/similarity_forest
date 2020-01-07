@@ -25,6 +25,15 @@ ctypedef float (*f_type)(float [:] xi, float [:] p, float [:] q) nogil
 @cython.boundscheck(False)
 @cython.wraparound(False)
 cdef float dot(float [:] u, float [:] v) nogil:
+    """Calcuate dot product of two vectors.
+        Parameters
+        ----------
+            u : memoryview of ndarray, first vector
+            v : memoryview of ndarray, second vector
+        Returns 
+        ----------
+            result : float value
+    """
     cdef float result = 0.0
     cdef int n = u.shape[0]
     cdef int i = 0
@@ -36,6 +45,16 @@ cdef float dot(float [:] u, float [:] v) nogil:
 @cython.boundscheck(False)
 @cython.wraparound(False)
 cdef float dot_projection(float [:] xi, float [:] p, float [:] q) nogil:
+    """Projection of data-point on split direction using dot product.
+        Parameters
+        ----------
+            xi : memoryview of ndarray, data-point to be projected
+            p : memoryview of ndarray, first data-point used to draw split direction
+            q : memoryview of ndarray, second data-point used to draw split direction
+        Returns 
+        ----------
+            result : float value
+    """
     cdef float result = 0.0
     cdef int n = xi.shape[0]
     cdef int i = 0
@@ -48,6 +67,17 @@ cdef float dot_projection(float [:] xi, float [:] p, float [:] q) nogil:
 @cython.boundscheck(False)
 @cython.wraparound(False)
 cdef float sqeuclidean(self, float [:] u, float [:] v) nogil:
+    """Calcuate squared euclidean distance of two vectors. 
+        It serves as an approximation of euclidean distance, when sorted using both methods, 
+        the order of data-points remains the same. 
+        Parameters
+        ----------
+            u : memoryview of ndarray, first vector
+            v : memoryview of ndarray, second vector
+        Returns 
+        ----------
+            result : float value
+    """
     cdef float result = 0.0
     cdef int n = u.shape[0]
     cdef int i = 0
@@ -59,6 +89,18 @@ cdef float sqeuclidean(self, float [:] u, float [:] v) nogil:
 @cython.boundscheck(False)
 @cython.wraparound(False)
 cdef float sqeuclidean_projection(float [:] xi, float [:] p, float [:] q) nogil:
+    """Projection of data-point on split direction using squared euclidean distance.
+        It serves as an approximation of euclidean distance, when sorted using both methods, 
+        the order of data-points remains the same. 
+        Parameters
+        ----------
+            xi : memoryview of ndarray, data-point to be projected
+            p : memoryview of ndarray, first data-point used to draw split direction
+            q : memoryview of ndarray, second data-point used to draw split direction
+        Returns 
+        ----------
+            result : float value
+    """
     cdef float result = 0.0
     cdef int n = xi.shape[0]
     cdef int i = 0
@@ -69,6 +111,7 @@ cdef float sqeuclidean_projection(float [:] xi, float [:] p, float [:] q) nogil:
     return result
 
 cdef class CSimilarityForestClusterer:
+    """Similarity forest clusterer."""
 
     cdef random_state
     cdef str sim_function
@@ -90,6 +133,15 @@ cdef class CSimilarityForestClusterer:
     @cython.boundscheck(False)
     @cython.wraparound(False)
     cpdef CSimilarityForestClusterer fit(self, np.ndarray[np.float32_t, ndim=2] X):
+        """Build a forest of trees from the training set X.
+            Parameters
+            ----------
+            X : array-like matrix of shape = [n_samples, n_features]
+                The training data samples.
+            Returns
+            -------
+            self : CSimilarityForestClusterer
+        """
         cdef int n = X.shape[0]
         cdef dict args = dict()
 
@@ -112,6 +164,15 @@ cdef class CSimilarityForestClusterer:
     @cython.boundscheck(False)
     @cython.wraparound(False)
     cpdef np.ndarray[np.float32_t, ndim=1] predict_(self, np.ndarray[np.float32_t, ndim=2] X):
+        """Produce pairwise distance matrix.
+            Parameters
+            ----------
+            X : array-like matrix of shape = [n_samples, n_features]
+                The training data samples.
+            Returns
+            -------
+            dinstance_matrix : ndarray of shape = comb(n_samples, 2) containing the distances
+        """
         cdef int n = X.shape[0]
         cdef np.ndarray[np.float32_t, ndim=1] dinstance_matrix = np.ones(<int>comb(n, 2), np.float32, order='c')
         cdef float [:] view = dinstance_matrix
@@ -141,7 +202,15 @@ cdef class CSimilarityForestClusterer:
     @cython.boundscheck(False)
     @cython.wraparound(False)
     cpdef np.ndarray[np.float32_t, ndim=2] ppredict_(self, np.ndarray[np.float32_t, ndim=2] X):
-        """
+        """Parallel implementation. Produce pairwise distance matrix.
+            Parameters
+            ----------
+            X : array-like matrix of shape = [n_samples, n_features]
+                The training data samples.
+            Returns
+            -------
+            dinstance_matrix : ndarray of shape = [n_samples, n_samples] containing the distances
+
         Notes
         ------
             In parallel implementation distance is calculated as a sum of 1/similarity across the trees,
@@ -149,7 +218,6 @@ cdef class CSimilarityForestClusterer:
             
             Parallel implementation materializes the whole N*N distance matrix instead of comb(N, 2) flat array.
             Possibly change it in the future.
-            
         """
         cdef int n = X.shape[0]
         cdef float [:, :] X_view = X
@@ -212,6 +280,16 @@ cdef class CSimilarityTreeCluster:
     @cython.boundscheck(False)
     @cython.wraparound(False)
     cdef int is_pure(self, float [:, :] X) nogil:
+        """Check if all data-points in the matrix are the same.
+            Parameters
+            ----------
+            X : memoryview of ndarray of shape = [n_samples, n_features]
+                The data-points.
+            Returns
+            -------
+            pure : int, 0 indicates that the array is not pure, 1 that it is
+        
+        """
         cdef int n = X.shape[0]
         cdef int m = X.shape[1]
         cdef int pure = 1
@@ -230,6 +308,18 @@ cdef class CSimilarityTreeCluster:
     @cython.boundscheck(False)
     @cython.wraparound(False)
     cpdef int sample_split_direction(self, np.ndarray[np.float32_t, ndim=2] X, int first):
+        """Sample index of second data-point to draw split direction. 
+            First one was sampled in fit, here we sample only the second one in order to avoid passing a tuple as a result
+            Parameters
+            ----------
+            X : memoryview of ndarray of shape = [n_samples, n_features]
+                The data-points.
+            first : int, index of first data-point
+            Returns
+            -------
+            second : int, index of second data-point
+        
+        """
         cdef int n = X.shape[0]
         cdef int m = X.shape[1]
         cdef float [:] first_row = X[first]
@@ -241,6 +331,17 @@ cdef class CSimilarityTreeCluster:
     @cython.boundscheck(False)
     @cython.wraparound(False)
     cdef void _find_split(self, float [:, :] X, f_type projection):
+        """Project all data-points, find a split point and indexes of both child partitions.
+            Parameters
+            ----------
+            X : memoryview of ndarray of shape = [n_samples, n_features]
+                The data-points.
+            projection : f_type, a function used to project data-points
+            Returns
+            -------
+            void
+        
+        """
 
         # Calculate similarities
         cdef int n = X.shape[0]
@@ -268,6 +369,15 @@ cdef class CSimilarityTreeCluster:
         self.rhs_idxs = np.nonzero(array > self._split_point)[0].astype(np.int32)
 
     cpdef CSimilarityTreeCluster fit(self, np.ndarray[np.float32_t, ndim=2] X):
+        """Build a tree from the training set X.
+            Parameters
+            ----------
+            X : array-like matrix of shape = [n_samples, n_features]
+                The training data samples.
+            Returns
+            -------
+            self : CSimilarityTreeCluster
+        """
         cdef int n = X.shape[0]
         if n <= 1:
             self.is_leaf = 1
@@ -326,6 +436,17 @@ cdef class CSimilarityTreeCluster:
         return self
 
     cdef int distance(self, float [:] xi, float [:] xj) nogil:
+        """Calculate distance of a pair of data-points in tree-space.
+            The pair of traverses down the tree, and the depth on which the pair splits is recorded.
+            This values serves as a similarity measure between the pair.
+            Parameters
+            ----------
+            X : array-like matrix of shape = [n_samples, n_features]
+                The training data samples.
+            Returns
+            -------
+            int : the depth on which the pair splits.
+        """
         if self.is_leaf:
             return self.depth
 
@@ -333,7 +454,7 @@ cdef class CSimilarityTreeCluster:
         cdef bint path_j = self.projection(xj, self._p, self._q) <= self._split_point
 
         if path_i == path_j:
-            # the same path, check if go left or right
+            # the same path, check if the pair goes left or right
             if path_i:
                 return self._lhs.distance(xi, xj)
             else:
@@ -344,6 +465,15 @@ cdef class CSimilarityTreeCluster:
 
 
     cpdef np.ndarray[np.float32_t, ndim=1] predict_(self, np.ndarray[np.float32_t, ndim=2] X):
+        """Produce pairwise distance matrix according to single tree.
+            Parameters
+            ----------
+            X : array-like matrix of shape = [n_samples, n_features]
+                The training data samples.
+            Returns
+            -------
+            dinstance_matrix : ndarray of shape = comb(n_samples, 2) containing the distances
+        """
         cdef int n = X.shape[0]
         cdef np.ndarray[np.float32_t, ndim=1] distance_matrix = np.ones(<int>comb(n, 2), dtype=np.float32, order='c')
         cdef float [:] view = distance_matrix

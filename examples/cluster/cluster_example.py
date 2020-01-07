@@ -25,7 +25,7 @@ df.drop(columns=['Class'], inplace=True)
 X = df.values
 X = StandardScaler().fit_transform(X)
 
-csf = SimilarityForestCluster(sim_function='dot')
+csf = SimilarityForestCluster(sim_function='euclidean')
 clusters = csf.fit_predict(X)
 '''dendrogram(csf.links_)
 plt.show()

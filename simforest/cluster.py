@@ -13,29 +13,38 @@ import time
 
 
 class SimilarityForestCluster(BaseEstimator, ClusterMixin):
-    """A similarity tree clusterer. It is a base model used as building blocks for Similarity Forest ensemble.
-        In case of clustering it is not intended to be used on its own.
+    """Similarity forest clusterer.
+            A similarity forest is a meta estimator that fits a number of similarity trees on various sub-samples
+            of the dataset. These trees perform data partitioning in order to capture its structure.
+            Each pair of data-points traverses down the trees, and average depth on which the pair splits is recorded.
+            This values serves as a similarity measure between the pair, and is used for hierarchical clustering.
+
+            The sub-sample size is always the same as the original input sample size but the samples are drawn
+            with replacement.
 
             Parameters
             ----------
             random_state : int or None, optional (default=None)
                 If int, random_state is the seed used by the random number generator;
                 If None, the random number generator is the RandomState instance used by `np.random`.
-            sim_function : function used to measure similarity between data-points
+            sim_function : string, function used to measure similarity between data-points.
+                Possible functions are (for now): 'euclidean' (default) for euclidean distance and 'dot' for dot product
             max_depth : integer or None, optional (default=None)
-                The maximum depth of the tree. If None, then nodes are expanded until
-                all leaves are pure.
+                The maximum depth of the tree. If None, the trees are fully grown
+            n_clusters : int (default=20), number of clusters to find in the data
+            technique : string (default='ahc')
+                clustering algorithm to use to form the clusters from distance matrix produced by the forest.
+                Other possible value is 'hdbscan' for HDBSCAN algorithm
+            n_estimators : int (default=20), number of trees to grow
 
             Attributes
             ----------
-            random_state : int, RandomState instance or None, optional (default=None)
-                If int, random_state is the seed used by the random number generator;
-                If RandomState instance, random_state is the random number generator;
-                If None, the random number generator is the RandomState instance used by np.random.
-            sim_function : a function used to measure similarity between points.
-            max_depth : int or None, optional (default=None)
-                The maximum depth of the tree. If None, then nodes are expanded until all leaves are pure or until all
-                leaves contain less than min_samples_split samples.
+            forest_ : underlying Cython implementation of the forest
+            estimators_ : list of underlying Cython trees
+            distance_matrix_ : array of shape (n_samples, n_samples), array of pairwise distances
+            links_ : links produced by AHC algorithm
+                refer to https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html
+            labels_ : cluster labels
 
     """
 
@@ -51,7 +60,6 @@ class SimilarityForestCluster(BaseEstimator, ClusterMixin):
         self.sim_function = sim_function
         self.max_depth = max_depth
         self.n_clusters = n_clusters
-        self.threshold = threshold
         self.technique = technique
         self.n_estimators = n_estimators
 
@@ -104,6 +112,8 @@ class SimilarityForestCluster(BaseEstimator, ClusterMixin):
         if self.n_estimators is not None:
             args['n_estimators'] = self.n_estimators
 
+        args['sim_function'] = self.sim_function
+
         self.forest_ = CSimilarityForestClusterer(**args)
         self.forest_.fit(X)
         self.estimators_ = self.forest_.estimators_
@@ -113,8 +123,6 @@ class SimilarityForestCluster(BaseEstimator, ClusterMixin):
 
             if self.technique == 'ahc':
                 self.links_ = linkage(squareform(self.distance_matrix_))
-
-                #clusters = fcluster(self.links_, t=self.threshold)
                 clusters = fcluster(self.links_, self.n_clusters, criterion='maxclust')
 
             elif self.technique == 'hdbscan':
@@ -150,29 +158,25 @@ class SimilarityForestCluster(BaseEstimator, ClusterMixin):
 
 
 class SimilarityTreeCluster(BaseEstimator):
-    """A similarity tree clusterer. It is a base model used as building blocks for Similarity Forest ensemble.
-        In case of clustering it is not intended to be used on its own.
+    """Similarity tree clusterer.
+            Single tree build on sub-sample of the dataset. It performs data partitioning in order to capture
+            its structure.
+            Each pair of data-points traverses down the trees, and average depth on which the pair splits is recorded.
+            This values serves as a similarity measure between the pair, and is used for hierarchical clustering.
 
             Parameters
             ----------
             random_state : int or None, optional (default=None)
                 If int, random_state is the seed used by the random number generator;
                 If None, the random number generator is the RandomState instance used by `np.random`.
-            sim_function : function used to measure similarity between data-points
+            sim_function : string, function used to measure similarity between data-points.
+                Possible functions are (for now): 'euclidean' (default) for euclidean distance and 'dot' for dot product
             max_depth : integer or None, optional (default=None)
-                The maximum depth of the tree. If None, then nodes are expanded until
-                all leaves are pure.
+                The maximum depth of the tree. If None, the trees are fully grown
 
             Attributes
             ----------
-            random_state : int, RandomState instance or None, optional (default=None)
-                If int, random_state is the seed used by the random number generator;
-                If RandomState instance, random_state is the random number generator;
-                If None, the random number generator is the RandomState instance used by np.random.
-            sim_function : a function used to measure similarity between points.
-            max_depth : int or None, optional (default=None)
-                The maximum depth of the tree. If None, then nodes are expanded until all leaves are pure or until all
-                leaves contain less than min_samples_split samples.
+            _tree : underlying Cython tree implementation
 
     """
 
