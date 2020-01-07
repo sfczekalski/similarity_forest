@@ -239,8 +239,8 @@ cdef class CSimilarityTreeCluster:
         cdef int i = 0
         # Read about different schedules https://cython.readthedocs.io/en/latest/src/userguide/parallelism.html
         for i in prange(n, schedule='dynamic', nogil=True, num_threads=num_threads):
-            array[i] = self.sqeuclidean_projection(X[i])
-            #array[i] = self.dot_projection(X[i])
+            #array[i] = self.sqeuclidean_projection(X[i])
+            array[i] = self.dot_projection(X[i])
 
         cdef float similarities_min = np.min(array)
         cdef float similarities_max = np.max(array)
@@ -286,6 +286,7 @@ cdef class CSimilarityTreeCluster:
 
         self._find_split(X)
 
+        # if split has been found
         if X[self.lhs_idxs].shape[0] > 0 and X[self.rhs_idxs].shape[0] > 0:
             self._lhs = CSimilarityTreeCluster(random_state=self.random_state,
                                                sim_function=self.sim_function,
@@ -297,7 +298,8 @@ cdef class CSimilarityTreeCluster:
                                                max_depth=self.max_depth,
                                                depth=self.depth+1).fit(X[self.rhs_idxs])
         else:
-            raise ValueError('Error when finding a split: all points go to the same partition')
+            self.is_leaf = 1
+            return self
 
         return self
 
@@ -305,10 +307,10 @@ cdef class CSimilarityTreeCluster:
         if self.is_leaf:
             return self.depth
 
-        cdef bint path_i = self.sqeuclidean_projection(xi) <= self._split_point
-        cdef bint path_j = self.sqeuclidean_projection(xj) <= self._split_point
-        #cdef bint path_i = self.dot_projection(xi) <= self._split_point
-        #cdef bint path_j = self.dot_projection(xj) <= self._split_point
+        #cdef bint path_i = self.sqeuclidean_projection(xi) <= self._split_point
+        #cdef bint path_j = self.sqeuclidean_projection(xj) <= self._split_point
+        cdef bint path_i = self.dot_projection(xi) <= self._split_point
+        cdef bint path_j = self.dot_projection(xj) <= self._split_point
 
         if path_i == path_j:
             # the same path, check if go left or right
