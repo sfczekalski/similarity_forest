@@ -54,13 +54,15 @@ class SimilarityForestCluster(BaseEstimator, ClusterMixin):
                  max_depth=None,
                  n_clusters=20,
                  technique='ahc',
-                 n_estimators=20):
+                 n_estimators=20,
+                 bootstrap=False):
         self.random_state = random_state
         self.sim_function = sim_function
         self.max_depth = max_depth
         self.n_clusters = n_clusters
         self.technique = technique
         self.n_estimators = n_estimators
+        self.bootstrap = bootstrap
 
     def _validate_X_predict(self, X):
         """Validate X whenever one tries to predict, apply, predict_proba."""
@@ -112,6 +114,9 @@ class SimilarityForestCluster(BaseEstimator, ClusterMixin):
             args['n_estimators'] = self.n_estimators
 
         args['sim_function'] = self.sim_function
+
+        if self.bootstrap:
+            args['bootstrap'] = 1
 
         self.forest_ = CSimilarityForestClusterer(**args)
         self.forest_.fit(X)

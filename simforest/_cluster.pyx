@@ -118,17 +118,20 @@ cdef class CSimilarityForestClusterer:
     cdef int max_depth
     cdef public list estimators_
     cdef int n_estimators
+    cdef int bootstrap
 
     def __cinit__(self,
                   random_state=None,
                   str sim_function='euclidean',
                   int max_depth=-1,
-                  int n_estimators = 20):
+                  int n_estimators = 20,
+                  int bootstrap = 0):
         self.random_state = random_state
-        self.sim_function= sim_function
+        self.sim_function = sim_function
         self.max_depth = max_depth
         self.estimators_ = []
         self.n_estimators = n_estimators
+        self.bootstrap = bootstrap
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
@@ -156,8 +159,12 @@ cdef class CSimilarityForestClusterer:
 
         cdef int [:] indicies
         for i in range(self.n_estimators):
-            indicies = random_state.choice(range(n), n, replace=True).astype(np.int32)
-            self.estimators_.append(CSimilarityTreeCluster(**args).fit(X[indicies]))
+            if self.bootstrap == 0:
+                self.estimators_.append(CSimilarityTreeCluster(**args).fit(X))
+            else:
+                indicies = random_state.choice(range(n), n, replace=True).astype(np.int32)
+                self.estimators_.append(CSimilarityTreeCluster(**args).fit(X[indicies]))
+
 
         return self
 
