@@ -17,22 +17,14 @@
 .. |ReadTheDocs| image:: https://readthedocs.org/projects/simforest/badge/?version=latest
 .. _ReadTheDocs: https://simforest.readthedocs.io/en/latest/?badge=latest
 
-project-template - A template for scikit-learn contributions
-============================================================
+Similarity Forest : A similarity-based decision tree ensemble
+=============================================================
 
-.. _scikit-learn: https://scikit-learn.org
+This is my MS thesis project conducted at Poznan University of Technology under the supervision of
+prof. Mikołaj Morzy
 
-**project-template** is a template project for scikit-learn_ compatible
-extensions.
+It aims to extend the work described in Similarity Forest by Sathe and Aggarwal and provide ease to use,
+Scikit-Learn compatible implementation.
 
-It aids development of estimators that can be used in scikit-learn pipelines
-and (hyper)parameter search, while facilitating testing (including some API
-compliance), documentation, open source development, packaging, and continuous
-integration.
-
-.. _documentation: https://simforest.readthedocs.io/en/latest/quick_start.html
-
-Refer to the documentation_ to modify the template for your own scikit-learn
-contribution.
-
-*Thank you for cleanly contributing to the scikit-learn ecosystem!*
+It can be used in Scikit-Learn pipelines and (hyper)parameter search, it includes testing (API compliance) and more.
+I will include necessary documentation.
