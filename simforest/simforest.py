@@ -79,6 +79,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
                 bool indicating if current node is a leaf, because it is pure or stopping createrion
                 has been reached (depth == max_depth)
             _node_id : int current node id
+            _n : int, number of data-points in current node
 
     """
 
@@ -336,6 +337,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
         self._value = None
         self._is_leaf = False
         self.is_fitted_ = False
+        self.n_ = len(y)
 
         # Append self to the list of class instances
         self._nodes_list.append(self)
@@ -405,7 +407,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
                                                      discriminative_sampling=self.discriminative_sampling,
                                                      most_different=self.most_different,
                                                      estimator_samples=lhs_idxs).\
-                                                    fit(X[lhs_idxs], y[lhs_idxs], check_input=False)
+                    fit(X[lhs_idxs], y[lhs_idxs], check_input=False)
 
                 self._rhs = SimilarityTreeClassifier(random_state=self.random_state,
                                                      n_directions=self.n_directions,
@@ -416,7 +418,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
                                                      discriminative_sampling=self.discriminative_sampling,
                                                      most_different=self.most_different,
                                                      estimator_samples=rhs_idxs).\
-                                                    fit(X[rhs_idxs], y[rhs_idxs], check_input=False)
+                    fit(X[rhs_idxs], y[rhs_idxs], check_input=False)
 
             else:
                 self._is_leaf = True
@@ -580,7 +582,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
 
         if self._is_leaf:
             c = 0
-            n = x.shape[0]
+            n = self.n_
             if n > 1:
                 c = _h(n)
             return self.depth + c
@@ -957,7 +959,8 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
                 The input samples.
             check_input : bool indicating if input should be checked or not.
             n_estimators : int (default = self.n_estimators)
-                number of estimators to use when measuring outlyingness, don't change this value
+                number of estimators to use when measuring outlyingness,
+                don't change this value - it was added to measure how outlyingness score depends on number of estimators
 
             Returns
             -------

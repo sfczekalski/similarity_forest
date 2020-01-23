@@ -10,14 +10,14 @@ from scipy.spatial import distance
 from sklearn.utils import shuffle as sh
 
 # fetch data
-'''X, y = fetch_kddcup99(subset='http', random_state=42, return_X_y=True)
+X, y = fetch_kddcup99(subset='http', random_state=42, return_X_y=True)
 X, y = X.astype(np.float32), y.astype('str')
 
 # fix classes
 y_df = pd.DataFrame(y, columns=['class'])
 y_df.loc[y_df['class'] != 'normal.', 'class'] = -1
 y_df.loc[y_df['class'] == 'normal.', 'class'] = 1
-y = y_df.values'''
+y = y_df.values
 
 # smtp take all outliers aside
 '''outliers_indices = np.where(y == -1)[0]
@@ -100,9 +100,9 @@ y[(y == 'benign')] = 1
 y = y.astype(np.int)'''
 
 # ionosphere
-X, y = load_svmlight_file('../data/ionosphere_scale')
+'''X, y = load_svmlight_file('../data/ionosphere_scale')
 X = X.toarray()
-X = X[:, 2:]
+X = X[:, 2:]'''
 
 
 # split
@@ -131,7 +131,7 @@ print(confusion_matrix(y_test, IF_preds))
 max_samples = 256
 max_depth = int(np.ceil(np.log2(max(max_samples, 2))))
 SF = SimilarityForestClassifier(n_estimators=20, random_state=42, bootstrap=False,
-                                max_samples=256, max_depth=None, discriminative_sampling=False, most_different=False)
+                                max_samples=256, max_depth=None, discriminative_sampling=False, most_different=True)
 SF.fit(X_train, y_train)
 SF_preds = SF.predict_outliers(X_test)
 SF_decision_f = SF.decision_function_outliers(X_test)
