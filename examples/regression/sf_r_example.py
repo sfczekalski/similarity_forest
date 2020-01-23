@@ -1,26 +1,28 @@
 from simforest import SimilarityForestRegressor
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.datasets import make_regression, load_svmlight_file, load_wine, make_friedman1, load_boston
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.metrics import r2_score, mean_squared_error
-from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.model_selection import train_test_split
 from sklearn.feature_selection import SelectKBest, f_regression
 import numpy as np
 from scipy.spatial import distance
 import pandas as pd
-import matplotlib.pyplot as plt
+import xlrd
 
 
-'''X, y = make_regression(n_features=4, n_informative=2, n_samples=1000, random_state=1)
-rng = np.random.RandomState(2)
-X += 2 * rng.uniform(size=X.shape)
-linearly_separable = (X, y)'''
+def get_forest_fires_dataset():
+    df = pd.read_csv('../data/forestfires.csv')
+    df['month'] = LabelEncoder().fit_transform(df['month'])
+    df['day'] = LabelEncoder().fit_transform(df['day'])
+    y, X = df.pop('area'), df
 
-X, y = load_svmlight_file('../data/space_ga')
-X = X.toarray()
+    return y, X
+
+'''X, y = load_svmlight_file('../data/abalone')
+X = X.toarray()'''
 
 #X, y = make_friedman1(n_samples=1000, random_state=42)
-#X, y = load_wine(return_X_y=True)
 
 
 '''df = pd.read_csv('../data/AirQualityUCI.csv', sep=',')
@@ -30,8 +32,6 @@ print(df.head())
 
 y, X = df.pop('RH'), df'''
 
-#X, y = load_boston(return_X_y=True)
-
 '''df = pd.read_csv('../data/winequality-white.csv', sep=';')
 df.dropna(inplace=True)
 print(df.head())
@@ -39,8 +39,35 @@ print(df.head())
 y, X = df.pop('quality'), df'''
 
 
-#X = SelectKBest(f_regression, k=10).fit_transform(X, y)
+def downcast_dtypes(df):
+    float_cols = [c for c in df if df[c].dtype == "float64"]
+    int_cols = [c for c in df if df[c].dtype in ["int64", "int32"]]
+    df[float_cols] = df[float_cols].astype(np.float32)
+    df[int_cols] = df[int_cols].astype(np.int16)
+    return df
 
+
+def get_who_dataset():
+    df = pd.read_csv('../data/Life Expectancy Data.csv')
+    '''df['Country'] = LabelEncoder().fit_transform(df['Country'])
+    df['Status'] = LabelEncoder().fit_transform(df['Status'])'''
+    df = pd.concat([df, pd.get_dummies(df['Country'])], axis=1)
+    df = pd.concat([df, pd.get_dummies(df['Status'])], axis=1)
+    df.drop(columns=['Country', 'Status'], inplace=True)
+    df.dropna(inplace=True)
+    df = downcast_dtypes(df)
+    y, X = df.pop('Life expectancy '), df
+
+    return y, X
+
+
+'''X, y = load_svmlight_file('../data/mpg')
+X = X.toarray()'''
+X, y = load_boston(return_X_y=True)
+
+
+#X = SelectKBest(f_regression, k=8).fit_transform(X, y)
+y = y + np.abs(np.min(y))
 X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.3, random_state=42)
 
@@ -48,26 +75,24 @@ scaler = StandardScaler()
 X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)
 
+rf = RandomForestRegressor(random_state=1)
+rf.fit(X_train, y_train)
+rf_pred = rf.predict(X_test)
+
+print(f'Random Forest R2 score: {r2_score(y_test, rf_pred)}')
+print(f'Random Forest MSE: {mean_squared_error(y_test, rf_pred)}')
+print(f'RF average tree depth: {np.mean([t.get_depth() for t in rf.estimators_])}')
+
 # Fit predict for both classifiers
-sf = SimilarityForestRegressor(n_estimators=100, criterion='variance')
+sf = SimilarityForestRegressor(criterion='atkinson', n_estimators=100)
 sf.fit(X_train, y_train)
 sf_pred = sf.predict(X_test)
 print(f'Similarity Forest R2 score: {r2_score(y_test, sf_pred)}')
 print(f'Similarity Forest MSE: {mean_squared_error(y_test, sf_pred)}')
-print(sf.get_params())
+print(f'SF average tree depth: {np.mean([t.get_depth() for t in sf.estimators_])}')
 
-
-rf = RandomForestRegressor(random_state=42, oob_score=True)
-rf.fit(X_train, y_train)
-rf_pred = rf.predict(X_test)
-
-# Compare regressors' accuracy
-print(f'Random Forest R2 score: {r2_score(y_test, rf_pred)}')
-print(f'Random Forest MSE: {mean_squared_error(y_test, rf_pred)}')
-print(f'Random Forest feature importances: {rf.feature_importances_}')
-
-'''# Scale predictions for plotting
-sf_pred = (sf_pred - np.min(sf_pred))/np.ptp(sf_pred)
+# Scale predictions for plotting
+'''sf_pred = (sf_pred - np.min(sf_pred))/np.ptp(sf_pred)
 rf_pred = (rf_pred - np.min(rf_pred))/np.ptp(rf_pred)
 
 # Plot classifiers' predictions

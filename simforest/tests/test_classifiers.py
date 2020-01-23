@@ -5,8 +5,8 @@ from sklearn.datasets import load_iris, make_blobs
 from sklearn.utils.testing import assert_array_equal
 from sklearn.utils.testing import assert_allclose
 from scipy.spatial import distance
-
 from simforest import SimilarityTreeClassifier, SimilarityForestClassifier
+from sklearn.model_selection import train_test_split
 
 
 @pytest.fixture
@@ -24,22 +24,9 @@ def test_similarity_tree_classifier_output_array_shape(data):
     assert y_pred.shape == (X.shape[0],)
 
 
-def test_classifier_attributes_tree(data):
-    X, y = data
-    clf = SimilarityTreeClassifier()
-
-    clf.fit(X, y)
-
-    assert hasattr(clf, 'is_fitted_')
-    assert hasattr(clf, 'classes_')
-    assert hasattr(clf, 'X_')
-    assert hasattr(clf, 'y_')
-
-
 def test_default_attribute_value_tree():
 
     clf = SimilarityTreeClassifier()
-    assert clf.random_state == 1
     assert clf.n_directions == 1
     assert clf.sim_function == np.dot
 
@@ -86,14 +73,6 @@ def test_pure_node():
     assert clf._is_leaf == True
 
 
-def test_wrong_sim_f_tree():
-    with pytest.raises(ValueError) as wrong_sim_f:
-        X, y = np.array(['a', 'b', 'c']), np.array([1, 0, 0])
-        clf = SimilarityTreeClassifier()
-        clf.fit(X, y)
-        assert 'Provided similarity function does not apply to input.' in str(wrong_sim_f.value)
-
-
 def test_probability_values_tree(data):
     X, y = data
     clf = SimilarityTreeClassifier()
@@ -101,6 +80,7 @@ def test_probability_values_tree(data):
     preds = clf.predict_proba(X)
 
     assert_allclose(np.sum(preds, axis=1), np.ones(shape=y.shape))
+
 
 def test_similarity_forest_classifier_output_array_shape(data):
     X, y = data
@@ -112,20 +92,9 @@ def test_similarity_forest_classifier_output_array_shape(data):
     assert y_pred.shape == (X.shape[0],)
 
 
-def test_classifier_attributes_forest(data):
-    X, y = data
-    clf = SimilarityForestClassifier()
-
-    clf.fit(X, y)
-
-    assert hasattr(clf, 'is_fitted_')
-    assert hasattr(clf, 'classes_')
-
-
 def test_default_attribute_value_forest():
 
     clf = SimilarityForestClassifier()
-    assert clf.random_state == 1
     assert clf.n_directions == 1
     assert clf.sim_function == np.dot
 
@@ -164,15 +133,6 @@ def test_log_probabilities_forest(data):
     assert_allclose(log_preds, np.log(preds+1e-10))
 
 
-def test_wrong_sim_f_forest():
-
-    with pytest.raises(ValueError) as wrong_sim_f:
-        X, y = np.array(['a', 'b', 'c']), np.array([1, 0, 0])
-        clf = SimilarityForestClassifier()
-        clf.fit(X, y)
-        assert 'Provided similarity function does not apply to input.' in str(wrong_sim_f.value)
-
-
 def test_probability_values_forest(data):
     X, y = data
     clf = SimilarityForestClassifier()
@@ -206,3 +166,59 @@ def test_forest_apply_result_shape(data):
     apply_result = clf.apply(X)
 
     assert apply_result.shape == (X.shape[0], clf.n_estimators)
+
+
+def test_similarity_forest_outliers_output_array_shape(data):
+    X, y = data
+    clf = SimilarityForestClassifier()
+
+    clf.fit(X, y)
+
+    y_pred = clf.predict_outliers(X)
+    assert y_pred.shape == (X.shape[0],)
+
+
+def test_similarity_forest_wrongly_the_same_pred(data):
+    """There should not be a situation when models predicts the same when there is no random_state set"""
+    X, y = data
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.3, random_state=42)
+
+    clf1 = SimilarityForestClassifier()
+    clf1.fit(X_train, y_train)
+    y_pred1 = clf1.predict_proba(X_test)
+
+    clf2 = SimilarityForestClassifier()
+    clf2.fit(X_train, y_train)
+    y_pred2 = clf2.predict_proba(X_test)
+
+    assert not np.array_equal(y_pred1, y_pred2)
+
+
+def test_similarity_forest_outliers_ranking_stability(data):
+    """There should not be a situation when models predicts the same when there is no random_state set"""
+    X, y = data
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.3, random_state=42)
+
+    clf = SimilarityForestClassifier()
+    clf.fit(X_train, y_train)
+    rcorrelations = clf.outliers_rank_stability(X_test, plot=False)
+    assert rcorrelations.shape == (9, 2)
+    assert rcorrelations[:, 0].all() >= -1
+    assert rcorrelations[:, 0].all() <= 1
+    assert rcorrelations[:, 1].all() >= 0
+    assert rcorrelations[:, 1].all() <= 1
+
+
+def test_train_set_acc(data):
+    X, y = data
+
+    forest = SimilarityForestClassifier()
+    forest.fit(X, y)
+    # shouldn't be actually 1.0?
+    assert forest.score(X, y) > 0.8
+
+    tree = SimilarityTreeClassifier()
+    tree.fit(X, y)
+    assert tree.score(X, y) == 1.0
