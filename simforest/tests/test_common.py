@@ -6,13 +6,13 @@ from simforest.cluster import SimilarityForestCluster
 from sklearn.utils.estimator_checks import parametrize_with_checks
 
 
-'''@pytest.mark.parametrize("Estimator", [SimilarityTreeClassifier, SimilarityForestClassifier,
+@pytest.mark.parametrize("Estimator", [SimilarityTreeClassifier, SimilarityForestClassifier,
                                        SimilarityTreeRegressor, SimilarityForestRegressor])
 def test_all_estimators(Estimator):
-    return check_estimator(Estimator)'''
+    return check_estimator(Estimator)
 
 
-# This method runs all test independently, and reports all the fails
+# This method runs all test independently, not sequentially, and reports all fails
 # For now all the tests are passed, except for the one related to pickling
 @parametrize_with_checks([SimilarityForestCluster])
 def test_sklearn_compatible_estimator(estimator, check):

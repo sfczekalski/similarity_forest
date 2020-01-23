@@ -92,7 +92,7 @@ def test_similarity_forest_cluster_output_array_shape(data):
     model.fit(X)
     assert len(model.estimators_) == model.n_estimators
     assert model.labels_.shape[0] == X.shape[0]
-    assert model.distance_matrix_.shape == (comb(X.shape[0], 2),)
+    assert model.distance_matrix_.shape == (X.shape[0], X.shape[0])
 
 
 '''def test_distance_matrix_symmetric(data):

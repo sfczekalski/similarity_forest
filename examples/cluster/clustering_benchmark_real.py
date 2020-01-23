@@ -16,16 +16,15 @@ from sklearn.preprocessing import StandardScaler
 path = '../data/clustering_benchmark/real-world/'
 
 '''
-
-'''
-
-datasets = [
-{'file_name': 'iris.arff',
+    {'file_name': 'iris.arff',
      'class_col': 'class',
      'n_clusters': 3},
     {'file_name': 'vowel.arff',
      'class_col': 'Class',
-     'n_clusters': 11},
+     'n_clusters': 11}
+'''
+
+datasets = [
     {'file_name': 'zoo.arff',
      'class_col': 'class',
      'n_clusters': 7},
@@ -86,7 +85,7 @@ for file_name, class_col, n_clusters in get_datasets(datasets):
     params['bootstrap'] = False
 
     # set experiment properties
-    n_iterations = 20
+    n_iterations = 5
     plot = True
 
     # create experiment

@@ -72,17 +72,17 @@ setup(name=DISTNAME,
 
 # Cython compiling
 ext_modules=[
-    Extension("cluster", ["_cluster.pyx"]),
-    Extension("criterion", ["_criterion.pyx"])
+    Extension("cluster", ["simforest/_cluster.pyx"]),
+    Extension("criterion", ["simforest/criterion.pyx"])
 ]
 
 setup(
-  name = 'cython_simforest',
-  cmdclass = {'build_ext': build_ext},
-  ext_modules = ext_modules,
-  include_dirs=[numpy.get_include()],
-  extra_compile_args=['-O3', '-march=native', '-ffast-math', '-fopenmp'],
-  extra_link_args=['-fopenmp'])
+    name='cython_simforest',
+    cmdclass={'build_ext': build_ext},
+    ext_modules=ext_modules,
+    include_dirs=[numpy.get_include()],
+    extra_compile_args=['-O3', '-march=native', '-ffast-math', '-fopenmp'],
+    extra_link_args=['-fopenmp']
 )
 
 
