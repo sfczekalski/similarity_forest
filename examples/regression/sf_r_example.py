@@ -32,8 +32,6 @@ print(df.head())
 
 y, X = df.pop('RH'), df'''
 
-#X, y = load_boston(return_X_y=True)
-
 '''df = pd.read_csv('../data/winequality-white.csv', sep=';')
 df.dropna(inplace=True)
 print(df.head())
@@ -63,7 +61,10 @@ def get_who_dataset():
     return y, X
 
 
-y, X = get_who_dataset()
+'''X, y = load_svmlight_file('../data/mpg')
+X = X.toarray()'''
+X, y = load_boston(return_X_y=True)
+
 
 #X = SelectKBest(f_regression, k=8).fit_transform(X, y)
 y = y + np.abs(np.min(y))
@@ -83,12 +84,12 @@ print(f'Random Forest MSE: {mean_squared_error(y_test, rf_pred)}')
 print(f'RF average tree depth: {np.mean([t.get_depth() for t in rf.estimators_])}')
 
 # Fit predict for both classifiers
-sf = SimilarityForestRegressor(criterion='theil', n_estimators=100, n_directions=2)
+sf = SimilarityForestRegressor(criterion='atkinson', n_estimators=100)
 sf.fit(X_train, y_train)
 sf_pred = sf.predict(X_test)
 print(f'Similarity Forest R2 score: {r2_score(y_test, sf_pred)}')
 print(f'Similarity Forest MSE: {mean_squared_error(y_test, sf_pred)}')
-print(f'SF average tree depth: {[t.get_depth() for t in sf.estimators_]}')
+print(f'SF average tree depth: {np.mean([t.get_depth() for t in sf.estimators_])}')
 
 # Scale predictions for plotting
 '''sf_pred = (sf_pred - np.min(sf_pred))/np.ptp(sf_pred)

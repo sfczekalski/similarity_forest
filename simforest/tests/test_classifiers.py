@@ -210,3 +210,15 @@ def test_similarity_forest_outliers_ranking_stability(data):
     assert rcorrelations[:, 1].all() >= 0
     assert rcorrelations[:, 1].all() <= 1
 
+
+def test_train_set_acc(data):
+    X, y = data
+
+    forest = SimilarityForestClassifier()
+    forest.fit(X, y)
+    # shouldn't be actually 1.0?
+    assert forest.score(X, y) > 0.8
+
+    tree = SimilarityTreeClassifier()
+    tree.fit(X, y)
+    assert tree.score(X, y) == 1.0

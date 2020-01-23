@@ -22,7 +22,7 @@ X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)'''
 
 # Fit predict for both classifiers
-sf = SimilarityForestClassifier(n_estimators=100, max_depth=None)
+sf = SimilarityForestClassifier(n_estimators=100, random_state=42)
 sf.fit(X_train, y_train)
 sf_pred = sf.predict(X_test)
 sf_pred_train = sf.predict(X_train)
@@ -39,7 +39,6 @@ rf_prob = rf.predict_proba(X_test)
 # Compare classifiers' accuracy
 print(f'Random Forest accuracy score: {accuracy_score(y_test, rf_pred)}')
 print(f'Similarity Forest accuracy score: {accuracy_score(y_test, sf_pred)}')
-print(f'Similarity Forest oob score: {sf.oob_score_}')
 
 
 print(f'Similarity Forest log loss: {log_loss(y_test, sf_prob)}')
