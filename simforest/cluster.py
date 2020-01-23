@@ -52,7 +52,7 @@ class SimilarityForestCluster(BaseEstimator, ClusterMixin):
                  random_state=None,
                  sim_function='euclidean',
                  max_depth=None,
-                 n_clusters=20,
+                 n_clusters=8,
                  technique='ahc',
                  n_estimators=20,
                  bootstrap=False):
