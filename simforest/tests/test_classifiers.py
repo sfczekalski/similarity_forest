@@ -5,7 +5,6 @@ from sklearn.datasets import load_iris, make_blobs
 from sklearn.utils.testing import assert_array_equal
 from sklearn.utils.testing import assert_allclose
 from scipy.spatial import distance
-from simforest.criterion import find_split_index
 from simforest import SimilarityTreeClassifier, SimilarityForestClassifier
 from sklearn.model_selection import train_test_split
 
@@ -23,18 +22,6 @@ def test_similarity_tree_classifier_output_array_shape(data):
 
     y_pred = clf.predict(X)
     assert y_pred.shape == (X.shape[0],)
-
-
-def test_classifier_attributes_tree(data):
-    X, y = data
-    clf = SimilarityTreeClassifier()
-
-    clf.fit(X, y)
-
-    assert hasattr(clf, 'is_fitted_')
-    assert hasattr(clf, 'classes_')
-    assert hasattr(clf, 'X_')
-    assert hasattr(clf, 'y_')
 
 
 def test_default_attribute_value_tree():
@@ -86,14 +73,6 @@ def test_pure_node():
     assert clf._is_leaf == True
 
 
-def test_wrong_sim_f_tree():
-    with pytest.raises(ValueError) as wrong_sim_f:
-        X, y = np.array(['a', 'b', 'c']), np.array([1, 0, 0])
-        clf = SimilarityTreeClassifier()
-        clf.fit(X, y)
-        assert 'Provided similarity function does not apply to input.' in str(wrong_sim_f.value)
-
-
 def test_probability_values_tree(data):
     X, y = data
     clf = SimilarityTreeClassifier()
@@ -111,16 +90,6 @@ def test_similarity_forest_classifier_output_array_shape(data):
 
     y_pred = clf.predict(X)
     assert y_pred.shape == (X.shape[0],)
-
-
-def test_classifier_attributes_forest(data):
-    X, y = data
-    clf = SimilarityForestClassifier()
-
-    clf.fit(X, y)
-
-    assert hasattr(clf, 'is_fitted_')
-    assert hasattr(clf, 'classes_')
 
 
 def test_default_attribute_value_forest():
@@ -164,15 +133,6 @@ def test_log_probabilities_forest(data):
     assert_allclose(log_preds, np.log(preds+1e-10))
 
 
-def test_wrong_sim_f_forest():
-
-    with pytest.raises(ValueError) as wrong_sim_f:
-        X, y = np.array(['a', 'b', 'c']), np.array([1, 0, 0])
-        clf = SimilarityForestClassifier()
-        clf.fit(X, y)
-        assert 'Provided similarity function does not apply to input.' in str(wrong_sim_f.value)
-
-
 def test_probability_values_forest(data):
     X, y = data
     clf = SimilarityForestClassifier()
@@ -206,13 +166,6 @@ def test_forest_apply_result_shape(data):
     apply_result = clf.apply(X)
 
     assert apply_result.shape == (X.shape[0], clf.n_estimators)
-
-
-def test_gini_split():
-    y = np.array([1, 1, 0], dtype=np.int32)
-    i, impurity = find_split_index(y, np.int32(2), np.unique(y))
-    assert i == 1
-    assert impurity == 0.0
 
 
 def test_similarity_forest_outliers_output_array_shape(data):

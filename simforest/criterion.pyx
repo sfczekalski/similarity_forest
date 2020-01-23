@@ -410,7 +410,12 @@ def find_split_atkinson(float [:] y, float [:] s, int max_range):
                 y : numpy array of type np.float32, array of objects' labels, order by objects' similarity
                 s : numpy array of type np.float32, array of similarities
                 max_range : np.int32, should be length of y array - 1, so at least one point is left in right partition
+            Returns
+            ---------
+                best_split_idx : int, index of element at which optimal split should be performed
+                best_impurity : float, impurity after split
 
+    """
     cdef float best_impurity = INFINITY
     cdef int best_split_idx = -1
     cdef float curr_impurity = INFINITY

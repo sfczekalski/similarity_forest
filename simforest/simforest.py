@@ -8,11 +8,12 @@ import numpy as np
 from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin, is_classifier
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted, check_random_state
 from sklearn.utils.multiclass import unique_labels, check_classification_targets
+from sklearn.preprocessing import LabelEncoder
 from simforest.rcriterion import gini_index, weighted_variance, evaluate_split, theil
 from ineqpy import atkinson
-from simforest.criterion import find_split_variance, find_split_theil, find_split_atkinson, pfind_split_atkinson
+from simforest.criterion import find_split_variance, find_split_theil, find_split_atkinson, find_split_index_gini
 from simforest.utils import plot_projection
-
+from scipy.stats import spearmanr
 
 
 def _h(n):
@@ -110,7 +111,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
         and any leaf.
         """
 
-        check_is_fitted(self, ['X_', 'y_', 'is_fitted_'])
+        check_is_fitted(self, ['is_fitted_'])
 
         if self is None:
             return 0
@@ -248,6 +249,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
                          key=lambda x: similarities[x])
 
         y = np.array(y[indices])
+        # TODO find a cleaner solution for string labels problem - something like dictionary with mapping
         if y.dtype != int:
             encoder = LabelEncoder()
             y = encoder.fit_transform(y)
@@ -262,7 +264,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
 
         n = len(y)
         if self.discriminative_sampling:
-            i, best_impurity = find_split_index(y[indices], np.int32(n-1), classes)
+            i, best_impurity = find_split_index_gini(y[indices], np.int32(n-1), classes)
 
         else:
             if self.most_different:
@@ -276,8 +278,6 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
         best_p = p
         best_q = q
         best_split_point = (similarities[indices[i]] + similarities[indices[i + 1]]) / 2
-
-        #self.draw_sim_line(similarities[indices], best_p, best_q, best_split_point, y[indices])
 
         return best_impurity, best_p, best_q, best_split_point, similarities
 
@@ -355,11 +355,11 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
             raise ValueError('Wrong node class probability values.')
 
         # Return leaf node value
-        if self._is_pure():
+        if self._is_pure(y):
             self._is_leaf = True
             return self
 
-        if len(self.y_) == 1:
+        if len(y) == 1:
             self._is_leaf = True
             return self
 
@@ -374,7 +374,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
         best_p = None
         best_q = None
         similarities = []
-        for i, j in self._sample_directions(random_state, self.y_,  self.n_directions):
+        for i, j in self._sample_directions(random_state, y,  self.n_directions):
 
             impurity, p, q, split_point, curr_similarities = self._find_split(random_state, X, y, X[i], X[j])
             if impurity < best_impurity:
@@ -405,8 +405,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
                                                      discriminative_sampling=self.discriminative_sampling,
                                                      most_different=self.most_different,
                                                      estimator_samples=lhs_idxs).\
-                                                    fit(self.X_[lhs_idxs], self.y_[lhs_idxs], check_input=False)
-
+                                                    fit(X[lhs_idxs], y[lhs_idxs], check_input=False)
 
                 self._rhs = SimilarityTreeClassifier(random_state=self.random_state,
                                                      n_directions=self.n_directions,
@@ -417,7 +416,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
                                                      discriminative_sampling=self.discriminative_sampling,
                                                      most_different=self.most_different,
                                                      estimator_samples=rhs_idxs).\
-                                                    fit(self.X_[rhs_idxs], self.y_[rhs_idxs], check_input=False)
+                                                    fit(X[rhs_idxs], y[rhs_idxs], check_input=False)
 
             else:
                 self._is_leaf = True
@@ -472,7 +471,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
 
 
         # Check if fit had been called
-        check_is_fitted(self, ['X_', 'y_', 'is_fitted_'])
+        check_is_fitted(self, ['is_fitted_'])
 
         # Input validation
         X = check_array(X)
@@ -517,7 +516,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
             """
 
         # Check is fit had been called
-        check_is_fitted(self, ['X_', 'y_', 'is_fitted_'])
+        check_is_fitted(self, ['is_fitted_'])
 
         # Input validation
         X = check_array(X)
@@ -556,7 +555,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
 
         if check_input:
             # Check if fit had been called
-            check_is_fitted(self, ['X_', 'y_', 'is_fitted_'])
+            check_is_fitted(self, ['is_fitted_'])
 
             # Input validation
             X = check_array(X)
@@ -581,7 +580,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
 
         if self._is_leaf:
             c = 0
-            n = len(self.y_)
+            n = x.shape[0]
             if n > 1:
                 c = _h(n)
             return self.depth + c
@@ -601,7 +600,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
 
         if check_input:
             # Check if fit had been called
-            check_is_fitted(self, ['X_', 'y_', 'is_fitted_'])
+            check_is_fitted(self, ['is_fitted_'])
 
             # Input validation
             X = check_array(X)
@@ -626,7 +625,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
 
         if check_input:
             # Check is fit had been called
-            check_is_fitted(self, ['X_', 'y_', 'is_fitted_'])
+            check_is_fitted(self, ['is_fitted_'])
 
             # Input validation
             X = check_array(X)
@@ -656,10 +655,10 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
         """Compute the pruning path during Minimal Cost-Complexity Pruning."""
         pass
 
-    def _is_pure(self):
+    def _is_pure(self, y):
         """Check whenever current node containts only elements from one class."""
 
-        return np.unique(self.y_).size == 1
+        return np.unique(y).size == 1
 
     '''def _more_tags(self):
         return {'binary_only': True}'''
@@ -805,16 +804,10 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
             check_classification_targets(y)
             y = np.copy(y)
 
-        self.X_ = X
-        self.y_ = np.array(y)
-        self.classes_ = unique_labels(self.y_)
+        y = np.array(y)
+        self.classes_ = unique_labels(y)
         self.n_classes_ = self.classes_.shape[0]
         self.base_estimator_ = SimilarityTreeClassifier
-
-        '''
-        if self.n_classes_ > 2:
-            raise Exception('Similarity Tree is a binary classifier!')
-        '''
 
         # Check input
         if self.random_state is not None:
@@ -826,17 +819,14 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
             raise ValueError('n_directions parameter must be an int')
 
         self.oob_score_ = 0.0
-        self.oob_decision_function_ = np.ndarray(shape=(X.size, self.n_classes_))
-        self.oob_decision_function_.fill(np.nan)
-        nans = [np.nan] * X.size
 
         self.estimators_ = []
 
         for i in range(self.n_estimators):
 
             if self.bootstrap:
-                all_idxs = range(self.y_.size)
-                idxs = random_state.choice(all_idxs, self.y_.size, replace=True)
+                all_idxs = range(len(y))
+                idxs = random_state.choice(all_idxs, len(y), replace=True)
                 tree = SimilarityTreeClassifier(classes=self.classes_, n_directions=self.n_directions,
                                                 sim_function=self.sim_function, random_state=self.random_state,
                                                 max_depth=self.max_depth,
@@ -853,8 +843,6 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
 
                     tree_probs = tree.predict_proba(X[np.unique(idxs_oob)])
 
-                    self.oob_decision_function_[idxs_oob] = np.add(np.nan_to_num(self.oob_decision_function_[idxs_oob]),
-                                                                   tree_probs)
             else:
                 all_idxs = range(y.size)
 
@@ -862,19 +850,16 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
                 if self.max_samples == 'auto':
                     sample_size = min(256, y.size)
                 elif isinstance(self.max_samples, float):
-                    sample_size = int(self.max_samples * y.size)
                     n = len(y)
+                    sample_size = int(self.max_samples * n)
                     if sample_size > n:
                         sample_size = n
-                    assert sample_size <= len(y), f'max_samples cannot be bigger than whole sample size \n' \
-                                                        f'max_samples is {sample_size}, sample is {len(self.y_)}'
+
                 elif isinstance(self.max_samples, int):
                     sample_size = self.max_samples
                     n = len(y)
                     if sample_size > n:
                         sample_size = n
-                    assert sample_size <= len(y), f'max_samples cannot be bigger than whole sample size \n' \
-                                                        f'max_samples is {sample_size}, sample is {len(self.y_)}'
                 else:
                     raise ValueError('max_samples should be \'auto\' or either float or int')
 
@@ -886,7 +871,7 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
                                                 discriminative_sampling=self.discriminative_sampling,
                                                 most_different=self.most_different,
                                                 estimator_samples=idxs)
-                tree.fit(X[idxs], self.y_[idxs], check_input=False)
+                tree.fit(X[idxs], y[idxs], check_input=False)
 
                 self.estimators_.append(tree)
 
@@ -950,7 +935,7 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
         """
 
         # Check is fit had been called
-        check_is_fitted(self, ['X_', 'y_', 'is_fitted_'])
+        check_is_fitted(self, ['is_fitted_'])
 
         # Input validation
         X = check_array(X)
@@ -982,7 +967,7 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
         """
         if check_input:
             # Check if fit had been called
-            check_is_fitted(self, ['X_', 'y_', 'is_fitted_'])
+            check_is_fitted(self, ['is_fitted_'])
 
             # Input validation
             X = check_array(X)
@@ -998,9 +983,9 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
 
         # Depths are normalized in the same fashion as in Isolation Forest
         if self.max_samples is not None:
-            n = min(self.y_.size, self.max_samples)
+            n = min(X.shape[0], self.max_samples)
         else:
-            n = self.y_.size
+            n = X.shape[0]
         c = _h(n)
 
         scores = np.array([- 2 ** (-pl/c) for pl in path_lengths])
@@ -1081,7 +1066,7 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
 
         if check_input:
             # Check if fit had been called
-            check_is_fitted(self, ['X_', 'y_', 'is_fitted_'])
+            check_is_fitted(self, ['is_fitted_'])
 
             # Input validation
             X = check_array(X)
@@ -1099,7 +1084,7 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
 
         if check_input:
             # Check if fit had been called
-            check_is_fitted(self, ['X_', 'y_', 'is_fitted_'])
+            check_is_fitted(self, ['is_fitted_'])
 
             # Input validation
             X = check_array(X)
@@ -1187,7 +1172,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
 
         if check_input:
             # Check if fit had been called
-            check_is_fitted(self, ['X_', 'y_', 'is_fitted_'])
+            check_is_fitted(self, ['is_fitted_'])
 
             # Input validation
             X = check_array(X)
@@ -1213,7 +1198,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
 
         if check_input:
             # Check is fit had been called
-            check_is_fitted(self, ['X_', 'y_', 'is_fitted_'])
+            check_is_fitted(self, ['is_fitted_'])
 
             # Input validation
             X = check_array(X)
@@ -1616,7 +1601,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
 
         if check_input:
             # Check if fit had been called
-            check_is_fitted(self, ['X_', 'y_', 'is_fitted_'])
+            check_is_fitted(self, ['is_fitted_'])
 
             # Input validation
             X = check_array(X)
@@ -1755,7 +1740,7 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
 
         if check_input:
             # Check if fit had been called
-            check_is_fitted(self, ['X_', 'y_', 'is_fitted_'])
+            check_is_fitted(self, ['is_fitted_'])
 
             # Input validation
             X = check_array(X)
@@ -1889,7 +1874,7 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
 
         if check_input:
             # Check if fit had been called
-            check_is_fitted(self, ['X_', 'y_', 'is_fitted_'])
+            check_is_fitted(self, ['is_fitted_'])
 
             # Input validation
             X = check_array(X)

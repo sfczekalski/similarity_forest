@@ -25,17 +25,6 @@ def test_similarity_tree_regressor_output_array_shape(data):
     assert y_pred.shape == (X.shape[0],)
 
 
-def test_regressor_attributes_tree(data):
-    X, y = data
-    clf = SimilarityTreeRegressor()
-
-    clf.fit(X, y)
-
-    assert hasattr(clf, 'is_fitted_')
-    assert hasattr(clf, 'X_')
-    assert hasattr(clf, 'y_')
-
-
 def test_default_attribute_value_tree():
 
     clf = SimilarityTreeRegressor()
@@ -67,14 +56,6 @@ def test_deterministic_predictions_tree(data):
     assert_array_equal(y_pred1, y_pred2)
 
 
-def test_wrong_sim_f_tree():
-    with pytest.raises(ValueError) as wrong_sim_f:
-        X, y = np.array(['a', 'b', 'c']), np.array([1.0, 0.0, 0.0])
-        clf = SimilarityTreeRegressor()
-        clf.fit(X, y)
-        assert 'Provided similarity function does not apply to input.' in str(wrong_sim_f.value)
-
-
 def test_similarity_forest_regressor_output_array_shape(data):
     X, y = data
     clf = SimilarityTreeRegressor()
@@ -83,15 +64,6 @@ def test_similarity_forest_regressor_output_array_shape(data):
 
     y_pred = clf.predict(X)
     assert y_pred.shape == (X.shape[0],)
-
-
-def test_classifier_attributes_forest(data):
-    X, y = data
-    clf = SimilarityForestRegressor()
-
-    clf.fit(X, y)
-
-    assert hasattr(clf, 'is_fitted_')
 
 
 def test_default_attribute_value_forest():
@@ -123,15 +95,6 @@ def test_deterministic_predictions_forest(data):
     y_pred1 = clf1.predict(X)
     y_pred2 = clf2.predict(X)
     assert_array_equal(y_pred1, y_pred2)
-
-
-def test_wrong_sim_f_forest():
-
-    with pytest.raises(ValueError) as wrong_sim_f:
-        X, y = np.array(['a', 'b', 'c']), np.array([1, 0, 0])
-        clf = SimilarityForestRegressor()
-        clf.fit(X, y)
-        assert 'Provided similarity function does not apply to input.' in str(wrong_sim_f.value)
 
 
 def test_number_of_tree_leaves_in_apply(data):
