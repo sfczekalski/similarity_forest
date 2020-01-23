@@ -5,6 +5,7 @@ from sklearn.datasets import load_boston
 from sklearn.utils.testing import assert_array_equal
 from sklearn.utils.testing import assert_allclose
 from scipy.spatial import distance
+from simforest.criterion import find_split_variance, find_split_theil
 
 from simforest import SimilarityTreeRegressor, SimilarityForestRegressor
 
@@ -24,21 +25,9 @@ def test_similarity_tree_regressor_output_array_shape(data):
     assert y_pred.shape == (X.shape[0],)
 
 
-def test_regressor_attributes_tree(data):
-    X, y = data
-    clf = SimilarityTreeRegressor()
-
-    clf.fit(X, y)
-
-    assert hasattr(clf, 'is_fitted_')
-    assert hasattr(clf, 'X_')
-    assert hasattr(clf, 'y_')
-
-
 def test_default_attribute_value_tree():
 
     clf = SimilarityTreeRegressor()
-    assert clf.random_state == 1
     assert clf.n_directions == 1
     assert clf.sim_function == np.dot
 
@@ -67,14 +56,6 @@ def test_deterministic_predictions_tree(data):
     assert_array_equal(y_pred1, y_pred2)
 
 
-def test_wrong_sim_f_tree():
-    with pytest.raises(ValueError) as wrong_sim_f:
-        X, y = np.array(['a', 'b', 'c']), np.array([1.0, 0.0, 0.0])
-        clf = SimilarityTreeRegressor()
-        clf.fit(X, y)
-        assert 'Provided similarity function does not apply to input.' in str(wrong_sim_f.value)
-
-
 def test_similarity_forest_regressor_output_array_shape(data):
     X, y = data
     clf = SimilarityTreeRegressor()
@@ -85,19 +66,9 @@ def test_similarity_forest_regressor_output_array_shape(data):
     assert y_pred.shape == (X.shape[0],)
 
 
-def test_classifier_attributes_forest(data):
-    X, y = data
-    clf = SimilarityForestRegressor()
-
-    clf.fit(X, y)
-
-    assert hasattr(clf, 'is_fitted_')
-
-
 def test_default_attribute_value_forest():
 
     clf = SimilarityForestRegressor()
-    assert clf.random_state == 1
     assert clf.n_directions == 1
     assert clf.sim_function == np.dot
 
@@ -126,15 +97,6 @@ def test_deterministic_predictions_forest(data):
     assert_array_equal(y_pred1, y_pred2)
 
 
-def test_wrong_sim_f_forest():
-
-    with pytest.raises(ValueError) as wrong_sim_f:
-        X, y = np.array(['a', 'b', 'c']), np.array([1, 0, 0])
-        clf = SimilarityForestRegressor()
-        clf.fit(X, y)
-        assert 'Provided similarity function does not apply to input.' in str(wrong_sim_f.value)
-
-
 def test_number_of_tree_leaves_in_apply(data):
     X, y = data
     clf = SimilarityTreeRegressor()
@@ -161,23 +123,9 @@ def test_forest_apply_result_shape(data):
     assert apply_result.shape == (X.shape[0], clf.n_estimators)
 
 
-def test_similarity_tree_regressor_path_lengths_array(data):
-    X, y = data
-    clf = SimilarityTreeRegressor()
-
-    clf.fit(X, y)
-
-    outlyingness = clf.path_length_(X)
-    assert outlyingness.shape == (X.shape[0],)
-
-
-def test_similarity_forest_regressor_outlyingness_array(data):
-    X, y = data
-    clf = SimilarityForestRegressor()
-
-    clf.fit(X, y)
-
-    outlyingness = clf.outlyingness(X)
-    assert outlyingness.shape == (X.shape[0],)
-    assert outlyingness.all() <= 1.0
-    assert outlyingness.all() >= 0.0
+def test_var_split():
+    y = np.array([1.5, 1.5, 0.0], dtype=np.float32)
+    s = np.array([1., 2., 3.], dtype=np.float32)
+    i, impurity = find_split_variance(y, s, np.int32(2))
+    assert i == 1
+    assert impurity == 0.0

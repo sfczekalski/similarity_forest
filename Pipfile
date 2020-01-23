@@ -9,11 +9,13 @@ scipy = "*"
 scikit-learn = "*"
 matplotlib = "*"
 pandas = "*"
+ineqpy = {git = "https://github.com/mmngreco/IneqPy"}
 yellowbrick = "*"
 cython = "*"
 
 [dev-packages]
 pytest = "*"
+xlrd = "*"
 
 [requires]
 python_version = "3.7"
