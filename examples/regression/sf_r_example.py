@@ -8,7 +8,7 @@ from sklearn.feature_selection import SelectKBest, f_regression
 import numpy as np
 from scipy.spatial import distance
 import pandas as pd
-import xlrd
+from simforest.distance import rbf
 
 
 def get_forest_fires_dataset():
@@ -61,9 +61,9 @@ def get_who_dataset():
     return y, X
 
 
-'''X, y = load_svmlight_file('../data/mpg')
-X = X.toarray()'''
-X, y = load_boston(return_X_y=True)
+X, y = load_svmlight_file('../data/mpg')
+X = X.toarray()
+#X, y = load_boston(return_X_y=True)
 
 
 #X = SelectKBest(f_regression, k=8).fit_transform(X, y)
@@ -84,7 +84,7 @@ print(f'Random Forest MSE: {mean_squared_error(y_test, rf_pred)}')
 print(f'RF average tree depth: {np.mean([t.get_depth() for t in rf.estimators_])}')
 
 # Fit predict for both classifiers
-sf = SimilarityForestRegressor(criterion='atkinson', n_estimators=100)
+sf = SimilarityForestRegressor(sim_function=rbf, criterion='variance', n_estimators=100)
 sf.fit(X_train, y_train)
 sf_pred = sf.predict(X_test)
 print(f'Similarity Forest R2 score: {r2_score(y_test, sf_pred)}')

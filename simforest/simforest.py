@@ -15,6 +15,7 @@ from simforest.criterion import find_split_variance, find_split_theil, find_spli
 from simforest.utils import plot_projection
 from scipy.stats import spearmanr
 from simforest.splitter import find_split
+from simforest.distance import rbf
 
 
 def _h(n):
