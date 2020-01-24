@@ -15,7 +15,7 @@ psutil = "*"
 hdbscan = "*"
 ineqpy = {git = "https://github.com/mmngreco/IneqPy"}
 yellowbrick = "*"
-cython = "*"
+numexpr = "*"
 
 [dev-packages]
 pytest = "*"

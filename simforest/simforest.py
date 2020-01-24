@@ -14,6 +14,7 @@ from ineqpy import atkinson
 from simforest.criterion import find_split_variance, find_split_theil, find_split_atkinson, find_split_index_gini
 from simforest.utils import plot_projection
 from scipy.stats import spearmanr
+from simforest.splitter import find_split
 
 
 def _h(n):
@@ -157,6 +158,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
                 first_class = labels[first]
                 others = np.where(labels != first_class)[0]
                 if len(others) == 0:
+                    # TODO this should not happen! Raise an exception
                     first, second = random_state.choice(a=range(len(labels)), size=2, replace=False)
                 else:
                     second = random_state.choice(others, replace=False)
@@ -1151,7 +1153,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
     def __init__(self,
                  random_state=None,
                  n_directions=1,
-                 sim_function=np.dot,
+                 sim_function=np.dot, #sgemm(alpha=1.0, a=X, b=X, trans_b=True)
                  max_depth=None,
                  min_samples_split=2,
                  min_samples_leaf=1,
@@ -1330,55 +1332,6 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
 
             yield first, second
 
-    def _find_split(self, X, y, p, q):
-        """ Find split among direction drew on pair of data-points
-            Parameters
-            ----------
-            X : all data-points
-            y : output vector
-            p : first data-point used for drawing direction of the split
-            q : second data-point used for drawing direction of the split
-
-            Returns
-            -------
-            impurity : impurity induced by the split (value of criterion function)
-            split_point : split threshold
-            similarities : array of shape (n_samples,), values of similarity-values based projection
-        """
-        similarities = np.array([self.sim_function(x, q) - self.sim_function(x, p) for x in X], dtype=np.float32)
-        indices = sorted([i for i in range(len(y)) if not np.isnan(similarities[i])],
-                         key=lambda x: similarities[x])
-        y = y[indices]
-        n = len(y)
-
-        if self.criterion == 'variance':
-            i, impurity = find_split_variance(y.astype(np.float32),
-                                                similarities[indices].astype(np.float32),
-                                                np.int32(n - 1))
-
-        elif self.criterion == 'theil':
-            i, impurity = find_split_theil(y[indices].astype(np.float32),
-                                                   similarities[indices].astype(np.float32),
-                                                   np.int32(n - 1))
-
-        elif self.criterion == 'atkinson':
-            i, impurity = find_split_atkinson(y[indices].astype(np.float32),
-                                               similarities[indices].astype(np.float32),
-                                               np.int32(n - 1))
-
-        elif self.criterion == 'step':
-            # index of element most different from it's consecutive one
-            i = np.argmax(np.abs(np.ediff1d(similarities[indices])))
-            impurity = weighted_variance(i+1, y[indices])
-
-        split_point = (similarities[indices[i]] + similarities[indices[i+1]]) / 2
-
-        if self.plot_splits:
-            plot_projection(similarities[indices], p, q, split_point, y[indices],
-                            self.sim_function, self.depth, self.criterion)
-
-        return impurity, split_point, similarities
-
     def fit(self, X, y, check_input=True):
         """Build a similarity tree regressor from the training set (X, y).
                Parameters
@@ -1473,7 +1426,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         similarities = []
         for i, j in self._sample_directions(random_state, y, self.n_directions):
 
-            impurity, split_point, curr_similarities = self._find_split(X, y, X[i], X[j])
+            impurity, split_point, curr_similarities = find_split(X, y, X[i], X[j], self.criterion, self.sim_function)
 
             if impurity < best_impurity:
                 best_impurity = impurity
@@ -1640,7 +1593,6 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
             return self.depth
 
         return t.row_path_length_(x)
-
 
     @property
     def feature_importances_(self):
