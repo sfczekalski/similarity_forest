@@ -45,3 +45,47 @@ def rbf(x, y, gamma=None):
     result = rbf_core(X, gamma)[1][0]
 
     return result
+
+
+def euclidean(X, p, q):
+    """A function calculating euclidean distance based projection of data-points in matrix X
+        Parameters
+        ----------
+            X : array of shape=(n_examples, n_features),
+                should be 2-dimensional, even if it consists only of one data-point!
+            p : array, first data-point used for projection
+            q : array, second data-point used for projection
+            gamma: float, default None, gamma in rbf computation
+                If None, defaults to 1 / num_features
+        Returns
+        ----------
+            projection : array of shape=(n_examples,) with distance-based projection values
+
+        Notes
+        ----------
+            the other option is : np.linalg.norm(X - q, axis=1) - np.linalg.norm(X - p, axis=1)
+    """
+
+    return np.sqrt(ne.evaluate("(X - q) ** 2").sum(1)) - np.sqrt(ne.evaluate("(X - p) ** 2").sum(1))
+
+
+def dot_product(X, p, q):
+    """A function calculating dot product distance based projection of data-points in matrix X
+        Parameters
+        ----------
+            X : array of shape=(n_examples, n_features),
+                should be 2-dimensional, even if it consists only of one data-point!
+            p : array, first data-point used for projection
+            q : array, second data-point used for projection
+            gamma: float, default None, gamma in rbf computation
+                If None, defaults to 1 / num_features
+        Returns
+        ----------
+            projection : array of shape=(n_examples,) with distance-based projection values
+
+        Notes
+        ----------
+            the other option is : sgemm(alpha=1.0, a=X, b=X, trans_b=True)
+    """
+
+    return np.dot(X, q) - np.dot(X, p)

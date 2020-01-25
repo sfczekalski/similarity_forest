@@ -15,7 +15,7 @@ from simforest.criterion import find_split_variance, find_split_theil, find_spli
 from simforest.utils import plot_projection
 from scipy.stats import spearmanr
 from simforest.splitter import find_split
-from simforest.distance import rbf
+from simforest.distance import dot_product
 
 
 def _h(n):
@@ -1154,7 +1154,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
     def __init__(self,
                  random_state=None,
                  n_directions=1,
-                 sim_function=np.dot, #sgemm(alpha=1.0, a=X, b=X, trans_b=True)
+                 sim_function=dot_product,
                  max_depth=None,
                  min_samples_split=2,
                  min_samples_leaf=1,
@@ -1185,7 +1185,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
 
             X = self._validate_X_predict(X, check_input)
 
-        return np.array([self.apply_x(x) for x in X])
+        return np.array([self.apply_x(x.reshape(1, -1)) for x in X])
 
     def apply_x(self, x, check_input=False):
         """Returns the index of the leaf that sample is predicted as."""
@@ -1193,8 +1193,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         if self._is_leaf:
             return self._node_id
 
-        t = self._lhs if self.sim_function(x, self._q) - self.sim_function(x,
-                                                                           self._p) <= self._split_point else self._rhs
+        t = self._lhs if self.sim_function(x, self._p, self._q)[0] <= self._split_point else self._rhs
         if t is None:
             return self._node_id
         return t.apply_x(x)
@@ -1213,7 +1212,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         if self._is_leaf:
             return f'In the leaf node, containing samples: \n {list(zip(self.X_, self.y_))}'
 
-        similarity = self.sim_function(X, self._q) - self.sim_function(X, self._p)
+        similarity = self.sim_function(X, self._p, self._q)[0]
         left = similarity <= self._split_point
         t = self._lhs if left else self._rhs
         if t is None:
@@ -1427,10 +1426,10 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         similarities = []
         for i, j in self._sample_directions(random_state, y, self.n_directions):
 
-            impurity, split_point, curr_similarities = find_split(X.astype(np.float32),
-                                                                  y.astype(np.float32),
-                                                                  X[i].astype(np.float32),
-                                                                  X[j].astype(np.float32),
+            impurity, split_point, curr_similarities = find_split(X,
+                                                                  y,
+                                                                  X[i],
+                                                                  X[j],
                                                                   self.criterion, self.sim_function)
 
             if impurity < best_impurity:
@@ -1517,7 +1516,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
 
             X = self._validate_X_predict(X, check_input)
 
-        return np.array([self.predict_row_output(x) for x in X], dtype=np.float32)
+        return np.array([self.predict_row_output(x.reshape(1, -1)) for x in X], dtype=np.float32)
 
     def predict_row_output(self, x):
         """ Predict regression output of a single data-point.
@@ -1538,7 +1537,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         assert self._p is not None
         assert self._q is not None
 
-        t = self._lhs if self.sim_function(x, self._q) - self.sim_function(x, self._p) <= self._split_point else self._rhs
+        t = self._lhs if self.sim_function(x, self._p, self._q)[0] <= self._split_point else self._rhs
         if t is None:
             return self._value
         return t.predict_row_output(x)
@@ -1569,7 +1568,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
 
             X = self._validate_X_predict(X, check_input)
 
-        return np.array([self.row_path_length_(x) for x in X])
+        return np.array([self.row_path_length_(x.reshape(1, -1)) for x in X])
 
     def row_path_length_(self, x):
         """ Get outlyingness path length of a single data-point.
@@ -1591,8 +1590,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         assert self._p is not None
         assert self._q is not None
 
-        t = self._lhs if self.sim_function(x, self._q) - self.sim_function(x,
-                                                                           self._p) <= self._split_point else self._rhs
+        t = self._lhs if self.sim_function(x, self._p, self._q)[0] <= self._split_point else self._rhs
         if t is None:
 
             return self.depth
@@ -1673,7 +1671,7 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
                 random_state=None,
                 n_estimators=20,
                 n_directions=1,
-                sim_function=np.dot,
+                sim_function=dot_product,
                 max_depth=None,
                 min_samples_split=2,
                 min_samples_leaf=1,

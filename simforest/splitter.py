@@ -20,7 +20,7 @@ def find_split(X, y, p, q, criterion, sim_function):
         split_point : split threshold
         similarities : array of shape (n_samples,), values of similarity-values based projection
     """
-    similarities = np.array([sim_function(x, q) - sim_function(x, p) for x in X], dtype=np.float32)
+    similarities = sim_function(X, p, q)
     indices = sorted([i for i in range(len(y)) if not np.isnan(similarities[i])],
                      key=lambda x: similarities[x])
     y = y[indices]
