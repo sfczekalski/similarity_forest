@@ -9,27 +9,34 @@ from simforest._distance import crbf
 def test_rbf():
     x1 = np.array([1, 0, 0])
     x2 = np.array([1, 0, 0])
-    rbf1 = rbf(x1, x2)
-    rbf2 = rbf_kernel(np.vstack([x1, x2]))[1][0]
-    assert rbf1 == approx(rbf2)
+    x3 = np.array([1, 0, 0])
+
+    # rbf(x, q) - rbf(x, p)
+
+    rbf1 = rbf(x1.reshape(1, -1), x2, x3)
+    rbf2 = rbf_kernel(np.vstack([x1, x3]))[1][0] - rbf_kernel(np.vstack([x1, x2]))[1][0]
+    assert rbf1[0] == approx(rbf2)
 
     x1 = np.array([1, 1, 1])
     x2 = np.array([1, 2, 2])
-    rbf1 = rbf(x1, x2)
-    rbf2 = rbf_kernel(np.vstack([x1, x2]))[1][0]
-    assert rbf1 == approx(rbf2)
+    x3 = np.array([3, 2, 1])
+    rbf1 = rbf(x1.reshape(1, -1), x2, x3)
+    rbf2 = rbf_kernel(np.vstack([x1, x3]))[1][0] - rbf_kernel(np.vstack([x1, x2]))[1][0]
+    assert rbf1[0] == approx(rbf2)
 
     x1 = np.array([0.1, 0.01, 1.5])
     x2 = np.array([2.1, 0.82, 2.15])
-    rbf1 = rbf(x1, x2)
-    rbf2 = rbf_kernel(np.vstack([x1, x2]))[1][0]
-    assert rbf1 == approx(rbf2)
+    x2 = np.array([5.1, 2.82, 3.15])
+    rbf1 = rbf(x1.reshape(1, -1), x2, x3)
+    rbf2 = rbf_kernel(np.vstack([x1, x3]))[1][0] - rbf_kernel(np.vstack([x1, x2]))[1][0]
+    assert rbf1[0] == approx(rbf2)
 
     x1 = np.array([0.01, 0.001, 0.000015])
     x2 = np.array([0.21, 0.082, 2.15])
-    rbf1 = rbf(x1, x2)
-    rbf2 = rbf_kernel(np.vstack([x1, x2]))[1][0]
-    assert rbf1 == approx(rbf2)
+    x2 = np.array([7.21, 7.082, 1.15])
+    rbf1 = rbf(x1.reshape(1, -1), x2, x3)
+    rbf2 = rbf_kernel(np.vstack([x1, x3]))[1][0] - rbf_kernel(np.vstack([x1, x2]))[1][0]
+    assert rbf1[0] == approx(rbf2)
 
 
 def test_crbf():
