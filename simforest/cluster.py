@@ -7,7 +7,7 @@ from sklearn.metrics import silhouette_score
 from scipy.special import comb
 from scipy.spatial.distance import squareform
 from joblib import Parallel, delayed, Memory
-from simforest._cluster import CSimilarityTreeCluster, CSimilarityForestClusterer
+from simforest._cluster import CSimilarityForestClusterer
 import hdbscan
 import time
 
@@ -159,83 +159,6 @@ class SimilarityForestCluster(BaseEstimator, ClusterMixin):
         """
         self.fit(X)
         return self.labels_
-
-
-class SimilarityTreeCluster(BaseEstimator):
-    """Similarity tree clusterer.
-            Single tree build on sub-sample of the dataset. It performs data partitioning in order to capture
-            its structure.
-            Each pair of data-points traverses down the trees, and average depth on which the pair splits is recorded.
-            This values serves as a similarity measure between the pair, and is used for hierarchical clustering.
-
-            Parameters
-            ----------
-            random_state : int or None, optional (default=None)
-                If int, random_state is the seed used by the random number generator;
-                If None, the random number generator is the RandomState instance used by `np.random`.
-            sim_function : string, function used to measure similarity between data-points.
-                Possible functions are (for now): 'euclidean' (default) for euclidean distance and 'dot' for dot product
-            max_depth : integer or None, optional (default=None)
-                The maximum depth of the tree. If None, the trees are fully grown
-
-            Attributes
-            ----------
-            _tree : underlying Cython tree implementation
-
-    """
-
-    def __init__(self,
-                 random_state=None,
-                 sim_function='euclidean',
-                 max_depth=None):
-        self.random_state = random_state
-        self.sim_function = sim_function
-        self.max_depth = max_depth
-
-    def _validate_X_predict(self, X):
-        """Validate X whenever one tries to predict, apply, predict_proba."""
-        X = check_array(X)
-
-        return X
-
-    def fit(self, X, y=None, check_input=True):
-        """Build a forest of trees from the training set (X, y=None)
-                Parameters
-                ----------
-                X : array-like matrix of shape = [n_samples, n_features]
-                    The training data samples.
-                y : None
-                    y added to follow the API.
-                check_input : bool
-                    Whenever to check input samples or not. Don't change it unless you know what you're doing.
-                Returns
-                -------
-                self : object.
-        """
-        # Check input
-        if check_input:
-
-            # Input validation, check it to be a non-empty 2D array containing only finite values
-            X = check_array(X)
-
-            # Check if provided similarity function applies to input
-            X = self._validate_X_predict(X)
-
-            X = X.astype(np.float32)
-
-
-        args = dict()
-
-        if self.random_state is not None:
-            args['random_state'] = self.random_state
-
-        if self.max_depth is not None:
-            args['max_depth'] = self.max_depth
-
-        self._tree = CSimilarityTreeCluster(**args)
-        self._tree.fit(X)
-
-        return self
 
 
 class PySimilarityTreeCluster(BaseEstimator):

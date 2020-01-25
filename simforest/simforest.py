@@ -1427,7 +1427,11 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         similarities = []
         for i, j in self._sample_directions(random_state, y, self.n_directions):
 
-            impurity, split_point, curr_similarities = find_split(X, y, X[i], X[j], self.criterion, self.sim_function)
+            impurity, split_point, curr_similarities = find_split(X.astype(np.float32),
+                                                                  y.astype(np.float32),
+                                                                  X[i].astype(np.float32),
+                                                                  X[j].astype(np.float32),
+                                                                  self.criterion, self.sim_function)
 
             if impurity < best_impurity:
                 best_impurity = impurity
@@ -1448,7 +1452,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
             self._q = best_q
             self._similarities = np.array(similarities, dtype=np.float32)
 
-            e = 0.0000001
+            e = 0.0001
             # Left- and right-hand side partitioning
             lhs_idxs = np.nonzero(self._similarities - self._split_point < e)[0]
             rhs_idxs = np.nonzero(self._similarities - self._split_point > 0)[0]

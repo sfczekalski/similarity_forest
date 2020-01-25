@@ -9,6 +9,7 @@ import numpy as np
 from scipy.spatial import distance
 import pandas as pd
 from simforest.distance import rbf
+import time
 
 
 def get_forest_fires_dataset():
@@ -82,7 +83,8 @@ rf_pred = rf.predict(X_test)
 print(f'Random Forest R2 score: {r2_score(y_test, rf_pred)}')
 print(f'Random Forest MSE: {mean_squared_error(y_test, rf_pred)}')
 print(f'RF average tree depth: {np.mean([t.get_depth() for t in rf.estimators_])}')
-
+np.__config__.show()
+start = time.time()
 # Fit predict for both classifiers
 sf = SimilarityForestRegressor(sim_function=rbf, criterion='variance', n_estimators=100)
 sf.fit(X_train, y_train)
@@ -90,6 +92,7 @@ sf_pred = sf.predict(X_test)
 print(f'Similarity Forest R2 score: {r2_score(y_test, sf_pred)}')
 print(f'Similarity Forest MSE: {mean_squared_error(y_test, sf_pred)}')
 print(f'SF average tree depth: {np.mean([t.get_depth() for t in sf.estimators_])}')
+print(f'Took: {time.time() - start} s')
 
 # Scale predictions for plotting
 '''sf_pred = (sf_pred - np.min(sf_pred))/np.ptp(sf_pred)

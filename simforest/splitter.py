@@ -46,6 +46,6 @@ def find_split(X, y, p, q, criterion, sim_function):
         i = np.argmax(np.abs(np.ediff1d(similarities[indices])))
         impurity = weighted_variance(i + 1, y[indices])
 
-    split_point = (similarities[indices[i]] + similarities[indices[ i +1]]) / 2
+    split_point = (similarities[indices[i]] + similarities[indices[i + 1]]) / 2
 
     return impurity, split_point, similarities

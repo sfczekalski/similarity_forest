@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.linalg.blas import sgemm
 import numexpr as ne
+from numba import jit
 
 
 def rbf_core(X, gamma):
@@ -31,7 +32,7 @@ def rbf(x, y, gamma=None):
             x : array, first data-point
             y : array, second data-point
             gamma: float, default None, gamma in rbf computation
-                If None, defaults to 1.0 / len(x)
+                If None, defaults to 1 / num_features
         Returns
         ----------
             result : rbf kernel distance between the data-points
