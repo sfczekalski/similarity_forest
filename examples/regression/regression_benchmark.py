@@ -7,7 +7,7 @@ from scipy.stats import ttest_ind
 import neptune
 from sklearn.ensemble import RandomForestRegressor
 from simforest import SimilarityForestRegressor
-from simforest.distance import rbf
+from simforest.distance import rbf, dot_product
 from examples.regression.datasets import get_datasets
 import time
 
@@ -20,7 +20,8 @@ params['criterion'] = 'variance'
 params['discriminative_sampling'] = True
 params['max_depth'] = None
 params['n_estimators'] = 100
-params['sim_function'] = rbf
+params['sim_function'] = dot_product
+params['n_directions'] = 1
 
 
 # set experiment properties
@@ -34,22 +35,17 @@ neptune.create_experiment(name='Regression',
 
 # load and prepare data
 for d in get_datasets():
-    X, y, dataset = d
-    y = y + np.abs(np.min(y))
+    X_train, X_test, y_train, y_test, dataset = d
 
-    X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=0.3, random_state=42)
-
-    scaler = StandardScaler()
-    X_train = scaler.fit_transform(X_train)
-    X_test = scaler.transform(X_test)
 
     # store mse for t-test
     rf_mse = np.zeros(shape=(n_iterations,), dtype=np.float32)
     sf_mse = np.zeros(shape=(n_iterations,), dtype=np.float32)
 
     # init log
-    df = pd.DataFrame(columns=[f'{dataset} RF RMSE', f'{dataset} SF RMSE', f'{dataset} p - val'])
+    df = pd.DataFrame(columns=[f'{dataset} RF RMSE',
+                               f'{dataset} SF RMSE',
+                               f'{dataset} p-val'])
 
     # run
     for i in range(n_iterations):

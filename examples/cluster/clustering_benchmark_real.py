@@ -16,28 +16,6 @@ from sklearn.preprocessing import StandardScaler
 path = '../data/clustering_benchmark/real-world/'
 
 '''
-    {'file_name': 'zoo.arff',
-     'class_col': 'class',
-     'n_clusters': 7},
-    {'file_name': 'cpu.arff',
-     'class_col': 'class',
-     'n_clusters': 20},
-    {'file_name': 'ecoli.arff',
-     'class_col': 'class',
-     'n_clusters': 8},
-    {'file_name': 'glass.arff',
-     'class_col': 'Class',
-     'n_clusters': 7},
-    {'file_name': 'sonar.arff',
-     'class_col': 'Class',
-     'n_clusters': 2},
-    {'file_name': 'wine.arff',
-     'class_col': 'class',
-     'n_clusters': 3}
-'''
-
-datasets = [
-
     {'file_name': 'iris.arff',
      'class_col': 'class',
      'n_clusters': 3},
@@ -54,6 +32,29 @@ datasets = [
      'class_col': 'CLASS',
      'n_clusters': 2},
     {'file_name': 'balance-scale.arff',
+     'class_col': 'class',
+     'n_clusters': 3}    
+'''
+
+datasets = [
+
+
+    {'file_name': 'zoo.arff',
+     'class_col': 'class',
+     'n_clusters': 7},
+    {'file_name': 'cpu.arff',
+     'class_col': 'class',
+     'n_clusters': 20},
+    {'file_name': 'ecoli.arff',
+     'class_col': 'class',
+     'n_clusters': 8},
+    {'file_name': 'glass.arff',
+     'class_col': 'Class',
+     'n_clusters': 7},
+    {'file_name': 'sonar.arff',
+     'class_col': 'Class',
+     'n_clusters': 2},
+    {'file_name': 'wine.arff',
      'class_col': 'class',
      'n_clusters': 3}
 ]

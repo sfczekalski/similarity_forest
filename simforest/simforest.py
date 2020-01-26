@@ -1451,10 +1451,10 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
             self._q = best_q
             self._similarities = np.array(similarities, dtype=np.float32)
 
-            e = 0.0001
+            e = 0.000000001
             # Left- and right-hand side partitioning
             lhs_idxs = np.nonzero(self._similarities - self._split_point < e)[0]
-            rhs_idxs = np.nonzero(self._similarities - self._split_point > 0)[0]
+            rhs_idxs = np.nonzero(self._similarities - self._split_point > -e)[0]
 
             if len(lhs_idxs) > 0 and len(rhs_idxs) > 0:
                 self._lhs = SimilarityTreeRegressor(random_state=self.random_state,

@@ -6,6 +6,7 @@ from sklearn.utils.testing import assert_array_equal
 from sklearn.utils.testing import assert_allclose
 from scipy.spatial import distance
 from simforest.criterion import find_split_variance, find_split_theil
+from simforest.distance import euclidean, dot_product
 
 from simforest import SimilarityTreeRegressor, SimilarityForestRegressor
 
@@ -29,17 +30,17 @@ def test_default_attribute_value_tree():
 
     clf = SimilarityTreeRegressor()
     assert clf.n_directions == 1
-    assert clf.sim_function == np.dot
+    assert clf.sim_function == dot_product
 
 
 def test_setting_attributes_tree(data):
     X, y = data
-    clf = SimilarityTreeRegressor(random_state=42, sim_function=distance.cosine, n_directions=2)
+    clf = SimilarityTreeRegressor(random_state=42, sim_function=euclidean, n_directions=2)
     clf.fit(X, y)
     y_pred = clf.predict(X)
 
     assert clf.random_state == 42
-    assert clf.sim_function == distance.cosine
+    assert clf.sim_function == euclidean
     assert clf.n_directions == 2
 
 
@@ -70,17 +71,17 @@ def test_default_attribute_value_forest():
 
     clf = SimilarityForestRegressor()
     assert clf.n_directions == 1
-    assert clf.sim_function == np.dot
+    assert clf.sim_function == dot_product
 
 
 def test_setting_attributes_forest(data):
     X, y = data
-    clf = SimilarityForestRegressor(random_state=42, sim_function=distance.cosine, n_directions=2)
+    clf = SimilarityForestRegressor(random_state=42, sim_function=euclidean, n_directions=2)
     clf.fit(X, y)
     y_pred = clf.predict(X)
 
     assert clf.random_state == 42
-    assert clf.sim_function == distance.cosine
+    assert clf.sim_function == euclidean
     assert clf.n_directions == 2
 
 

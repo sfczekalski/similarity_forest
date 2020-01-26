@@ -15,6 +15,8 @@ def rbf(X, p, q, gamma=None):
         Returns
         ----------
             projection : array of shape=(n_examples,) with distance-based projection values
+        Note
+        ----------
 
     """
     if gamma is None:
@@ -39,10 +41,13 @@ def sqeuclidean(X, p, q):
 
         Notes
         ----------
-            the other option is : np.linalg.norm(X - q, axis=1) - np.linalg.norm(X - p, axis=1)
+            (X-q)^2 - (X-p)^2 = X^2 - 2X*q + q^2 - (X^2 - 2X*p + p^2) =
+                                2X(-q + p) + q^2 - p^2
+                                Note that q^2 - p^2 is independent of X, so we can write:
+                                X(p - q)
     """
 
-    return ne.evaluate("(X - q) ** 2").sum(1) - ne.evaluate("(X - p) ** 2").sum(1)
+    return np.dot(X, p - q)
 
 
 def euclidean(X, p, q):
@@ -84,4 +89,4 @@ def dot_product(X, p, q):
             the other option is : sgemm(alpha=1.0, a=X, b=X, trans_b=True)
     """
 
-    return np.dot(X, q) - np.dot(X, p)
+    return np.dot(X, q-p)

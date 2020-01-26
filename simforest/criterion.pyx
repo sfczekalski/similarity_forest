@@ -312,7 +312,7 @@ cdef float theil_index(int split_index, float [:] y, int len_y):
     cdef float result = left_proportion * theil(left_partition, len_left_partition) + \
            (1.0 - left_proportion) * theil(right_partition, len_right_partition)
 
-    assert result >= -0.001, 'Negative Theil index'
+    assert result >= -0.01, f'Negative Theil index: {result}'
     return result
 
 @cython.boundscheck(False)
@@ -353,7 +353,7 @@ cdef float theil(float [:] y, int array_size):
         i = i + 1
 
     cdef float result = theil / array_size
-    assert result >= -0.001, 'Negative Theil index'
+    #assert result >= -0.001, 'Negative Theil index'
     return result
 
 '''@cython.boundscheck(False)
