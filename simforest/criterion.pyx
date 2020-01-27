@@ -11,7 +11,7 @@ cdef extern from "math.h":
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef float var_agg(int cnt, float sum1, float sum2):
+cdef inline float var_agg(int cnt, float sum1, float sum2) nogil:
     """Calculate variance of a given array by using equation : variance = sums of squares - square of sums
         Parameters 
         ----------
@@ -29,7 +29,7 @@ cdef float var_agg(int cnt, float sum1, float sum2):
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef float sum_squared_array(float [:] y, int n):
+cdef inline float sum_squared_array(float [:] y, int n) nogil:
     """Sum squared elements of a given array
         Parameters
         ----------
@@ -51,7 +51,7 @@ cdef float sum_squared_array(float [:] y, int n):
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef float sum_array(float [:] y, int n):
+cdef inline float sum_array(float [:] y, int n) nogil:
     """Sum elements of a given array
         Parameters
         ----------
@@ -72,7 +72,7 @@ cdef float sum_array(float [:] y, int n):
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef float weighted_variance(int split_index, float [:] y, int len_y):
+cdef inline float weighted_variance(int split_index, float [:] y, int len_y) nogil:
     """Calculate weighted of given split array after splitting at given index
         Parameters
         ----------
@@ -97,7 +97,7 @@ cdef float weighted_variance(int split_index, float [:] y, int len_y):
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef float variance(float [:] y, int array_size):
+cdef inline float variance(float [:] y, int array_size) nogil:
     """Calculate variance of given array.
         Parameters 
         ----------
@@ -193,7 +193,7 @@ def find_split_variance(float [:] y, float [:] s, int max_range):
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef int cfind_split_index_var(float [:] y, float [:] s, int max_range, int len_y):
+cdef inline int cfind_split_index_var(float [:] y, float [:] s, int max_range, int len_y) nogil:
     """Find split point minimizing weighted variance
             Parameters
             ---------
@@ -205,8 +205,7 @@ cdef int cfind_split_index_var(float [:] y, float [:] s, int max_range, int len_
                 best_split_idx : np.int32, index of element at which optimal split should be performed
     """
 
-    cdef float best_impurity = np.inf
-    cdef int best_split_idx = -1
+    cdef float best_impurity = INFINITY
     cdef float curr_impurity = 0.0
 
     cdef int rhs_cnt = len_y
@@ -289,7 +288,7 @@ def find_split_theil(float [:] y, float [:] s, int max_range):
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef float theil_index(int split_index, float [:] y, int len_y):
+cdef inline float theil_index(int split_index, float [:] y, int len_y) nogil:
     """Calculate Theil index of given split array after splitting at given index
         Parameters
         ----------
@@ -312,12 +311,12 @@ cdef float theil_index(int split_index, float [:] y, int len_y):
     cdef float result = left_proportion * theil(left_partition, len_left_partition) + \
            (1.0 - left_proportion) * theil(right_partition, len_right_partition)
 
-    assert result >= -0.01, f'Negative Theil index: {result}'
+    #assert result >= -0.01, f'Negative Theil index: {result}'
     return result
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef float theil(float [:] y, int array_size):
+cdef inline float theil(float [:] y, int array_size) nogil:
     """Calculate Theil index of given array.
         Parameters 
         ----------
@@ -328,7 +327,7 @@ cdef float theil(float [:] y, int array_size):
             result : Theil index
     """
 
-    assert array_size > 0, 'array of size 0'
+    #assert array_size > 0, 'array of size 0'
     if array_size == 1:
         return 0.0
 

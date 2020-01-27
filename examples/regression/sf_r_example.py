@@ -84,7 +84,7 @@ print(f'RF average tree depth: {np.mean([t.get_depth() for t in rf.estimators_])
 
 start = time.time()
 # Fit predict for both classifiers
-sf = SimilarityForestRegressor(sim_function=rbf, criterion='variance', n_estimators=100)
+sf = SimilarityForestRegressor(criterion='variance', n_estimators=100)
 sf.fit(X_train, y_train)
 sf_pred = sf.predict(X_test)
 print(f'Similarity Forest R2 score: {r2_score(y_test, sf_pred)}')

@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from sklearn.datasets import load_svmlight_file, load_boston
+from sklearn.datasets import load_svmlight_file, load_boston, make_friedman1
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder, StandardScaler
 from sklearn.model_selection import train_test_split
 
@@ -284,21 +284,37 @@ def get_wine_quality():
 
     return X_train, X_test, y_train, y_test, 'wine_quality'
 
+
+def get_friedman_dataset():
+    X, y = make_friedman1(n_samples=1000, random_state=42)
+
+    y = y + np.abs(np.min(y))
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.3, random_state=42)
+
+    scaler = StandardScaler()
+    X_train = scaler.fit_transform(X_train)
+    X_test = scaler.transform(X_test)
+
+    return X_train, X_test, y_train, y_test, 'friedman'
+
 '''
-            get_mpg_dataset(),
-            get_concrete_flow_dataset(),
-            get_hardware_dataset(),
+            get_friedman_dataset(),
             get_boston_dataset(),
             get_energy_efficiency_heating(),
-,
-            get_wine_quality()
-     get_abalone_dataset()           
+            get_spacega_dataset(),
+            get_eunite2001_dataset(),
+            get_wine_quality(),
+            get_abalone_dataset(),
+            get_boston_dataset()
 '''
 
 datasets = [
-    #get_spacega_dataset(),
-    get_eunite2001_dataset()
 
+            get_mpg_dataset(),
+            get_concrete_flow_dataset(),
+            get_hardware_dataset()
 ]
 
 

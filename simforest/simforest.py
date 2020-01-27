@@ -16,6 +16,8 @@ from simforest.utils import plot_projection
 from scipy.stats import spearmanr
 from simforest.splitter import find_split
 from simforest.distance import dot_product
+from multiprocessing import Pool
+from functools import partial
 
 
 def _h(n):
@@ -1495,6 +1497,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
 
         return X
 
+
     def predict(self, X, check_input=True):
         """Predict regression value for X.
             Parameters
@@ -1707,6 +1710,13 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
 
         return np.array([t.apply(X, check_input=False) for t in self.estimators_]).transpose()
 
+    def build_tree_(self, tree):
+        all_idxs = range(self.y_.size)
+        idxs = self.random_state_.choice(all_idxs, self.y_.size, replace=True)
+        tree.fit(self.X_[idxs], self.y_[idxs], check_input=False)
+
+        return tree
+
     def fit(self, X, y, check_input=True):
         """Build a similarity forest regressor from the training set (X, y).
                 Parameters
@@ -1748,36 +1758,60 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
 
         self.oob_score_ = 0.0
 
-        self.estimators_ = []
-        for i in range(self.n_estimators):
-            if self.bootstrap:
-                all_idxs = range(y.size)
-                idxs = random_state.choice(all_idxs, y.size, replace=True)
+        self.X_ = X
+        self.y_ = y
+        self.random_state_ = random_state
+        parallel = True
 
+        self.estimators_ = []
+
+        if parallel:
+            for i in range(self.n_estimators):
                 tree = SimilarityTreeRegressor(n_directions=self.n_directions, sim_function=self.sim_function,
                                                random_state=self.random_state, max_depth=self.max_depth,
                                                min_samples_split=self.min_samples_split,
                                                min_samples_leaf=self.min_samples_leaf,
                                                discriminative_sampling=self.discriminative_sampling,
                                                criterion=self.criterion)
-                tree.fit(X[idxs], y[idxs], check_input=False)
-
                 self.estimators_.append(tree)
 
-                if self.oob_score:
-                    idxs_oob = np.setdiff1d(np.array(range(y.size)), idxs)
-                    self.oob_score_ += tree.score(X[idxs_oob], y[idxs_oob])
-            else:
-                all_idxs = range(y.size)
-                sample_size = int(self.max_samples * y.size)
-                idxs = random_state.choice(all_idxs, sample_size, replace=False)
+            if parallel:
+                pool = Pool(processes=4)
+                self.estimators_ = pool.map(self.build_tree_, self.estimators_)
+                pool.close()
+                pool.join()
 
-                tree = SimilarityTreeRegressor(n_directions=self.n_directions, sim_function=self.sim_function,
-                                               random_state=self.random_state, max_depth=self.max_depth,
-                                               discriminative_sampling=self.discriminative_sampling)
-                tree.fit(X[idxs], y[idxs], check_input=False)
+        else:
+            for i in range(self.n_estimators):
+                if self.bootstrap:
+                    all_idxs = range(y.size)
+                    idxs = random_state.choice(all_idxs, y.size, replace=True)
 
-                self.estimators_.append(tree)
+                    tree = SimilarityTreeRegressor(n_directions=self.n_directions, sim_function=self.sim_function,
+                                                   random_state=self.random_state, max_depth=self.max_depth,
+                                                   min_samples_split=self.min_samples_split,
+                                                   min_samples_leaf=self.min_samples_leaf,
+                                                   discriminative_sampling=self.discriminative_sampling,
+                                                   criterion=self.criterion)
+                    tree.fit(X[idxs], y[idxs], check_input=False)
+
+                    self.estimators_.append(tree)
+
+                    if self.oob_score:
+                        idxs_oob = np.setdiff1d(np.array(range(y.size)), idxs)
+                        self.oob_score_ += tree.score(X[idxs_oob], y[idxs_oob])
+
+                else:
+                    all_idxs = range(y.size)
+                    sample_size = int(self.max_samples * y.size)
+                    idxs = random_state.choice(all_idxs, sample_size, replace=False)
+
+                    tree = SimilarityTreeRegressor(n_directions=self.n_directions, sim_function=self.sim_function,
+                                                   random_state=self.random_state, max_depth=self.max_depth,
+                                                   discriminative_sampling=self.discriminative_sampling)
+                    tree.fit(X[idxs], y[idxs], check_input=False)
+
+                    self.estimators_.append(tree)
 
         if self.oob_score:
             self.oob_score_ /= self.n_estimators
