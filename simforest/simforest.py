@@ -1637,7 +1637,7 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
             bootstrap : bool (default=True)
                 Whether bootstrap samples are used when building trees. If False, sub_sample_fraction of dataset
                 is used to build each tree.
-            sub_sample_fraction : float (default=0.5)
+            sub_sample_fraction : float (default=1.0)
                 When bootstrap is set to False, sub_sample_fraction controls fraction of dataset used to build each tree
             criterion : str (default='variance')
                 Criterion used to determine split point at similarity line at each node.
@@ -1681,7 +1681,7 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
                 oob_score=False,
                 discriminative_sampling=True,
                 bootstrap=True,
-                sub_sample_fraction=0.5,
+                sub_sample_fraction=1.0,
                 criterion='variance'):
         self.random_state = random_state
         self.n_estimators = n_estimators
@@ -1710,10 +1710,30 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
 
         return np.array([t.apply(X, check_input=False) for t in self.estimators_]).transpose()
 
-    def build_tree_(self, tree):
-        all_idxs = range(self.y_.size)
-        idxs = self.random_state_.choice(all_idxs, self.y_.size, replace=True)
+    def fit_tree_(self, tree, bootstrap=True):
+        """Fit single tree. Function to be passed to parallel map.
+            Parameters
+            ----------
+                tree : SimilarityTreeRegressor, tree to be fitted
+                bootstrap : whenever to use bootstrap sample for fitting trees
+            Returns
+            ----------
+                tree : SimilarityTreeRegressor, fitted tree
+        """
+        n = self.y_.shape
+        all_idxs = range(n)
+
+        if bootstrap:
+            idxs = self.random_state_.choice(all_idxs, n, replace=True)
+        else:
+            sample_size = int(self.sub_sample_fraction * n)
+            idxs = self.random_state_.choice(all_idxs, sample_size, replace=False)
+
         tree.fit(self.X_[idxs], self.y_[idxs], check_input=False)
+
+        if self.oob_score:
+            idxs_oob = np.setdiff1d(np.array(range(n)), idxs)
+            self.oob_score_ += tree.score(self.X_[idxs_oob], self.y_[idxs_oob])
 
         return tree
 
@@ -1761,57 +1781,22 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
         self.X_ = X
         self.y_ = y
         self.random_state_ = random_state
-        parallel = True
 
         self.estimators_ = []
+        for i in range(self.n_estimators):
+            tree = SimilarityTreeRegressor(n_directions=self.n_directions, sim_function=self.sim_function,
+                                           random_state=self.random_state, max_depth=self.max_depth,
+                                           min_samples_split=self.min_samples_split,
+                                           min_samples_leaf=self.min_samples_leaf,
+                                           discriminative_sampling=self.discriminative_sampling,
+                                           criterion=self.criterion)
 
-        if parallel:
-            for i in range(self.n_estimators):
-                tree = SimilarityTreeRegressor(n_directions=self.n_directions, sim_function=self.sim_function,
-                                               random_state=self.random_state, max_depth=self.max_depth,
-                                               min_samples_split=self.min_samples_split,
-                                               min_samples_leaf=self.min_samples_leaf,
-                                               discriminative_sampling=self.discriminative_sampling,
-                                               criterion=self.criterion)
-                self.estimators_.append(tree)
+            self.estimators_.append(tree)
 
-            if parallel:
-                pool = Pool(processes=4)
-                self.estimators_ = pool.map(self.build_tree_, self.estimators_)
-                pool.close()
-                pool.join()
-
-        else:
-            for i in range(self.n_estimators):
-                if self.bootstrap:
-                    all_idxs = range(y.size)
-                    idxs = random_state.choice(all_idxs, y.size, replace=True)
-
-                    tree = SimilarityTreeRegressor(n_directions=self.n_directions, sim_function=self.sim_function,
-                                                   random_state=self.random_state, max_depth=self.max_depth,
-                                                   min_samples_split=self.min_samples_split,
-                                                   min_samples_leaf=self.min_samples_leaf,
-                                                   discriminative_sampling=self.discriminative_sampling,
-                                                   criterion=self.criterion)
-                    tree.fit(X[idxs], y[idxs], check_input=False)
-
-                    self.estimators_.append(tree)
-
-                    if self.oob_score:
-                        idxs_oob = np.setdiff1d(np.array(range(y.size)), idxs)
-                        self.oob_score_ += tree.score(X[idxs_oob], y[idxs_oob])
-
-                else:
-                    all_idxs = range(y.size)
-                    sample_size = int(self.max_samples * y.size)
-                    idxs = random_state.choice(all_idxs, sample_size, replace=False)
-
-                    tree = SimilarityTreeRegressor(n_directions=self.n_directions, sim_function=self.sim_function,
-                                                   random_state=self.random_state, max_depth=self.max_depth,
-                                                   discriminative_sampling=self.discriminative_sampling)
-                    tree.fit(X[idxs], y[idxs], check_input=False)
-
-                    self.estimators_.append(tree)
+        pool = Pool(processes=4)
+        self.estimators_ = pool.map(self.fit_tree_, self.estimators_)
+        pool.close()
+        pool.join()
 
         if self.oob_score:
             self.oob_score_ /= self.n_estimators
