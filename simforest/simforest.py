@@ -17,7 +17,8 @@ from scipy.stats import spearmanr
 from simforest.splitter import find_split
 from simforest.distance import dot_product
 from multiprocessing import Pool
-from functools import partial
+'''import line_profiler
+from profilehooks import profile'''
 
 
 def _h(n):
@@ -1334,6 +1335,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
 
             yield first, second
 
+    #@profile
     def fit(self, X, y, check_input=True):
         """Build a similarity tree regressor from the training set (X, y).
                Parameters
@@ -1428,11 +1430,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         similarities = []
         for i, j in self._sample_directions(random_state, y, self.n_directions):
 
-            impurity, split_point, curr_similarities = find_split(X,
-                                                                  y,
-                                                                  X[i],
-                                                                  X[j],
-                                                                  self.criterion, self.sim_function)
+            impurity, split_point, curr_similarities = find_split(X, y, X[i], X[j], self.criterion, self.sim_function)
 
             if impurity < best_impurity:
                 best_impurity = impurity
@@ -1720,7 +1718,7 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
             ----------
                 tree : SimilarityTreeRegressor, fitted tree
         """
-        n = self.y_.shape
+        n = len(self.y_)
         all_idxs = range(n)
 
         if bootstrap:
@@ -1737,6 +1735,7 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
 
         return tree
 
+    #@profile
     def fit(self, X, y, check_input=True):
         """Build a similarity forest regressor from the training set (X, y).
                 Parameters

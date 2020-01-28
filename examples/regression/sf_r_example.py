@@ -8,9 +8,8 @@ from sklearn.feature_selection import SelectKBest, f_regression
 import numpy as np
 from scipy.spatial import distance
 import pandas as pd
-from simforest.distance import rbf
 import time
-
+import builtins
 
 def get_forest_fires_dataset():
     df = pd.read_csv('../data/forestfires.csv')
@@ -19,8 +18,6 @@ def get_forest_fires_dataset():
     y, X = df.pop('area'), df
 
     return y, X
-
-#X, y = make_friedman1(n_samples=1000, random_state=42)
 
 
 '''df = pd.read_csv('../data/AirQualityUCI.csv', sep=',')
@@ -64,6 +61,7 @@ X = X.toarray()
 #X, y = load_boston(return_X_y=True)
 '''X, y = load_svmlight_file('../data/abalone')
 X = X.toarray()'''
+#X, y = make_friedman1(n_samples=1000, random_state=42)
 
 #X = SelectKBest(f_regression, k=8).fit_transform(X, y)
 y = y + np.abs(np.min(y))
@@ -86,11 +84,13 @@ start = time.time()
 # Fit predict for both classifiers
 sf = SimilarityForestRegressor(criterion='variance', n_estimators=100)
 sf.fit(X_train, y_train)
+print(f'Fit time: {time.time() - start} s')
+start = time.time()
 sf_pred = sf.predict(X_test)
+print(f'Predict time: {time.time() - start} s')
 print(f'Similarity Forest R2 score: {r2_score(y_test, sf_pred)}')
 print(f'Similarity Forest MSE: {mean_squared_error(y_test, sf_pred)}')
 print(f'SF average tree depth: {np.mean([t.get_depth() for t in sf.estimators_])}')
-print(f'Took: {time.time() - start} s')
 
 # Scale predictions for plotting
 '''sf_pred = (sf_pred - np.min(sf_pred))/np.ptp(sf_pred)

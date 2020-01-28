@@ -300,21 +300,21 @@ def get_friedman_dataset():
     return X_train, X_test, y_train, y_test, 'friedman'
 
 '''
-            get_friedman_dataset(),
+
             get_boston_dataset(),
-            get_energy_efficiency_heating(),
+            get_mpg_dataset(),
+            get_concrete_flow_dataset(),
+            get_hardware_dataset(),         
             get_spacega_dataset(),
             get_eunite2001_dataset(),
             get_wine_quality(),
             get_abalone_dataset(),
             get_boston_dataset()
+            get_energy_efficiency_heating(),
 '''
 
 datasets = [
-
-            get_mpg_dataset(),
-            get_concrete_flow_dataset(),
-            get_hardware_dataset()
+            get_friedman_dataset()
 ]
 
 

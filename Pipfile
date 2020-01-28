@@ -20,6 +20,9 @@ numexpr = "*"
 [dev-packages]
 pytest = "*"
 xlrd = "*"
+line-profiler = "*"
+profilehooks = "*"
+builtins = "*"
 
 [requires]
 python_version = "3.7"

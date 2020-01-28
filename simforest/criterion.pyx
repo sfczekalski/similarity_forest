@@ -23,7 +23,7 @@ cdef inline float var_agg(int cnt, float sum1, float sum2) nogil:
             result : float, variance of array
     """
 
-    cdef float result = (sum2/(cnt + 0.01)) - (sum1/(cnt + 0.01))**2
+    cdef float result = (sum2/(cnt + 0.000001)) - (sum1/(cnt + 0.000001))**2
     return result
 
 
@@ -221,6 +221,7 @@ cdef inline int cfind_split_index_var(float [:] y, float [:] s, int max_range, i
     cdef float left_proportion = 0.0
 
     cdef int i = 0
+    cdef float temp_sum2 = 0.0
     while i < max_range:
         lhs_cnt += 1
         rhs_cnt -= 1
@@ -230,8 +231,9 @@ cdef inline int cfind_split_index_var(float [:] y, float [:] s, int max_range, i
 
         lhs_sum += y[i]
         rhs_sum -= y[i]
-        lhs_sum2 += (y[i] ** 2)
-        rhs_sum2 -= (y[i] ** 2)
+        temp_sum2 = (y[i] ** 2)
+        lhs_sum2 += temp_sum2
+        rhs_sum2 -= temp_sum2
         if s[i]==s[i+1]:
             i += 1
             continue

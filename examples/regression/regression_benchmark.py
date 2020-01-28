@@ -16,11 +16,11 @@ neptune.init('sfczekalski/similarity-forest')
 
 # set parameters
 params = dict()
-params['criterion'] = 'variance'
+params['criterion'] = 'atkinson'
 params['discriminative_sampling'] = True
 params['max_depth'] = None
 params['n_estimators'] = 100
-params['sim_function'] = dot_product
+params['sim_function'] = rbf
 params['n_directions'] = 1
 
 

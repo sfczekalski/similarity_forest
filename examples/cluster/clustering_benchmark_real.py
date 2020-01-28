@@ -28,18 +28,7 @@ path = '../data/clustering_benchmark/real-world/'
     {'file_name': 'segment.arff',
      'class_col': 'class',
      'n_clusters': 7},
-    {'file_name': 'german.arff',
-     'class_col': 'CLASS',
-     'n_clusters': 2},
-    {'file_name': 'balance-scale.arff',
-     'class_col': 'class',
-     'n_clusters': 3}    
-'''
-
-datasets = [
-
-
-    {'file_name': 'zoo.arff',
+      {'file_name': 'zoo.arff',
      'class_col': 'class',
      'n_clusters': 7},
     {'file_name': 'cpu.arff',
@@ -57,6 +46,16 @@ datasets = [
     {'file_name': 'wine.arff',
      'class_col': 'class',
      'n_clusters': 3}
+'''
+
+datasets = [
+    {'file_name': 'german.arff',
+     'class_col': 'CLASS',
+     'n_clusters': 2},
+    {'file_name': 'balance-scale.arff',
+     'class_col': 'class',
+     'n_clusters': 3}
+
 ]
 
 
@@ -85,7 +84,7 @@ for file_name, class_col, n_clusters in get_datasets(datasets):
     params['technique'] = 'hdbscan'
     params['n_clusters'] = n_clusters
     params['bootstrap'] = False
-    params['sim_function'] = 'rbf'
+    params['sim_function'] = 'dot'
 
     # set experiment properties
     n_iterations = 5
