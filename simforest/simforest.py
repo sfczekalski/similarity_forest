@@ -14,7 +14,7 @@ from ineqpy import atkinson
 from simforest.criterion import find_split_variance, find_split_theil, find_split_atkinson, find_split_index_gini
 from simforest.utils import plot_projection
 from scipy.stats import spearmanr
-from simforest.splitter import find_split
+from simforest.splitter import find_split, find_split_classification
 from simforest.distance import dot_product
 from multiprocessing import Pool
 '''import line_profiler
@@ -94,7 +94,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
     def __init__(self,
                  random_state=None,
                  n_directions=1,
-                 sim_function=np.dot,
+                 sim_function=dot_product,
                  classes=None,
                  max_depth=None,
                  depth=1,
@@ -170,123 +170,6 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
                 first, second = random_state.choice(range(len(labels)), 2, replace=False)
 
             yield first, second
-
-    def draw_sim_line(self, s, p, q, split_point, y):
-        import matplotlib.pyplot as plt
-        from matplotlib import collections
-        import matplotlib as mpl
-
-        fig, ax = plt.subplots()
-        mpl.rc('image', cmap='bwr')
-
-        right = [True if s[i] > split_point else False for i in range(len(y))]
-        left = [True if s[i] <= split_point else False for i in range(len(y))]
-
-        # right-side lines
-        right_lines = []
-        for i in range(len(s)):
-            if right[i]:
-                pair = [(s[i], 0), (s[i], y[i])]
-                right_lines.append(pair)
-        linecoll_right = collections.LineCollection(right_lines)
-        r = ax.add_collection(linecoll_right)
-        r.set_alpha(0.9)
-        r.set_color('red')
-        r = ax.fill_between(s, 0, y, where=right)
-        r.set_alpha(0.3)
-        r.set_color('red')
-
-        # left-side lines
-        left_lines = []
-        for i in range(len(s)):
-            if not right[i]:
-                pair = [(s[i], 0), (s[i], y[i])]
-                left_lines.append(pair)
-        linecoll_left = collections.LineCollection(left_lines)
-        l = ax.add_collection(linecoll_left)
-        l.set_alpha(0.9)
-        l.set_color('blue')
-        l = ax.fill_between(s, 0, y, where=left)
-        l.set_alpha(0.3)
-        l.set_color('blue')
-
-        # dots at the top
-        plt.scatter(s, y, c=right, alpha=0.7)
-
-        # horizontal line
-        ax.axhline(c='grey')
-
-        # p and q
-        p_similarity = self.sim_function(p, q) - self.sim_function(p, p)
-        ax.axvline(p_similarity, c='green')
-        plt.text(p_similarity, np.max(y), 'p', c='green')
-
-        q_similarity = self.sim_function(q, q) - self.sim_function(q, p)
-        ax.axvline(q_similarity, c='green')
-        plt.text(q_similarity, np.max(y), 'q', c='green')
-
-        # split point
-        ax.axvline(split_point, c='green')
-        plt.text(split_point, np.min(y), 'split point', c='green', rotation=90)
-
-        # titles
-        plt.title(f'Split at depth {self.depth}')
-        plt.xlabel('Similarity')
-        plt.ylabel('y')
-        plt.show()
-
-    def _find_split(self, random_state, X, y, p, q):
-        """ Find split among direction drew on pair of data-points from different classes
-            Parameters
-            ----------
-            X : all data-points
-            y : labels
-            p : first data-point used for drawing direction of the split
-            q : second data-point used for drawing direction of the split
-
-            Returns
-            -------
-            best_impurity_decrease : decrease of Gini index after the split
-            best_p : first data point from pair providing the best impurity decrease
-            best_p : second data point from pair providing the best impurity decrease
-            best_criterion : classification threshold
-        """
-        similarities = np.array([self.sim_function(x, q) - self.sim_function(x, p) for x in X])
-        indices = sorted([i for i in range(len(y)) if not np.isnan(similarities[i])],
-                         key=lambda x: similarities[x])
-
-        y = np.array(y[indices])
-        # TODO find a cleaner solution for string labels problem - something like dictionary with mapping
-        if y.dtype != int:
-            encoder = LabelEncoder()
-            y = encoder.fit_transform(y)
-
-        y = y.astype(np.int32)
-        classes = np.unique(y).astype(np.int32)
-
-        best_impurity = None
-        best_p = None
-        best_q = None
-        best_split_point = None
-
-        n = len(y)
-        if self.discriminative_sampling:
-            i, best_impurity = find_split_index_gini(y[indices], np.int32(n-1), classes)
-
-        else:
-            if self.most_different:
-                # most different consecutive elements:
-                i = np.argmax(np.abs(np.ediff1d(similarities[indices])))
-            else:
-                # random split point
-                i = random_state.randint(low=0, high=n-1)
-            best_impurity = gini_index(i + 1, y[indices])
-
-        best_p = p
-        best_q = q
-        best_split_point = (similarities[indices[i]] + similarities[indices[i + 1]]) / 2
-
-        return best_impurity, best_p, best_q, best_split_point, similarities
 
     def fit(self, X, y, check_input=True):
         """Build a similarity tree classifier from the training set (X, y).
@@ -384,12 +267,15 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
         similarities = []
         for i, j in self._sample_directions(random_state, y,  self.n_directions):
 
-            impurity, p, q, split_point, curr_similarities = self._find_split(random_state, X, y, X[i], X[j])
+            impurity, split_point, curr_similarities = find_split_classification(X, y, X[i], X[j],
+                                                                                 self.discriminative_sampling,
+                                                                                 self.most_different,
+                                                                                 self.sim_function, random_state)
             if impurity < best_impurity:
                 best_impurity = impurity
                 best_split_point = split_point
-                best_p = p
-                best_q = q
+                best_p = X[i]
+                best_q = X[j]
                 similarities = curr_similarities
 
         if best_impurity < 1.0:
@@ -457,7 +343,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
         if self._is_leaf:
             return self.classes_[np.argmax(self._value)]
 
-        t = self._lhs if self.sim_function(x, self._q) - self.sim_function(x, self._p) <= self._split_point else self._rhs
+        t = self._lhs if self.sim_function(x, self._p, self._q)[0] <= self._split_point else self._rhs
         if t is None:
             return self.classes_[np.argmax(self._value)]
 
@@ -486,7 +372,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
 
         X = self._validate_X_predict(X, check_input)
 
-        return np.array([self.predict_row_class(x) for x in X])
+        return np.array([self.predict_row_class(x.reshape(1, -1)) for x in X])
 
     def predict_row_prob(self, x):
         """ Predict class of a single data-point.
@@ -504,7 +390,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
         if self._is_leaf:
             return self._value
 
-        t = self._lhs if self.sim_function(x, self._q) - self.sim_function(x, self._p) <= self._split_point else self._rhs
+        t = self._lhs if self.sim_function(x, self._p, self._q)[0] <= self._split_point else self._rhs
         if t is None:
             return self._value
         return t.predict_row_prob(x)
@@ -530,7 +416,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
         X = check_array(X)
         X = self._validate_X_predict(X, check_input)
 
-        return np.array([self.predict_row_prob(x) for x in X])
+        return np.array([self.predict_row_prob(x.reshape(1, -1)) for x in X])
 
     def predict_log_proba(self, X):
         """Predict class log-probabilities of the input samples X.
@@ -570,7 +456,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
 
             X = self._validate_X_predict(X, check_input)
 
-        return np.array([self.row_path_length_(x) for x in X])
+        return np.array([self.row_path_length_(x.reshape(1, -1)) for x in X])
 
     def row_path_length_(self, x):
         """ Get outlyingness path length of a single data-point.
@@ -596,8 +482,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
         assert self._p is not None
         assert self._q is not None
 
-        t = self._lhs if self.sim_function(x, self._q) - self.sim_function(x,
-                                                                           self._p) <= self._split_point else self._rhs
+        t = self._lhs if self.sim_function(x, self._p, self._q)[0] <= self._split_point else self._rhs
         if t is None:
             return self.depth
 
@@ -615,7 +500,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
 
             X = self._validate_X_predict(X, check_input)
 
-        return np.array([self.apply_x(x) for x in X])
+        return np.array([self.apply_x(x.reshape(1, -1)) for x in X])
 
     def apply_x(self, x, check_input=False):
         """Returns the index of the leaf that each sample is predicted as."""
@@ -623,7 +508,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
         if self._is_leaf:
             return self._node_id
 
-        t = self._lhs if self.sim_function(x, self._q) - self.sim_function(x, self._p) <= self._split_point else self._rhs
+        t = self._lhs if self.sim_function(x, self._p, self._q)[0] <= self._split_point else self._rhs
         if t is None:
             return self._node_id
         return t.apply_x(x)
@@ -755,7 +640,7 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
                  random_state=None,
                  n_estimators=20,
                  n_directions=1,
-                 sim_function=np.dot,
+                 sim_function=dot_product,
                  max_depth=None,
                  oob_score=False,
                  bootstrap=True,

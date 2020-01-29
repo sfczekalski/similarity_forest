@@ -501,7 +501,7 @@ cdef float atkinson(float [:] y, int array_size):
     return 1 - array_sqrt_sum ** 2 / (array_sum * array_size)
 
 
-cdef float gini_index(int split_index, int [:] y, int [:] classes, int len_y):
+cdef inline float gini_index(int split_index, int [:] y, int [:] classes, int len_y) nogil:
     """Calculate Gini index on a given array, at given index
         Parameters
         ----------
@@ -536,16 +536,14 @@ cdef float gini_index(int split_index, int [:] y, int [:] classes, int len_y):
         left_gini = left_gini + class_count * class_count
         class_count = 0
 
-    left_gini = left_gini / len_left_partition2
-    left_gini = 1 - left_gini
-
-    # calc right gini
-    for c in range(n_classes):
         for i in range(len_right_partition):
             if right_partition[i] == classes[c]:
                 class_count = class_count + 1
         right_gini = right_gini + class_count * class_count
         class_count = 0
+
+    left_gini = left_gini / len_left_partition2
+    left_gini = 1 - left_gini
 
     right_gini = right_gini / len_right_partition2
     right_gini = 1 - right_gini
@@ -558,7 +556,7 @@ cdef float gini_index(int split_index, int [:] y, int [:] classes, int len_y):
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def find_split_index_gini(int [:] y, int max_range, int [:] classes):
+cpdef find_split_index_gini(int [:] y, int max_range, int [:] classes):
     """This is a function calculating optimal split point according to criterion of minimizing Gini Index,
         and impurity of partitions after splitting.
             Parameters
