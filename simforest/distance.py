@@ -15,9 +15,6 @@ def rbf(X, p, q, gamma=None):
         Returns
         ----------
             projection : array of shape=(n_examples,) with distance-based projection values
-        Note
-        ----------
-
     """
     if gamma is None:
         gamma = 1.0 / X.shape[1]
@@ -62,10 +59,6 @@ def euclidean(X, p, q):
         Returns
         ----------
             projection : array of shape=(n_examples,) with distance-based projection values
-
-        Notes
-        ----------
-            the other option is : np.linalg.norm(X - q, axis=1) - np.linalg.norm(X - p, axis=1)
     """
 
     return np.sqrt(ne.evaluate("(X - q) ** 2").sum(1)) - np.sqrt(ne.evaluate("(X - p) ** 2").sum(1))
@@ -86,7 +79,7 @@ def dot_product(X, p, q):
 
         Notes
         ----------
-            the other option is : sgemm(alpha=1.0, a=X, b=X, trans_b=True)
+            dot(X, q) - dot(X, p) = dot(X, q-p)
     """
 
     return np.dot(X, q-p)
