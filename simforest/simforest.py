@@ -17,12 +17,10 @@ from scipy.stats import spearmanr
 from simforest.splitter import find_split, find_split_classification
 from simforest.distance import dot_product
 from multiprocessing import Pool
-'''import line_profiler
-from profilehooks import profile'''
 
 
 def _h(n):
-    """A function estimating average external path length of Similarity Tree
+    """A function estimating average external path length of Similarity Tree.
         Since Similarity Tree, the same as Isolation tree, has an equivalent structure to Binary Search Tree,
         the estimation of average h for external node terminations is the same as the unsuccessful search in BST.
         Parameters
@@ -162,8 +160,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
                 first_class = labels[first]
                 others = np.where(labels != first_class)[0]
                 if len(others) == 0:
-                    # TODO this should not happen! Raise an exception
-                    first, second = random_state.choice(a=range(len(labels)), size=2, replace=False)
+                    raise ValueError('Could not sample p and q from opposite classes!')
                 else:
                     second = random_state.choice(others, replace=False)
             else:
@@ -552,9 +549,6 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
         """Check whenever current node containts only elements from one class."""
 
         return np.unique(y).size == 1
-
-    '''def _more_tags(self):
-        return {'binary_only': True}'''
 
     @property
     def feature_importances_(self):
@@ -1220,7 +1214,6 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
 
             yield first, second
 
-    #@profile
     def fit(self, X, y, check_input=True):
         """Build a similarity tree regressor from the training set (X, y).
                Parameters
@@ -1620,7 +1613,6 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
 
         return tree
 
-    #@profile
     def fit(self, X, y, check_input=True):
         """Build a similarity forest regressor from the training set (X, y).
                 Parameters

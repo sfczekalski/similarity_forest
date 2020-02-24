@@ -8,7 +8,7 @@ import neptune
 from sklearn.ensemble import RandomForestRegressor
 from simforest import SimilarityForestRegressor
 from simforest.distance import rbf, dot_product
-from examples.regression.datasets import get_datasets
+from examples.regression.regression_datasets import get_datasets
 import time
 
 
