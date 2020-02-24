@@ -7,6 +7,8 @@ from scipy.special import comb
 from sklearn.utils.validation import check_random_state
 from cython.parallel import prange, parallel
 cimport openmp
+from libc.math cimport exp
+
 
 # projection function type definition
 ctypedef float (*f_type)(float [:] xi, float [:] p, float [:] q) nogil
@@ -44,7 +46,7 @@ cdef float dot(float [:] u, float [:] v) nogil:
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef float dot_projection(float [:] xi, float [:] p, float [:] q) nogil:
+cdef inline float dot_projection(float [:] xi, float [:] p, float [:] q) nogil:
     """Projection of data-point on split direction using dot product.
         Parameters
         ----------
@@ -58,9 +60,11 @@ cdef float dot_projection(float [:] xi, float [:] p, float [:] q) nogil:
     cdef float result = 0.0
     cdef int n = xi.shape[0]
     cdef int i = 0
+    cdef float q_p
 
     for i in range(n):
-        result += xi[i] * q[i] - xi[i] * p[i]
+        q_p = q[i] - p[i]
+        result += xi[i] * q_p
 
     return result
 
@@ -88,7 +92,7 @@ cdef float sqeuclidean(self, float [:] u, float [:] v) nogil:
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef float sqeuclidean_projection(float [:] xi, float [:] p, float [:] q) nogil:
+cdef inline float sqeuclidean_projection(float [:] xi, float [:] p, float [:] q) nogil:
     """Projection of data-point on split direction using squared euclidean distance.
         It serves as an approximation of euclidean distance, when sorted using both methods, 
         the order of data-points remains the same. 
@@ -104,9 +108,49 @@ cdef float sqeuclidean_projection(float [:] xi, float [:] p, float [:] q) nogil:
     cdef float result = 0.0
     cdef int n = xi.shape[0]
     cdef int i = 0
+    cdef float p_q
 
     for i in range(n):
-        result += (xi[i] - q[i]) ** 2 - (xi[i] - p[i]) ** 2
+        p_q = p[i] - q[i]
+        result += xi[i] * p_q
+
+    return result
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+cdef inline float rbf_projection(float [:] xi, float [:] p, float [:] q) nogil:
+    """Projection of data-point on split direction using squared euclidean distance.
+        It serves as an approximation of euclidean distance, when sorted using both methods, 
+        the order of data-points remains the same. 
+        Parameters
+        ----------
+            xi : memoryview of ndarray, data-point to be projected
+            p : memoryview of ndarray, first data-point used to draw split direction
+            q : memoryview of ndarray, second data-point used to draw split direction
+        Returns 
+        ----------
+            result : float value
+    """
+    cdef float result = 0.0
+    cdef float xq = 0.0
+    cdef float xp = 0.0
+    cdef int n = xi.shape[0]
+    cdef float gamma = 1 / <float>len(xi)
+    cdef int i = 0
+    cdef float temp_x_q
+    cdef float temp_x_p
+
+    for i in range(n):
+        temp_x_q = xi[i] - q[i]
+        xq += temp_x_q ** temp_x_q
+
+        temp_x_p = xi[i] - p[i]
+        xp += temp_x_p ** temp_x_p
+
+    xq = exp(-gamma * xq)
+    xp = exp(-gamma * xp)
+
+    result = xq - xp
 
     return result
 
@@ -376,6 +420,7 @@ cdef class CSimilarityTreeCluster:
         self.lhs_idxs = np.nonzero(array <= self._split_point)[0].astype(np.int32)
         self.rhs_idxs = np.nonzero(array > self._split_point)[0].astype(np.int32)
 
+
     cpdef CSimilarityTreeCluster fit(self, np.ndarray[np.float32_t, ndim=2] X):
         """Build a tree from the training set X.
             Parameters
@@ -421,6 +466,8 @@ cdef class CSimilarityTreeCluster:
             self.projection = dot_projection
         elif self.sim_function == 'euclidean':
             self.projection = sqeuclidean_projection
+        elif self.sim_function == 'rbf':
+            self.projection = rbf_projection
         else:
             raise ValueError('Unknown similarity function')
 

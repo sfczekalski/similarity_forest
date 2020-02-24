@@ -9,7 +9,7 @@ import pandas as pd
 from scipy.spatial import distance
 from sklearn.utils import shuffle as sh
 
-# fetch data
+'''# fetch data
 X, y = fetch_kddcup99(subset='http', random_state=42, return_X_y=True)
 X, y = X.astype(np.float32), y.astype('str')
 
@@ -17,7 +17,7 @@ X, y = X.astype(np.float32), y.astype('str')
 y_df = pd.DataFrame(y, columns=['class'])
 y_df.loc[y_df['class'] != 'normal.', 'class'] = -1
 y_df.loc[y_df['class'] == 'normal.', 'class'] = 1
-y = y_df.values
+y = y_df.values'''
 
 # smtp take all outliers aside
 '''outliers_indices = np.where(y == -1)[0]
@@ -29,7 +29,7 @@ X_outliers = X[outliers_indices]
 X = X[inliers_indices]'''
 
 # kddcup99 SF subset preprocessing
-'''X, y = fetch_kddcup99(subset='SF', random_state=42, return_X_y=True)
+X, y = fetch_kddcup99(subset='SF', random_state=42, return_X_y=True)
 lb = LabelBinarizer()
 x1 = lb.fit_transform(X[:, 1].astype(str))
 X = np.c_[X[:, :1], x1, X[:, 2:]]
@@ -37,7 +37,7 @@ y = y.astype('str')
 y_df = pd.DataFrame(y, columns=['class'])
 y_df.loc[y_df['class'] != 'normal.', 'class'] = -1
 y_df.loc[y_df['class'] == 'normal.', 'class'] = 1
-y = y_df.values'''
+y = y_df.values
 
 # kddcup99 SA subset preprocessing
 '''X, y = fetch_kddcup99(subset='SA', random_state=42, return_X_y=True)

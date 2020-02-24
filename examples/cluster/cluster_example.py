@@ -7,7 +7,7 @@ from sklearn.decomposition import PCA
 from mpl_toolkits.mplot3d import Axes3D
 from sklearn.cluster import AgglomerativeClustering
 from scipy.spatial.distance import sqeuclidean
-from simforest.cluster import SimilarityTreeCluster, SimilarityForestCluster
+from simforest.cluster import SimilarityForestCluster
 from sklearn.preprocessing import StandardScaler
 from scipy.io.arff import loadarff
 import pandas as pd
@@ -26,7 +26,7 @@ X = df.values
 X = StandardScaler().fit_transform(X)
 
 params = dict()
-params['max_depth'] = 10
+params['max_depth'] = 5
 params['n_estimators'] = 100
 params['technique'] = 'hdbscan'
 params['n_clusters'] = 8

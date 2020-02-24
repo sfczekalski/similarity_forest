@@ -21,11 +21,14 @@ path = '../data/clustering_benchmark/real-world/'
      'n_clusters': 3},
     {'file_name': 'vowel.arff',
      'class_col': 'Class',
-     'n_clusters': 11}
-'''
-
-datasets = [
-    {'file_name': 'zoo.arff',
+     'n_clusters': 11},
+    {'file_name': 'vehicle.arff',
+     'class_col': 'Class',
+     'n_clusters': 4},
+    {'file_name': 'segment.arff',
+     'class_col': 'class',
+     'n_clusters': 7},
+      {'file_name': 'zoo.arff',
      'class_col': 'class',
      'n_clusters': 7},
     {'file_name': 'cpu.arff',
@@ -40,21 +43,19 @@ datasets = [
     {'file_name': 'sonar.arff',
      'class_col': 'Class',
      'n_clusters': 2},
+    {'file_name': 'wine.arff',
+     'class_col': 'class',
+     'n_clusters': 3}
+'''
+
+datasets = [
     {'file_name': 'german.arff',
      'class_col': 'CLASS',
      'n_clusters': 2},
     {'file_name': 'balance-scale.arff',
      'class_col': 'class',
-     'n_clusters': 3},
-    {'file_name': 'wine.arff',
-     'class_col': 'class',
-     'n_clusters': 3},
-    {'file_name': 'vehicle.arff',
-     'class_col': 'Class',
-     'n_clusters': 4},
-    {'file_name': 'segment.arff',
-     'class_col': 'class',
-     'n_clusters': 7}
+     'n_clusters': 3}
+
 ]
 
 
@@ -78,11 +79,12 @@ for file_name, class_col, n_clusters in get_datasets(datasets):
     neptune.init('sfczekalski/similarity-forest')
 
     params = dict()
-    params['max_depth'] = 10
-    params['n_estimators'] = 100
+    params['max_depth'] = 5
+    params['n_estimators'] = 20
     params['technique'] = 'hdbscan'
     params['n_clusters'] = n_clusters
     params['bootstrap'] = False
+    params['sim_function'] = 'dot'
 
     # set experiment properties
     n_iterations = 5

@@ -71,15 +71,28 @@ setup(name=DISTNAME,
       extras_require=EXTRAS_REQUIRE)
 
 # Cython compiling
-ext_modules=[
-    Extension("cluster", ["simforest/_cluster.pyx"]),
-    Extension("criterion", ["simforest/criterion.pyx"])
+'''works ext_modules = [
+    Extension("_cluster", ["simforest/_cluster.pyx"]),
+    Extension("criterion", ["simforest/criterion.pyx"]),
+    Extension("_distance", ["simforest/_distance.pyx"])
 ]
 
 setup(
-    name='cython_simforest',
     cmdclass={'build_ext': build_ext},
-    ext_modules=ext_modules,
+    ext_modules=cythonize([ext_utils]),
+    include_dirs=[numpy.get_include()],
+    extra_compile_args=['-O3', '-march=native', '-ffast-math', '-fopenmp'],
+    extra_link_args=['-fopenmp']
+)'''
+
+'''ext_modules=[
+    Extension("cluster", ["simforest/_cluster.pyx"]),
+    Extension("criterion", ["simforest/criterion.pyx"])
+]'''
+
+setup(
+    cmdclass={'build_ext': build_ext},
+    ext_modules=cythonize(["simforest/*.pyx"]),
     include_dirs=[numpy.get_include()],
     extra_compile_args=['-O3', '-march=native', '-ffast-math', '-fopenmp'],
     extra_link_args=['-fopenmp']
@@ -88,20 +101,20 @@ setup(
 
 
 '''ext_utils = Extension(
-    '_cluster'
-    , sources=['simforest/_cluster.pyx', 'simforest/criterion.pyx']
+    'simforest'
+    , sources=['simforest/_cluster.pyx', 'simforest/criterion.pyx', 'simforest/_distance.pyx']
     , include_dirs=[numpy.get_include()]
     , extra_compile_args=['-O3', '-march=native', '-ffast-math', '-fopenmp']
     , extra_link_args=['-fopenmp']
 )
 setup(
-    name='_cluster',
+    name='simforest',
     setup_requires=['cython', 'numpy']
     , cmdclass={'build_ext': build_ext}
     , ext_modules=cythonize([ext_utils]),
-)'''
+)
 
-'''setup(
+setup(
       ext_modules=cythonize("simforest/criterion.pyx", annotate=True),
       include_path=[numpy.get_include()]
 )'''

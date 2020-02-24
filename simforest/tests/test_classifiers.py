@@ -4,7 +4,6 @@ import numpy as np
 from sklearn.datasets import load_iris, make_blobs
 from sklearn.utils.testing import assert_array_equal
 from sklearn.utils.testing import assert_allclose
-from scipy.spatial import distance
 from simforest import SimilarityTreeClassifier, SimilarityForestClassifier
 from sklearn.model_selection import train_test_split
 
@@ -24,21 +23,13 @@ def test_similarity_tree_classifier_output_array_shape(data):
     assert y_pred.shape == (X.shape[0],)
 
 
-def test_default_attribute_value_tree():
-
-    clf = SimilarityTreeClassifier()
-    assert clf.n_directions == 1
-    assert clf.sim_function == np.dot
-
-
 def test_setting_attributes_tree(data):
     X, y = data
-    clf = SimilarityTreeClassifier(random_state=42, sim_function=distance.cosine, n_directions=2)
+    clf = SimilarityTreeClassifier(random_state=42, n_directions=2)
     clf.fit(X, y)
     y_pred = clf.predict(X)
 
     assert clf.random_state == 42
-    assert clf.sim_function == distance.cosine
     assert clf.n_directions == 2
 
 
@@ -92,21 +83,13 @@ def test_similarity_forest_classifier_output_array_shape(data):
     assert y_pred.shape == (X.shape[0],)
 
 
-def test_default_attribute_value_forest():
-
-    clf = SimilarityForestClassifier()
-    assert clf.n_directions == 1
-    assert clf.sim_function == np.dot
-
-
 def test_setting_attributes_forest(data):
     X, y = data
-    clf = SimilarityForestClassifier(random_state=42, sim_function=distance.cosine, n_directions=2)
+    clf = SimilarityForestClassifier(random_state=42, n_directions=2)
     clf.fit(X, y)
     y_pred = clf.predict(X)
 
     assert clf.random_state == 42
-    assert clf.sim_function == distance.cosine
     assert clf.n_directions == 2
 
 

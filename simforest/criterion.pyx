@@ -11,7 +11,7 @@ cdef extern from "math.h":
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef float var_agg(int cnt, float sum1, float sum2):
+cdef inline float var_agg(int cnt, float sum1, float sum2) nogil:
     """Calculate variance of a given array by using equation : variance = sums of squares - square of sums
         Parameters 
         ----------
@@ -23,13 +23,13 @@ cdef float var_agg(int cnt, float sum1, float sum2):
             result : float, variance of array
     """
 
-    cdef float result = (sum2/(cnt + 0.01)) - (sum1/(cnt + 0.01))**2
+    cdef float result = (sum2/(cnt + 0.000001)) - (sum1/(cnt + 0.000001))**2
     return result
 
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef float sum_squared_array(float [:] y, int n):
+cdef inline float sum_squared_array(float [:] y, int n) nogil:
     """Sum squared elements of a given array
         Parameters
         ----------
@@ -51,7 +51,7 @@ cdef float sum_squared_array(float [:] y, int n):
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef float sum_array(float [:] y, int n):
+cdef inline float sum_array(float [:] y, int n) nogil:
     """Sum elements of a given array
         Parameters
         ----------
@@ -72,7 +72,7 @@ cdef float sum_array(float [:] y, int n):
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef float weighted_variance(int split_index, float [:] y, int len_y):
+cdef inline float weighted_variance(int split_index, float [:] y, int len_y) nogil:
     """Calculate weighted of given split array after splitting at given index
         Parameters
         ----------
@@ -97,7 +97,7 @@ cdef float weighted_variance(int split_index, float [:] y, int len_y):
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef float variance(float [:] y, int array_size):
+cdef inline float variance(float [:] y, int array_size) nogil:
     """Calculate variance of given array.
         Parameters 
         ----------
@@ -193,7 +193,7 @@ def find_split_variance(float [:] y, float [:] s, int max_range):
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef int cfind_split_index_var(float [:] y, float [:] s, int max_range, int len_y):
+cdef inline int cfind_split_index_var(float [:] y, float [:] s, int max_range, int len_y) nogil:
     """Find split point minimizing weighted variance
             Parameters
             ---------
@@ -205,8 +205,7 @@ cdef int cfind_split_index_var(float [:] y, float [:] s, int max_range, int len_
                 best_split_idx : np.int32, index of element at which optimal split should be performed
     """
 
-    cdef float best_impurity = np.inf
-    cdef int best_split_idx = -1
+    cdef float best_impurity = INFINITY
     cdef float curr_impurity = 0.0
 
     cdef int rhs_cnt = len_y
@@ -222,6 +221,7 @@ cdef int cfind_split_index_var(float [:] y, float [:] s, int max_range, int len_
     cdef float left_proportion = 0.0
 
     cdef int i = 0
+    cdef float temp_sum2 = 0.0
     while i < max_range:
         lhs_cnt += 1
         rhs_cnt -= 1
@@ -231,8 +231,9 @@ cdef int cfind_split_index_var(float [:] y, float [:] s, int max_range, int len_
 
         lhs_sum += y[i]
         rhs_sum -= y[i]
-        lhs_sum2 += (y[i] ** 2)
-        rhs_sum2 -= (y[i] ** 2)
+        temp_sum2 = (y[i] ** 2)
+        lhs_sum2 += temp_sum2
+        rhs_sum2 -= temp_sum2
         if s[i]==s[i+1]:
             i += 1
             continue
@@ -289,7 +290,7 @@ def find_split_theil(float [:] y, float [:] s, int max_range):
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef float theil_index(int split_index, float [:] y, int len_y):
+cdef inline float theil_index(int split_index, float [:] y, int len_y) nogil:
     """Calculate Theil index of given split array after splitting at given index
         Parameters
         ----------
@@ -312,12 +313,12 @@ cdef float theil_index(int split_index, float [:] y, int len_y):
     cdef float result = left_proportion * theil(left_partition, len_left_partition) + \
            (1.0 - left_proportion) * theil(right_partition, len_right_partition)
 
-    assert result >= -0.001, 'Negative Theil index'
+    #assert result >= -0.01, f'Negative Theil index: {result}'
     return result
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef float theil(float [:] y, int array_size):
+cdef inline float theil(float [:] y, int array_size) nogil:
     """Calculate Theil index of given array.
         Parameters 
         ----------
@@ -328,7 +329,7 @@ cdef float theil(float [:] y, int array_size):
             result : Theil index
     """
 
-    assert array_size > 0, 'array of size 0'
+    #assert array_size > 0, 'array of size 0'
     if array_size == 1:
         return 0.0
 
@@ -353,7 +354,7 @@ cdef float theil(float [:] y, int array_size):
         i = i + 1
 
     cdef float result = theil / array_size
-    assert result >= -0.001, 'Negative Theil index'
+    #assert result >= -0.001, 'Negative Theil index'
     return result
 
 '''@cython.boundscheck(False)
@@ -500,7 +501,7 @@ cdef float atkinson(float [:] y, int array_size):
     return 1 - array_sqrt_sum ** 2 / (array_sum * array_size)
 
 
-cdef float gini_index(int split_index, int [:] y, int [:] classes, int len_y):
+cdef inline float gini_index(int split_index, int [:] y, int [:] classes, int len_y) nogil:
     """Calculate Gini index on a given array, at given index
         Parameters
         ----------
@@ -535,16 +536,14 @@ cdef float gini_index(int split_index, int [:] y, int [:] classes, int len_y):
         left_gini = left_gini + class_count * class_count
         class_count = 0
 
-    left_gini = left_gini / len_left_partition2
-    left_gini = 1 - left_gini
-
-    # calc right gini
-    for c in range(n_classes):
         for i in range(len_right_partition):
             if right_partition[i] == classes[c]:
                 class_count = class_count + 1
         right_gini = right_gini + class_count * class_count
         class_count = 0
+
+    left_gini = left_gini / len_left_partition2
+    left_gini = 1 - left_gini
 
     right_gini = right_gini / len_right_partition2
     right_gini = 1 - right_gini
@@ -557,7 +556,7 @@ cdef float gini_index(int split_index, int [:] y, int [:] classes, int len_y):
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def find_split_index_gini(int [:] y, int max_range, int [:] classes):
+cpdef find_split_index_gini(int [:] y, int max_range, int [:] classes):
     """This is a function calculating optimal split point according to criterion of minimizing Gini Index,
         and impurity of partitions after splitting.
             Parameters

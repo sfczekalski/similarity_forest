@@ -1,11 +1,11 @@
 from .simforest import SimilarityTreeClassifier, SimilarityForestClassifier, \
                         SimilarityTreeRegressor, SimilarityForestRegressor
 
-from simforest.cluster import SimilarityTreeCluster, SimilarityForestCluster
+from simforest.cluster import SimilarityForestCluster
 
 from ._version import __version__
 
 __all__ = ['SimilarityTreeClassifier', 'SimilarityForestClassifier',
            'SimilarityTreeRegressor', 'SimilarityForestRegressor',
-           'SimilarityTreeCluster', 'SimilarityForestCluster',
+           'SimilarityForestCluster',
            '__version__']

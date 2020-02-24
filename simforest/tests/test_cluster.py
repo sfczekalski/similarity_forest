@@ -2,7 +2,7 @@ import pytest
 import numpy as np
 from sklearn.datasets import load_iris, make_blobs
 from simforest.cluster import PySimilarityTreeCluster, PySimilarityForestCluster, \
-    SimilarityTreeCluster, SimilarityForestCluster
+    SimilarityForestCluster
 from scipy.special import comb
 from sklearn.utils.validation import check_symmetric
 from scipy.spatial.distance import squareform
@@ -76,13 +76,6 @@ def test_is_pure():
 
     X = np.ones(shape=(1000, 2))
     assert is_pure(X) == 1
-
-
-def test_similarity_tree_cluster_output_array_shape(data):
-    X, y = data
-    model = SimilarityTreeCluster()
-
-    model.fit(X)
 
 
 def test_similarity_forest_cluster_output_array_shape(data):

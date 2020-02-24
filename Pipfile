@@ -15,11 +15,14 @@ psutil = "*"
 hdbscan = "*"
 ineqpy = {git = "https://github.com/mmngreco/IneqPy"}
 yellowbrick = "*"
-cython = "*"
+numexpr = "*"
 
 [dev-packages]
 pytest = "*"
 xlrd = "*"
+line-profiler = "*"
+profilehooks = "*"
+builtins = "*"
 
 [requires]
 python_version = "3.7"
