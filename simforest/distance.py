@@ -81,5 +81,6 @@ def dot_product(X, p, q):
         ----------
             dot(X, q) - dot(X, p) = dot(X, q-p)
     """
+    result = np.dot(X, q-p)
 
-    return np.dot(X, q-p)
+    return result
