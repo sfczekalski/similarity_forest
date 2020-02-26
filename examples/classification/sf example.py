@@ -10,12 +10,12 @@ import numpy as np
 
 #X, y = make_blobs(n_samples=1000, centers=[(0, 0), (1, 1), (1.5, 1)], random_state=42)
 
-X, y = load_svmlight_file('data/a1a')
+X, y = load_svmlight_file('../data/a1a')
 X = X.toarray()
 
 
 X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.5, random_state=42)
+        X, y, test_size=0.3, random_state=42)
 
 scaler = StandardScaler()
 X_train = scaler.fit_transform(X_train)

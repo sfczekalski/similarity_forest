@@ -8,30 +8,12 @@ import numpy as np
 from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin, is_classifier
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted, check_random_state
 from sklearn.utils.multiclass import unique_labels, check_classification_targets
-from sklearn.preprocessing import LabelEncoder
-from simforest.rcriterion import gini_index, weighted_variance, evaluate_split, theil
+from simforest.rcriterion import theil
 from ineqpy import atkinson
-from simforest.criterion import find_split_variance, find_split_theil, find_split_atkinson, find_split_index_gini
 from simforest.utils import plot_projection
-from scipy.stats import spearmanr
-from simforest.splitter import find_split, find_split_classification
+from simforest.splitter import find_split
 from simforest.distance import dot_product
 from multiprocessing import Pool
-
-
-def _h(n):
-    """A function estimating average external path length of Similarity Tree.
-        Since Similarity Tree, the same as Isolation tree, has an equivalent structure to Binary Search Tree,
-        the estimation of average h for external node terminations is the same as the unsuccessful search in BST.
-        Parameters
-        ----------
-        n : int, number of objects used for tree construction
-        Returns
-        ----------
-        average external path length : int
-    """
-    assert n - 1 > 0
-    return 2 * np.log(n - 1) + np.euler_gamma - 2 * (n - 1) / n
 
 
 class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
@@ -48,13 +30,6 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
                 The maximum depth of the tree. If None, then nodes are expanded until
                 all leaves are pure.
             depth : int depth of the tree count
-            discriminative_sampling : bool (default = True),
-                whenever to use strategy of finding optimal split (such that it minimizes Gini impurity of partitions)
-                or some other heuristics
-            most_different : bool (default = False)
-                when we don't use strategy of finding split minimizing Gini impurity, we may choose one that finds
-                most different consecutive elements, and splits at this point. Used for outlier detection.
-            estimator_samples : list of ints, indexes of objects used for fitting current tree
 
             Attributes
             ----------
@@ -65,8 +40,6 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
                 The number of classes (single output problem), or a list containing the
                 number of classes for each output (multi-output problem).
             is_fitted_ : bool flag indicating whenever fit has been called
-            X_ : data used for fitting the forest
-            y_ : data labels
             _nodes_list : list of SimilarityTreeClassifier instances, that is tree nodes
 
             _lhs : SimilarityTreeClassifier current node's left child node
@@ -95,26 +68,19 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
                  sim_function=dot_product,
                  classes=None,
                  max_depth=None,
-                 depth=1,
-                 discriminative_sampling=True,
-                 most_different=False,
-                 estimator_samples=None):
+                 depth=1):
         self.random_state = random_state
         self.n_directions = n_directions
         self.sim_function = sim_function
         self.classes = classes
         self.max_depth = max_depth
         self.depth = depth
-        self.discriminative_sampling = discriminative_sampling
-        self.most_different = most_different
-        self.estimator_samples = estimator_samples
 
     def get_depth(self):
-        """Returns the depth of the decision tree.
-        The depth of a tree is the maximum distance between the root
-        and any leaf.
         """
-
+        Returns the depth of the decision tree.
+        The depth of a tree is the maximum distance between the root and any leaf.
+        """
         check_is_fitted(self, ['is_fitted_'])
 
         if self is None:
@@ -131,11 +97,10 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
                 return r_depth + 1
 
     def get_n_leaves(self):
-        """Returns the number of leaves of the similarity tree.
-        """
+        """Returns the number of leaves of the similarity tree."""
         if self is None:
             return 0
-        if self._lhs is None and self._rhs is None:
+        if self._is_leaf:
             return 1
         else:
             return self._lhs.get_n_leaves() + self._rhs.get_n_leaves()
@@ -155,16 +120,13 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
 
         # Choose a data-point from random class, and then, choose a data-point from points of other class
         for _ in range(n_directions):
-            if self.discriminative_sampling:
-                first = random_state.choice(range(len(labels)), replace=False)
-                first_class = labels[first]
-                others = np.where(labels != first_class)[0]
-                if len(others) == 0:
-                    raise ValueError('Could not sample p and q from opposite classes!')
-                else:
-                    second = random_state.choice(others, replace=False)
+            first = random_state.choice(range(len(labels)), replace=False)
+            first_class = labels[first]
+            others = np.where(labels != first_class)[0]
+            if len(others) == 0:
+                raise ValueError('Could not sample p and q from opposite classes!')
             else:
-                first, second = random_state.choice(range(len(labels)), 2, replace=False)
+                second = random_state.choice(others, replace=False)
 
             yield first, second
 
@@ -256,7 +218,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
                 self._is_leaf = True
                 return self
 
-        # Sample n_direction discriminative directions and find the best one
+        # Sample n_direction discriminative split directions and find the best one
         best_impurity = 1.0
         best_split_point = -np.inf
         best_p = None
@@ -264,10 +226,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
         similarities = []
         for i, j in self._sample_directions(random_state, y,  self.n_directions):
 
-            impurity, split_point, curr_similarities = find_split_classification(X, y, X[i], X[j],
-                                                                                 self.discriminative_sampling,
-                                                                                 self.most_different,
-                                                                                 self.sim_function, random_state)
+            impurity, split_point, curr_similarities = find_split(X, y, X[i], X[j], 'gini', self.sim_function)
             if impurity < best_impurity:
                 best_impurity = impurity
                 best_split_point = split_point
@@ -287,41 +246,24 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
             rhs_idxs = np.nonzero(self._similarities > self._split_point)[0]
 
             if len(lhs_idxs) > 0 and len(rhs_idxs) > 0:
-                self._lhs = SimilarityTreeClassifier(random_state=self.random_state,
-                                                     n_directions=self.n_directions,
-                                                     sim_function=self.sim_function,
-                                                     classes=self.classes_,
-                                                     max_depth=self.max_depth,
-                                                     depth=self.depth+1,
-                                                     discriminative_sampling=self.discriminative_sampling,
-                                                     most_different=self.most_different,
-                                                     estimator_samples=lhs_idxs).\
-                    fit(X[lhs_idxs], y[lhs_idxs], check_input=False)
+                params = self.get_params()
+                params['depth'] += 1
+                params['classes'] = self.classes_
 
-                self._rhs = SimilarityTreeClassifier(random_state=self.random_state,
-                                                     n_directions=self.n_directions,
-                                                     sim_function=self.sim_function,
-                                                     classes=self.classes_,
-                                                     max_depth=self.max_depth,
-                                                     depth=self.depth+1,
-                                                     discriminative_sampling=self.discriminative_sampling,
-                                                     most_different=self.most_different,
-                                                     estimator_samples=rhs_idxs).\
-                    fit(X[rhs_idxs], y[rhs_idxs], check_input=False)
+                self._lhs = SimilarityTreeClassifier(**params).fit(X[lhs_idxs], y[lhs_idxs], check_input=False)
+                self._rhs = SimilarityTreeClassifier(**params).fit(X[rhs_idxs], y[rhs_idxs], check_input=False)
 
             else:
                 self._is_leaf = True
                 return self
 
         self.is_fitted_= True
-
         return self
 
     def _validate_X_predict(self, X, check_input):
         """Validate X whenever one tries to predict, apply, predict_proba."""
 
         X = check_array(X)
-
         return X
 
     def predict_row_class(self, x):
@@ -432,59 +374,6 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
         vect_log = np.vectorize(np.log)
         return vect_log(probas)
 
-    def path_length_(self, X, check_input=True):
-        """Get path length for instances of X.
-            Parameters
-            ----------
-            X : array-like, shape (n_samples, n_features)
-                The input samples.
-            Returns
-            -------
-            path_length : ndarray, shape (n_samples,)
-                The path_length for instances of X, according to a single tree.
-        """
-
-        if check_input:
-            # Check if fit had been called
-            check_is_fitted(self, ['is_fitted_'])
-
-            # Input validation
-            X = check_array(X)
-
-            X = self._validate_X_predict(X, check_input)
-
-        return np.array([self.row_path_length_(x.reshape(1, -1)) for x in X])
-
-    def row_path_length_(self, x):
-        """ Get outlyingness path length of a single data-point.
-            If current node is a leaf, then return its depth, if not, traverse down the tree.
-            If number of objects in external node is more than one, then add an estimate of sub-tree depth,
-            if it was fully grown.
-
-            Parameters
-            ----------
-            x : a data-point
-            Returns
-            -------
-            data-point's path length, according to single a tree.
-        """
-
-        if self._is_leaf:
-            c = 0
-            n = self.n_
-            if n > 1:
-                c = _h(n)
-            return self.depth + c
-
-        assert self._p is not None
-        assert self._q is not None
-
-        t = self._lhs if self.sim_function(x, self._p, self._q)[0] <= self._split_point else self._rhs
-        if t is None:
-            return self.depth
-
-        return t.row_path_length_(x)
-
     def apply(self, X, check_input=False):
         """Returns the index of the leaf that each sample is predicted as."""
 
@@ -583,18 +472,6 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
                 the generalization accuracy.
             bootstrap : bool (default=True)
                 whenever to use bootstrap sampling when fitting trees, or a subsample of size described by max_samples
-            max_samples : int or float
-                size of subsamples used for fitting trees, if int then use number of objects provided, if float then
-                use fraction of whole sample
-            contamination : string or float (default='auto'), fraction of expected outliers in the data. If auto then
-                use algorithm criterion described in Isolation Forest paper. Float means fraction of objects that
-                 should be considered outliers.
-            discriminative_sampling : bool (default = True),
-                whenever to use strategy of finding optimal split (such that it minimizes Gini impurity of partitions)
-                or some other heuristics
-            most_different : bool (default = False)
-                when we don't use strategy of finding split minimizing Gini impurity, we may choose one that finds
-                most different consecutive elements, and splits at this point. Used for outlier detection.
 
             Attributes
             ----------
@@ -611,14 +488,7 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
                 number of classes for each output (multi-output problem).
             oob_score_ : float
                 Score of the training dataset obtained using an out-of-bag estimate.
-            oob_decision_function_ : array of shape = [n_samples, n_classes]
-                Decision function computed with out-of-bag estimate on the training
-                set. If n_estimators is small it might be possible that a data point
-                was never left out during the bootstrap. In this case,
-                `oob_decision_function_` might contain NaN.
             is_fitted_ : bool flag indicating whenever fit has been called
-            X_ : data used for fitting the forest
-            y_ : data labels
 
             Notes
             -----
@@ -637,11 +507,7 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
                  sim_function=dot_product,
                  max_depth=None,
                  oob_score=False,
-                 bootstrap=True,
-                 max_samples=None,
-                 contamination='auto',
-                 discriminative_sampling=True,
-                 most_different=False):
+                 bootstrap=True):
         self.random_state = random_state
         self.n_estimators = n_estimators
         self.n_directions = n_directions
@@ -649,16 +515,11 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
         self.max_depth = max_depth
         self.oob_score = oob_score
         self.bootstrap = bootstrap
-        self.max_samples = max_samples
-        self.contamination = contamination
-        self.discriminative_sampling = discriminative_sampling
-        self.most_different = most_different
 
     def _validate_X_predict(self, X, check_input):
         """Validate X whenever one tries to predict, apply, predict_proba."""
 
         X = check_array(X)
-
         return X
 
     def fit(self, X, y, check_input=True):
@@ -708,18 +569,13 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
         self.oob_score_ = 0.0
 
         self.estimators_ = []
-
         for i in range(self.n_estimators):
 
             if self.bootstrap:
                 all_idxs = range(len(y))
                 idxs = random_state.choice(all_idxs, len(y), replace=True)
                 tree = SimilarityTreeClassifier(classes=self.classes_, n_directions=self.n_directions,
-                                                sim_function=self.sim_function, random_state=self.random_state,
-                                                max_depth=self.max_depth,
-                                                discriminative_sampling=self.discriminative_sampling,
-                                                most_different=self.most_different,
-                                                estimator_samples=idxs)
+                                                sim_function=self.sim_function, random_state=self.random_state)
                 tree.fit(X[idxs], y[idxs], check_input=False)
 
                 self.estimators_.append(tree)
@@ -728,37 +584,11 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
                     idxs_oob = np.setdiff1d(np.array(range(y.size)), idxs)
                     self.oob_score_ += tree.score(X[idxs_oob], y[idxs_oob])
 
-                    tree_probs = tree.predict_proba(X[np.unique(idxs_oob)])
-
             else:
-                all_idxs = range(y.size)
-
-                # Calculate sample size for each tree
-                if self.max_samples == 'auto':
-                    sample_size = min(256, y.size)
-                elif isinstance(self.max_samples, float):
-                    n = len(y)
-                    sample_size = int(self.max_samples * n)
-                    if sample_size > n:
-                        sample_size = n
-
-                elif isinstance(self.max_samples, int):
-                    sample_size = self.max_samples
-                    n = len(y)
-                    if sample_size > n:
-                        sample_size = n
-                else:
-                    raise ValueError('max_samples should be \'auto\' or either float or int')
-
-                idxs = random_state.choice(all_idxs, sample_size, replace=False)
-
                 tree = SimilarityTreeClassifier(classes=self.classes_, n_directions=self.n_directions,
                                                 sim_function=self.sim_function, random_state=self.random_state,
-                                                max_depth=self.max_depth,
-                                                discriminative_sampling=self.discriminative_sampling,
-                                                most_different=self.most_different,
-                                                estimator_samples=idxs)
-                tree.fit(X[idxs], y[idxs], check_input=False)
+                                                max_depth=self.max_depth)
+                tree.fit(X, y, check_input=False)
 
                 self.estimators_.append(tree)
 
@@ -767,7 +597,6 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
 
         assert len(self.estimators_) == self.n_estimators
         self.is_fitted_ = True
-
         return self
 
     def predict_proba(self, X, check_input=True):
@@ -831,141 +660,6 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
         X = self._validate_X_predict(X, check_input)
 
         return self.classes_[np.argmax(self.predict_proba(X), axis=1)]
-
-    def decision_function_outliers(self, X, check_input=True, n_estimators=None):
-        """Average anomaly score of X of the base classifiers.
-            The anomaly score of an input sample is computed as the mean anomaly score of the trees in the forest.
-            The measure of normality of an observation given a tree is the depth of the leaf containing this observation
-            which is equivalent to the number of splittings required to isolate this point.
-
-            Parameters
-            ----------
-            X : array-like, shape (n_samples, n_features)
-                The input samples.
-            check_input : bool indicating if input should be checked or not.
-            n_estimators : int (default = self.n_estimators)
-                number of estimators to use when measuring outlyingness,
-                don't change this value - it was added to measure how outlyingness score depends on number of estimators
-
-            Returns
-            -------
-            scores : ndarray, shape (n_samples,)
-                The anomaly score of the input samples. The lower, the more abnormal.
-                Negative scores represent outliers, positive scores represent inliers.
-        """
-        if check_input:
-            # Check if fit had been called
-            check_is_fitted(self, ['is_fitted_'])
-
-            # Input validation
-            X = check_array(X)
-
-            X = self._validate_X_predict(X, check_input)
-
-        # By default, measure outlyingness using all sub-estimators
-        if n_estimators is None:
-            n_estimators = self.n_estimators
-
-        # Average depth of leaf containing each sample
-        path_lengths = np.mean([t.path_length_(X, check_input=False) for t in self.estimators_[:n_estimators]], axis=0)
-
-        # Depths are normalized in the same fashion as in Isolation Forest
-        if self.max_samples is not None:
-            n = min(X.shape[0], self.max_samples)
-        else:
-            n = X.shape[0]
-        c = _h(n)
-
-        scores = np.array([- 2 ** (-pl/c) for pl in path_lengths])
-
-        if self.contamination == 'auto':
-            offset_ = -0.5
-
-        elif isinstance(self.contamination, float):
-            assert self.contamination > 0.0
-            assert self.contamination < 0.5
-
-            offset_ = np.percentile(scores, 100. * self.contamination)
-        else:
-            raise ValueError('contamination should be set either to \'auto\' or a float value between 0.0 and 0.5')
-
-        return scores - offset_
-
-    def outliers_rank_stability(self, X, plot=True):
-        """Check stability of outliers ranking with different number of subestimators.
-            We check 1, 2, 3, 5, 10, 20, 30, 50, 70 and 100 trees respectively
-            Paramaters
-            ----------
-                X : array, data to perform outlier detection
-                plot : bool, flag indicating, if a chart with rank stability would be plotted
-            Returns
-            ---------
-                rcorrelations : array of shape(number of estimators used for checing ranking stability, 2)
-                    First column represented Spearman correlation of ranking predicted with current number of trees,
-                    second column gives p-values
-        """
-
-        initial_decision_function = self.decision_function_outliers(X, check_input=True, n_estimators=1)
-        n_outliers = np.where(initial_decision_function <= 0)[0].size
-        order = initial_decision_function[::-1].argsort()
-
-        trees = [2, 3, 5, 10, 20, 30, 50, 70, 100]
-        rcorrelations = np.zeros(shape=(9, 2), dtype=np.float)
-
-        for idx, v in enumerate(trees):
-            decision_function = self.decision_function_outliers(X, check_input=False, n_estimators=v)
-            rcorr, p = spearmanr(initial_decision_function[::-1][order][:n_outliers],
-                                 decision_function[::-1][order][:n_outliers])
-
-            rcorrelations[idx] = rcorr, p
-            initial_decision_function = decision_function
-
-        if plot:
-            import matplotlib.pyplot as plt
-            from matplotlib.lines import Line2D
-
-            fig = plt.figure(figsize=(10, 6))
-            ax = fig.add_subplot(111)
-
-            line = Line2D(trees, rcorrelations[:, 0])
-            ax.add_line(line)
-            ax.set_xlim(trees[0], trees[-1])
-            ax.set_ylim(-0.2, 1.0)
-            ax.set_xlabel('Number of estimators')
-            ax.set_ylabel('Rcorrelation with previous value')
-
-            plt.show()
-
-        return rcorrelations
-
-    def predict_outliers(self, X, check_input=True):
-        """Predict if a particular sample is an outlier or not.
-            Paramteres
-            ----------
-            X : array-like, shape (n_samples, n_features)
-                The input samples.
-            check_input : bool indicating if input should be checked or not.
-            Returns
-            -------
-            is_inlier : array, shape (n_samples,) For each observation, tells whether or not (+1 or -1) it should be
-            considered as an inlier according to the fitted model.
-
-        """
-
-        if check_input:
-            # Check if fit had been called
-            check_is_fitted(self, ['is_fitted_'])
-
-            # Input validation
-            X = check_array(X)
-
-            X = self._validate_X_predict(X, check_input)
-
-        decision_function_outliers = self.decision_function_outliers(X, check_input=False)
-
-        is_inlier = np.ones(X.shape[0], dtype=int)
-        is_inlier[decision_function_outliers < 0] = -1
-        return is_inlier
 
     def apply(self, X, check_input=True):
         """Apply trees in the forest to X, return leaf indices."""

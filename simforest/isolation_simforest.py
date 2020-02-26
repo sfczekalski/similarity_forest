@@ -1,10 +1,7 @@
 import numpy as np
 from sklearn.base import BaseEstimator, OutlierMixin
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted, check_random_state
-from simforest.splitter import find_split, find_split_classification
 from simforest.distance import dot_product
-from multiprocessing import Pool
-import time
 
 
 def _average_path_length(n_samples):
@@ -168,7 +165,7 @@ class IsolationSimilarityForest(BaseEstimator, OutlierMixin):
         self.is_fitted_ = True
         return self
 
-    def score_samples(self, X):
+    def score_samples(self, X, n_estimators=None):
         """
         Opposite of the anomaly score defined in the original paper.
         The anomaly score of an input sample is computed as
@@ -190,7 +187,7 @@ class IsolationSimilarityForest(BaseEstimator, OutlierMixin):
                 The lower, the more abnormal.
         """
         # Average depth at which a sample lies over all trees
-        mean_path_lengths = np.mean([t.path_length_(X, check_input=False) for t in self.estimators_], axis=0)
+        mean_path_lengths = np.mean([t.path_length_(X, check_input=False) for t in self.estimators_[:n_estimators]], axis=0)
 
         assert len(mean_path_lengths) == len(X)
         assert np.all(mean_path_lengths >= 1)
@@ -201,7 +198,7 @@ class IsolationSimilarityForest(BaseEstimator, OutlierMixin):
 
         return scores
 
-    def decision_function(self, X, check_input=True):
+    def decision_function(self, X, check_input=True, n_estimators=None):
         """Average anomaly score of X of the base classifiers.
             The anomaly score of an input sample is computed as the mean anomaly score of the trees in the forest.
             The measure of normality of an observation given a tree is the depth of the leaf containing this observation
@@ -211,7 +208,9 @@ class IsolationSimilarityForest(BaseEstimator, OutlierMixin):
             ----------
                 X : array-like, shape (n_samples, n_features), the input samples.
                 check_input : bool indicating if input should be checked or not.
-
+                n_estimators : int (default = self.n_estimators)
+                    number of estimators to use when measuring outlyingness,
+                    don't change this value - it was added to measure how outlyingness score depends on number of estimators
             Returns
             -------
                 scores : ndarray, shape (n_samples,)
@@ -227,7 +226,7 @@ class IsolationSimilarityForest(BaseEstimator, OutlierMixin):
 
             X = self._validate_X_predict(X)
 
-        scores = self.score_samples(X)
+        scores = self.score_samples(X, n_estimators=None)
 
         return scores - self.offset_
 
