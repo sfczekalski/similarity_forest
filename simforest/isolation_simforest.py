@@ -4,24 +4,25 @@ from sklearn.utils.validation import check_X_y, check_array, check_is_fitted, ch
 from simforest.splitter import find_split, find_split_classification
 from simforest.distance import dot_product
 from multiprocessing import Pool
+import time
 
 
-def _h(n):
+def _average_path_length(n_samples):
     """A function estimating average external path length of Similarity Tree.
-        Since Similarity Tree, the same as Isolation tree, has an equivalent structure to Binary Search Tree,
-        the estimation of average h for external node terminations is the same as the unsuccessful search in BST.
-        Parameters
-        ----------
-        n : int, number of objects used for tree construction
-        Returns
-        ----------
-        average external path length : int
-    """
-    assert n - 1 > 0
-    return 2 * np.log(n - 1) + np.euler_gamma - 2 * (n - 1) / n
+            Since Similarity Tree, the same as Isolation tree, has an equivalent structure to Binary Search Tree,
+            the estimation of average h for external node terminations is the same as the unsuccessful search in BST.
+            Parameters
+            ----------
+            n : int, number of objects used for tree construction
+            Returns
+            ----------
+            average external path length : int
+        """
+    assert n_samples - 1 > 0
+    return 2 * np.log(n_samples - 1) + np.euler_gamma - 2 * (n_samples - 1) / n_samples
 
 
-class IsolationSimilarityForest(BaseEstimator):
+class IsolationSimilarityForest(BaseEstimator, OutlierMixin):
     """An algorithm for outlier detection based on Similarity Forest.
         It borrows the idea of isolating data-points by performing random splits, as in Isolation Forest,
         but they are not performed on features, but in the same way as in Similarity Forest.
@@ -84,7 +85,6 @@ class IsolationSimilarityForest(BaseEstimator):
         """Validate X."""
 
         X = check_array(X)
-
         return X
 
     def fit(self, X, y=None, check_input=True):
@@ -107,21 +107,18 @@ class IsolationSimilarityForest(BaseEstimator):
             # Check if provided similarity function applies to input
             X = self._validate_X_predict(X)
 
-
         # Initialize random number generator instance
         if self.random_state is not None:
             random_state = check_random_state(self.random_state)
         else:
             random_state = np.random.RandomState()
 
-        self.n_ = X.shape[0]
-
         # Compute sub-sample size for each tree
         all_idxs = range(X.shape[0])
 
-        # Calculate sample size for each tree
         if self.max_samples == 'auto':
             sample_size = min(256, X.shape[0])
+
         elif isinstance(self.max_samples, float):
             n = len(X.shape[0])
             sample_size = int(self.max_samples * n)
@@ -136,13 +133,14 @@ class IsolationSimilarityForest(BaseEstimator):
         else:
             raise ValueError('max_samples should be \'auto\' or either float or int')
 
-        self.sample_size = sample_size
+        # Size of sample used to build each of the trees
+        self.sample_size_ = sample_size
 
         # Build trees
         self.estimators_ = []
         for i in range(self.n_estimators):
 
-            subsample_idxs = random_state.choice(all_idxs, self.sample_size, replace=False)
+            subsample_idxs = random_state.choice(all_idxs, self.sample_size_, replace=False)
 
             tree = IsolationSimilarityTree(sim_function=self.sim_function,
                                            random_state=self.random_state,
@@ -154,8 +152,54 @@ class IsolationSimilarityForest(BaseEstimator):
 
         assert len(self.estimators_) == self.n_estimators, f'Build {len(self.estimators_)} trees, ' \
                                                            f'instead of {self.n_estimators}'
+
+        # Calculate offset for prediction
+        if self.contamination == 'auto':
+            self.offset_ = -0.5
+
+        elif isinstance(self.contamination, float):
+            if not 0.0 < self.contamination < 0.5:
+                raise ValueError('Contamination fraction should be between 0.0 and 0.5.')
+
+            self.offset_ = np.percentile(self.score_samples(X), 100. * self.contamination)
+        else:
+            raise ValueError('Contamination should be set either to \'auto\' or a float value between 0.0 and 0.5.')
+
         self.is_fitted_ = True
         return self
+
+    def score_samples(self, X):
+        """
+        Opposite of the anomaly score defined in the original paper.
+        The anomaly score of an input sample is computed as
+        the mean anomaly score of the trees in the forest.
+        The measure of normality of an observation given a tree is the depth
+        of the leaf containing this observation, which is equivalent to
+        the number of splittings required to isolate this point. In case of
+        several observations n_left in the leaf, the average path length of
+        a n_left samples isolation tree is added.
+
+        Parameters
+        ----------
+            X : array-like of shape (n_samples, n_features)
+                The input samples.
+        Returns
+        -------
+            scores : ndarray of shape (n_samples,)
+                The anomaly score of the input samples.
+                The lower, the more abnormal.
+        """
+        # Average depth at which a sample lies over all trees
+        mean_path_lengths = np.mean([t.path_length_(X, check_input=False) for t in self.estimators_], axis=0)
+
+        assert len(mean_path_lengths) == len(X)
+        assert np.all(mean_path_lengths >= 1)
+
+        # Depths are normalized in the same fashion as in Isolation Forest
+        c = _average_path_length(self.sample_size_)
+        scores = np.array([- 2 ** (-pl / c) for pl in mean_path_lengths])
+
+        return scores
 
     def decision_function(self, X, check_input=True):
         """Average anomaly score of X of the base classifiers.
@@ -183,26 +227,9 @@ class IsolationSimilarityForest(BaseEstimator):
 
             X = self._validate_X_predict(X)
 
-        # Average depth at which a sample lies over all trees
-        mean_path_lengths = np.mean([t.path_length_(X, check_input=False) for t in self.estimators_], axis=0)
-        assert len(mean_path_lengths) == len(X)
+        scores = self.score_samples(X)
 
-        # Depths are normalized in the same fashion as in Isolation Forest
-        c = _h(self.sample_size)
-        scores = np.array([- 2 ** (-pl / c) for pl in mean_path_lengths])
-
-        if self.contamination == 'auto':
-            offset_ = -0.5
-
-        elif isinstance(self.contamination, float):
-            assert self.contamination > 0.0
-            assert self.contamination < 0.5
-
-            offset_ = np.percentile(scores, 100. * self.contamination)
-        else:
-            raise ValueError('contamination should be set either to \'auto\' or a float value between 0.0 and 0.5')
-
-        return scores - offset_
+        return scores - self.offset_
 
     def predict(self, X, check_input=True):
         """Predict if a particular sample is an outlier or not.
@@ -226,14 +253,13 @@ class IsolationSimilarityForest(BaseEstimator):
             X = self._validate_X_predict(X)
 
         decision_function = self.decision_function(X, check_input=False)
-        print(decision_function[:200])
 
         is_inlier = np.ones(X.shape[0], dtype=int)
         is_inlier[decision_function < 0] = -1
         return is_inlier
 
 
-class IsolationSimilarityTree:
+class IsolationSimilarityTree(BaseEstimator):
     """Unsupervised Similarity Tree measuring outlyingness score.
         Isolation Similarity Trees are base models used as building blocks for Isolation Similarity Forest ensemble.
             Parameters
@@ -266,7 +292,6 @@ class IsolationSimilarityTree:
             n_ : int, number of data-points in current node
 
     """
-
     def __init__(self,
                  sim_function=dot_product,
                  random_state=None,
@@ -280,6 +305,17 @@ class IsolationSimilarityTree:
         self.depth = depth
 
     def sample_directions(self, X, random_state):
+        """Randomly choose two data-points to draw split direction. Note that the data-points must be different.
+            Parameters
+            ----------
+                X : array of shape=(n_samples, n_features), input features
+                random_state : random state object
+
+            Returns
+            -------
+            a pair of data-points to draw split direction on
+        """
+        # sample data-points from unique rows
         X = np.unique(X, axis=0)
         first, second = random_state.choice(range(X.shape[0]), 2, replace=False)
 
@@ -287,6 +323,16 @@ class IsolationSimilarityTree:
         return X[first], X[second]
 
     def find_split(self, X, random_state):
+        """Find random split on direction drew on pair of data-points
+                Parameters
+                ----------
+                    X : all data-points
+
+                Returns
+                -------
+                    split_point : split threshold
+                    similarities : array of shape (n_samples,), values of similarity-values based projection
+        """
         similarities = self.sim_function(X, self._p, self._q)
         indices = sorted([i for i in range(len(similarities)) if not np.isnan(similarities[i])],
                          key=lambda x: similarities[x])
@@ -299,11 +345,23 @@ class IsolationSimilarityTree:
             # random split point
             similarities_min = np.min(similarities)
             similarities_max = np.max(similarities)
-            split_point = random_state.uniform(similarities_min, similarities_max, 1)
+            split_point = random_state.uniform(low=similarities_min, high=similarities_max, size=1)
 
         return split_point, similarities
 
-    def fit(self, X, y=None, check_input=False):
+    def fit(self, X, y=None, check_input=True):
+        """Build a Isolation Similarity Tree from the training set X.
+               Parameters
+               ----------
+                   X : array-like of any type, as long as suitable similarity function is provided
+                       The training input samples.
+                   y : None, added to follow Scikit-Learn convention
+                   check_input : bool (default=False), allows to skip input validation multiple times.
+
+               Returns
+               -------
+                   self : object
+        """
         # Check input
         if check_input:
 
@@ -326,6 +384,7 @@ class IsolationSimilarityTree:
         self._similarities = []
         self._split_point = -np.inf
         self.is_fitted_ = False
+        self._is_leaf = False
         self.n_ = X.shape[0]
 
         # If there is only one data-point, or multiple copies of the same data-point, stop growing a tree.
@@ -351,13 +410,10 @@ class IsolationSimilarityTree:
         assert len(lhs_idxs) + len(rhs_idxs) == self.n_
 
         if len(lhs_idxs) > 0 and len(rhs_idxs) > 0:
-            self._lhs = IsolationSimilarityTree(sim_function=self.sim_function, random_state=self.random_state,
-                                                max_depth=self.max_depth, most_different=self.most_different,
-                                                depth=self.depth + 1).fit(X[lhs_idxs], check_input=False)
-
-            self._rhs = IsolationSimilarityTree(sim_function=self.sim_function, random_state=self.random_state,
-                                                max_depth=self.max_depth, most_different=self.most_different,
-                                                depth=self.depth + 1).fit(X[rhs_idxs], check_input=False)
+            params = self.get_params()
+            params['depth'] += 1
+            self._lhs = IsolationSimilarityTree(**params).fit(X[lhs_idxs], check_input=False)
+            self._rhs = IsolationSimilarityTree(**params).fit(X[rhs_idxs], check_input=False)
 
         else:
             print(f'similarities: {self._similarities}')
@@ -372,7 +428,6 @@ class IsolationSimilarityTree:
         """Validate X."""
 
         X = check_array(X)
-
         return X
 
     def path_length_(self, X, check_input=True):
@@ -407,7 +462,7 @@ class IsolationSimilarityTree:
         c = 0
         n = self.n_
         if n > 1:
-            c = _h(n)
+            c = _average_path_length(n)
         return self.depth + c
 
     def row_path_length_(self, x):

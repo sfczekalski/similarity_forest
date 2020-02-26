@@ -130,7 +130,7 @@ def get_forestcover():
 
 
 def get_thyronoid_disease():
-    df = pd.read_csv('../data/Annthyroid_real.csv', header=None)
+    df = pd.read_csv('examples/data/Annthyroid_real.csv', header=None)
 
     y = df.pop(6)
     X = df
@@ -167,7 +167,7 @@ def get_breastw():
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    return X_train, X_test, y_train, y_test, 'thyronoid_breastw'
+    return X_train, X_test, y_train, y_test, 'breastw'
 
 
 datasets = [

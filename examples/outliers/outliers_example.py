@@ -6,8 +6,6 @@ from sklearn.preprocessing import StandardScaler, LabelBinarizer, LabelEncoder
 from sklearn.metrics import confusion_matrix, roc_auc_score
 import numpy as np
 import pandas as pd
-from scipy.spatial import distance
-from sklearn.utils import shuffle as sh
 
 # fetch data
 X, y = fetch_kddcup99(subset='http', random_state=42, return_X_y=True)
