@@ -187,7 +187,7 @@ class IsolationSimilarityForest(BaseEstimator, OutlierMixin):
                 The lower, the more abnormal.
         """
         # Average depth at which a sample lies over all trees
-        mean_path_lengths = np.mean([t.path_length_(X, check_input=False) for t in self.estimators_[:n_estimators]], axis=0)
+        mean_path_lengths = np.mean([t.path_lengths_(X, check_input=False) for t in self.estimators_[:n_estimators]], axis=0)
 
         assert len(mean_path_lengths) == len(X)
         assert np.all(mean_path_lengths >= 1)
@@ -429,7 +429,7 @@ class IsolationSimilarityTree(BaseEstimator):
         X = check_array(X)
         return X
 
-    def path_length_(self, X, check_input=True):
+    def path_lengths_(self, X, check_input=True):
         """Get path length for instances of X.
             Parameters
             ----------
@@ -449,7 +449,7 @@ class IsolationSimilarityTree(BaseEstimator):
 
             X = self._validate_X_predict(X)
 
-        return np.array([self.row_path_length_(x.reshape(1, -1)) for x in X])
+        return np.array([self.apply_x(x.reshape(1, -1)).depth_estimate() for x in X])
 
     def depth_estimate(self):
         """Based on depth of not-fully grown tree and number of data-points in current node,
@@ -464,7 +464,7 @@ class IsolationSimilarityTree(BaseEstimator):
             c = _average_path_length(n)
         return self.depth + c
 
-    def row_path_length_(self, x):
+    def apply_x(self, x):
         """ Get outlyingness path length of a single data-point.
             If current node is a leaf, then return its depth, if not, traverse down the tree.
             If number of objects in external node is more than one, then add an estimate of sub-tree depth,
@@ -478,13 +478,13 @@ class IsolationSimilarityTree(BaseEstimator):
             data-point's path length, according to single a tree.
         """
         if self._is_leaf:
-            return self.depth_estimate()
+            return self
 
         assert self._p is not None
         assert self._q is not None
 
         t = self._lhs if self.sim_function(x, self._p, self._q)[0] <= self._split_point else self._rhs
         if t is None:
-            return self.depth_estimate()
+            return self
 
-        return t.row_path_length_(x)
+        return t.apply_x(x)

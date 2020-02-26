@@ -200,6 +200,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
             probs[i] = count / len(y) + 0.000000001
 
         self._value = probs
+        self._class_prediction = self.classes_[np.argmax(self._value)]
 
         if not 1.0 - 0.00001 <= self._value.sum() <= 1.0 + 0.00001:
             raise ValueError('Wrong node class probability values.')
@@ -266,28 +267,6 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
         X = check_array(X)
         return X
 
-    def predict_row_class(self, x):
-        """ Predict class of a single data-point.
-            If current node is a leaf, return its prediction value, if not, traverse down the tree to find point's class
-
-            Parameters
-            ----------
-            x : a data-point
-
-            Returns
-            -------
-            data-point's class
-        """
-
-        if self._is_leaf:
-            return self.classes_[np.argmax(self._value)]
-
-        t = self._lhs if self.sim_function(x, self._p, self._q)[0] <= self._split_point else self._rhs
-        if t is None:
-            return self.classes_[np.argmax(self._value)]
-
-        return t.predict_row_class(x)
-
     def predict(self, X, check_input=True):
         """A reference implementation of a prediction for a classifier.
 
@@ -311,28 +290,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
 
         X = self._validate_X_predict(X, check_input)
 
-        return np.array([self.predict_row_class(x.reshape(1, -1)) for x in X])
-
-    def predict_row_prob(self, x):
-        """ Predict class of a single data-point.
-            If current node is a leaf, return its prediction value, if not, traverse down the tree to find point's class
-
-            Parameters
-            ----------
-            x : a data-point
-
-            Returns
-            -------
-            data-point's class
-        """
-
-        if self._is_leaf:
-            return self._value
-
-        t = self._lhs if self.sim_function(x, self._p, self._q)[0] <= self._split_point else self._rhs
-        if t is None:
-            return self._value
-        return t.predict_row_prob(x)
+        return np.array([self.apply_x(x.reshape(1, -1))._class_prediction for x in X])
 
     def predict_proba(self, X, check_input=True):
         """ Predict class probabilities of the input samples X.
@@ -355,7 +313,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
         X = check_array(X)
         X = self._validate_X_predict(X, check_input)
 
-        return np.array([self.predict_row_prob(x.reshape(1, -1)) for x in X])
+        return np.array([self.apply_x(x.reshape(1, -1))._value for x in X])
 
     def predict_log_proba(self, X):
         """Predict class log-probabilities of the input samples X.
@@ -386,17 +344,17 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
 
             X = self._validate_X_predict(X, check_input)
 
-        return np.array([self.apply_x(x.reshape(1, -1)) for x in X])
+        return np.array([self.apply_x(x.reshape(1, -1))._node_id for x in X])
 
     def apply_x(self, x, check_input=False):
         """Returns the index of the leaf that each sample is predicted as."""
 
         if self._is_leaf:
-            return self._node_id
+            return self
 
         t = self._lhs if self.sim_function(x, self._p, self._q)[0] <= self._split_point else self._rhs
         if t is None:
-            return self._node_id
+            return self
         return t.apply_x(x)
 
     def decision_path(self, X, check_input=True):
@@ -761,17 +719,17 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
 
             X = self._validate_X_predict(X, check_input)
 
-        return np.array([self.apply_x(x.reshape(1, -1)) for x in X])
+        return np.array([self.apply_x(x.reshape(1, -1))._node_id for x in X])
 
     def apply_x(self, x, check_input=False):
         """Returns the index of the leaf that sample is predicted as."""
 
         if self._is_leaf:
-            return self._node_id
+            return self
 
         t = self._lhs if self.sim_function(x, self._p, self._q)[0] <= self._split_point else self._rhs
         if t is None:
-            return self._node_id
+            return self
         return t.apply_x(x)
 
     def decision_path(self, X, check_input=True):
@@ -1064,9 +1022,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         """Validate X whenever one tries to predict, apply."""
 
         X = check_array(X)
-
         return X
-
 
     def predict(self, X, check_input=True):
         """Predict regression value for X.
@@ -1089,86 +1045,12 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
 
             X = self._validate_X_predict(X, check_input)
 
-        return np.array([self.predict_row_output(x.reshape(1, -1)) for x in X], dtype=np.float32)
-
-    def predict_row_output(self, x):
-        """ Predict regression output of a single data-point.
-            If current node is a leaf, return its prediction value,
-            if not, traverse down the tree to find point's output
-
-            Parameters
-            ----------
-            x : a data-point
-            Returns
-            -------
-            data-point's output
-        """
-
-        if self._is_leaf:
-            return self._value
-
-        assert self._p is not None
-        assert self._q is not None
-
-        t = self._lhs if self.sim_function(x, self._p, self._q)[0] <= self._split_point else self._rhs
-        if t is None:
-            return self._value
-        return t.predict_row_output(x)
+        return np.array([self.apply_x(x.reshape(1, -1))._value for x in X], dtype=np.float32)
 
     def _is_pure(self, y):
         """Check whenever current node containts only elements from one class."""
 
         return np.unique(y).size == 1
-
-    def path_length_(self, X, check_input=True):
-        """Get path length for instances of X.
-            Parameters
-            ----------
-            X : array-like, shape (n_samples, n_features)
-                The input samples.
-            Returns
-            -------
-            path_length : ndarray, shape (n_samples,)
-                The path_length for instances of X, according to a single tree.
-        """
-
-        if check_input:
-            # Check if fit had been called
-            check_is_fitted(self, ['is_fitted_'])
-
-            # Input validation
-            X = check_array(X)
-
-            X = self._validate_X_predict(X, check_input)
-
-        return np.array([self.row_path_length_(x.reshape(1, -1)) for x in X])
-
-    def row_path_length_(self, x):
-        """ Get outlyingness path length of a single data-point.
-            If current node is a leaf, return its depth,
-            if not, traverse down the tree
-
-            Parameters
-            ----------
-            x : a data-point
-            Returns
-            -------
-            data-point's path length, according to single a tree.
-        """
-
-        if self._is_leaf:
-
-            return self.depth
-
-        assert self._p is not None
-        assert self._q is not None
-
-        t = self._lhs if self.sim_function(x, self._p, self._q)[0] <= self._split_point else self._rhs
-        if t is None:
-
-            return self.depth
-
-        return t.row_path_length_(x)
 
     @property
     def feature_importances_(self):
