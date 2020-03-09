@@ -1,6 +1,6 @@
 import numpy as np
-from simforest.criterion import find_split_variance, find_split_theil, find_split_atkinson, find_split_index_gini
-from simforest.rcriterion import gini_index
+from criterion import find_split_variance, find_split_theil, find_split_atkinson, find_split_index_gini
+from rcriterion import gini_index
 from sklearn.preprocessing import LabelEncoder
 
 

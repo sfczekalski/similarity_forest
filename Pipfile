@@ -16,6 +16,7 @@ hdbscan = "*"
 ineqpy = {git = "https://github.com/mmngreco/IneqPy"}
 yellowbrick = "*"
 numexpr = "*"
+seaborn = "*"
 
 [dev-packages]
 pytest = "*"

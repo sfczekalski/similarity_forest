@@ -15,7 +15,13 @@ from sklearn.preprocessing import StandardScaler
 
 path = '../data/clustering_benchmark/real-world/'
 
-'''
+datasets = [
+    {'file_name': 'german.arff',
+     'class_col': 'CLASS',
+     'n_clusters': 2},
+    {'file_name': 'balance-scale.arff',
+     'class_col': 'class',
+     'n_clusters': 3},
     {'file_name': 'iris.arff',
      'class_col': 'class',
      'n_clusters': 3},
@@ -28,7 +34,7 @@ path = '../data/clustering_benchmark/real-world/'
     {'file_name': 'segment.arff',
      'class_col': 'class',
      'n_clusters': 7},
-      {'file_name': 'zoo.arff',
+    {'file_name': 'zoo.arff',
      'class_col': 'class',
      'n_clusters': 7},
     {'file_name': 'cpu.arff',
@@ -44,15 +50,6 @@ path = '../data/clustering_benchmark/real-world/'
      'class_col': 'Class',
      'n_clusters': 2},
     {'file_name': 'wine.arff',
-     'class_col': 'class',
-     'n_clusters': 3}
-'''
-
-datasets = [
-    {'file_name': 'german.arff',
-     'class_col': 'CLASS',
-     'n_clusters': 2},
-    {'file_name': 'balance-scale.arff',
      'class_col': 'class',
      'n_clusters': 3}
 

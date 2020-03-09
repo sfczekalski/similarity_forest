@@ -11,8 +11,9 @@ from simforest.distance import rbf, dot_product
 from examples.regression.regression_datasets import get_datasets
 import time
 
+neptune.set_project('sfczekalski/SimilarityForest')
 
-neptune.init('sfczekalski/similarity-forest')
+neptune.init('sfczekalski/SimilarityForest')
 
 # set parameters
 params = dict()
@@ -20,7 +21,7 @@ params['criterion'] = 'atkinson'
 params['discriminative_sampling'] = True
 params['max_depth'] = None
 params['n_estimators'] = 100
-params['sim_function'] = rbf
+params['sim_function'] = dot_product
 params['n_directions'] = 1
 
 
@@ -28,24 +29,21 @@ params['n_directions'] = 1
 n_iterations = 20
 
 # create experiment
-neptune.create_experiment(name='Regression',
+neptune.create_experiment(name=f'Regression {params["criterion"]}',
                           params=params,
                           properties={'n_iterations': n_iterations})
 
+# init log
+df = pd.DataFrame(columns=['dataset', 'RF RMSE', ' SF RMSE', 'p-val'])
+
 
 # load and prepare data
-for d in get_datasets():
+for d_idx, d in enumerate(get_datasets()):
     X_train, X_test, y_train, y_test, dataset = d
-
 
     # store mse for t-test
     rf_mse = np.zeros(shape=(n_iterations,), dtype=np.float32)
     sf_mse = np.zeros(shape=(n_iterations,), dtype=np.float32)
-
-    # init log
-    df = pd.DataFrame(columns=[f'{dataset} RF RMSE',
-                               f'{dataset} SF RMSE',
-                               f'{dataset} p-val'])
 
     # run
     for i in range(n_iterations):
@@ -60,18 +58,21 @@ for d in get_datasets():
         sf_pred = sf.predict(X_test)
         sf_mse[i] = mean_squared_error(y_test, sf_pred)
 
+    mean_rf_rmse = np.sqrt(np.mean(rf_mse))
+    mean_sf_rmse = np.sqrt(np.mean(sf_mse))
+
     # log results
-    neptune.log_metric(f'{dataset} RF RMSE', np.mean(np.sqrt(rf_mse)))
-    neptune.log_metric(f'{dataset} SF RMSE', np.mean(np.sqrt(sf_mse)))
-    df[f'{dataset} RF RMSE'] = np.mean(np.sqrt(rf_mse))
-    df[f'{dataset} SF RMSE'] = np.mean(np.sqrt(sf_mse))
+    neptune.log_metric(f'{dataset} RF RMSE', mean_rf_rmse)
+    neptune.log_metric(f'{dataset} SF RMSE', mean_sf_rmse)
 
     t, p = ttest_ind(np.sqrt(rf_mse), np.sqrt(sf_mse))
     neptune.log_metric(f'{dataset} t-stat', t)
     neptune.log_metric(f'{dataset} p-val', p)
-    df[f'{dataset} p-val'] = p
+
+    df.loc[d_idx] = [dataset, mean_rf_rmse, mean_sf_rmse, p]
 
 
-df.to_csv('regression_log.csv')
-neptune.log_artifact('regression_log.csv')
+log_name = f'logs/regression_{params["criterion"]}_log.csv'
+df.to_csv(log_name, index=False)
+neptune.log_artifact(log_name)
 neptune.stop()

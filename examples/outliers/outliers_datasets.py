@@ -130,7 +130,7 @@ def get_forestcover():
 
 
 def get_thyronoid_disease():
-    df = pd.read_csv('examples/data/Annthyroid_real.csv', header=None)
+    df = pd.read_csv('../data/Annthyroid_real.csv', header=None)
 
     y = df.pop(6)
     X = df

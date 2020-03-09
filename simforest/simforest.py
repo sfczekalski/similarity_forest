@@ -8,11 +8,11 @@ import numpy as np
 from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin, is_classifier
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted, check_random_state
 from sklearn.utils.multiclass import unique_labels, check_classification_targets
-from simforest.rcriterion import theil
+from rcriterion import theil
 from ineqpy import atkinson
-from simforest.utils import plot_projection
-from simforest.splitter import find_split
-from simforest.distance import dot_product
+from utils import plot_projection
+from splitter import find_split
+from distance import dot_product
 from multiprocessing import Pool
 
 
@@ -40,7 +40,6 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
                 The number of classes (single output problem), or a list containing the
                 number of classes for each output (multi-output problem).
             is_fitted_ : bool flag indicating whenever fit has been called
-            _nodes_list : list of SimilarityTreeClassifier instances, that is tree nodes
 
             _lhs : SimilarityTreeClassifier current node's left child node
             _rhs : SimilarityTreeClassifier current node's right child node
@@ -58,10 +57,6 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
             _n : int, number of data-points in current node
 
     """
-
-    # List of all nodes in the tree, that is SimilarityTreeClassifier instances. Shared across all instances
-    _nodes_list = []
-
     def __init__(self,
                  random_state=None,
                  n_directions=1,
@@ -188,10 +183,9 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
         self.n_ = len(y)
 
         # Append self to the list of class instances
-        self._nodes_list.append(self)
 
         # Current node id is length of all nodes list. Nodes are numbered from 1, the root node
-        self._node_id = len(self._nodes_list)
+        self._node_id = id(self)
 
         # Value of predicion
         probs = np.ones(shape=self.n_classes_)
@@ -667,7 +661,6 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
             Attributes
             ----------
             is_fitted_ : bool flag indicating whenever fit has been called
-            _nodes_list : list of SimilarityTreeClassifier instances, that is tree nodes
             _lhs : SimilarityTreeClassifier current node's left child node
             _rhs : SimilarityTreeClassifier current node's right child node
             _p : first data-point used for drawing split direction in the current node
@@ -681,10 +674,6 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
                 has been reached (depth == max_depth)
             _node_id : int current node id
         """
-
-    # List of all nodes in the tree, that is SimilarityTreeClassifier instances. Shared across all instances
-    _nodes_list = []
-
     def __init__(self,
                  random_state=None,
                  n_directions=1,
@@ -913,10 +902,9 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         self._impurity = None
 
         # Append self to the list of class instances
-        self._nodes_list.append(self)
 
         # Current node id is length of all nodes list. Nodes are numbered from 1, the root node
-        self._node_id = len(self._nodes_list)
+        self._node_id = id(self)
 
         # Value of predicion
         self._value = np.mean(y)

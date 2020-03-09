@@ -3,6 +3,10 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from scipy.stats import spearmanr
 import numpy as np
+import pandas as pd
+from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
 
 
 def outliers_rank_stability(model, X, plot=True):
@@ -125,4 +129,38 @@ def plot_projection(s, p, q, split_point, y, sim_function, depth, criterion):
     plt.title(f'Split at depth {depth}, criterion: {criterion}')
     plt.xlabel('Similarity')
     plt.ylabel('y')
+    plt.show()
+
+
+def plot_model_selection(model, parameter, parameter_range, X, y):
+    # grid search
+    param = {parameter: parameter_range}
+    search = GridSearchCV(model, param_grid=param, cv=5, return_train_score=True)
+    search = search.fit(X, y)
+
+    # extract scores
+    train_scores = search.cv_results_['mean_train_score']
+    val_scores = search.cv_results_['mean_test_score']
+
+    # plot
+    train_curve, = plt.plot(parameter_range, train_scores, marker='o', label='train')
+    validation_curve, = plt.plot(parameter_range, val_scores, marker='o', label='cross-validation')
+    plt.legend(handles=[train_curve, validation_curve])
+    plt.title('Validation curve')
+    plt.xlabel(parameter)
+    plt.ylabel('score')
+    plt.show()
+
+    # return grid-search results
+    return pd.DataFrame(search.cv_results_)
+
+
+def plot_confusion_matrix(model, X_test, y_test, classes, cmap='Purples'):
+    y_pred = model.predict(X_test)
+    cm = confusion_matrix(y_test, y_pred)
+    sns.heatmap(cm, annot=True, fmt="d", cmap=cmap, xticklabels=classes, yticklabels=classes, cbar=False)
+    plt.xticks(rotation=90)
+    plt.xlabel('Predicted Class')
+    plt.ylabel('True Class')
+    plt.title('Confusion Matrix')
     plt.show()
