@@ -12,7 +12,7 @@ from sklearn.preprocessing import StandardScaler
 from scipy.io.arff import loadarff
 import pandas as pd
 from os.path import join
-from examples.cluster.preprocess_benchmark import fix_dtypes
+from examples.cluster.clustering_datasets import fix_dtypes
 
 path = '../data/clustering_benchmark/real-world/'
 file = loadarff(join(path, 'ecoli.arff'))

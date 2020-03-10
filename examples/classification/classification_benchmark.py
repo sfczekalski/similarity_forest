@@ -34,7 +34,7 @@ if use_neptune:
                               properties={'n_iterations': n_iterations})
 
 # init log
-df = pd.DataFrame(columns=['dataset', 'RF accuracy', ' SF accuracy', 'p-val'])
+df = pd.DataFrame(columns=['dataset', 'SF accuracy', ' SF accuracy', 'p-val'])
 log_name = 'logs/classification_log.csv'
 
 

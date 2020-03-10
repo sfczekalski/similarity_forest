@@ -1,6 +1,6 @@
 from sklearn.model_selection import train_test_split
 from sklearn.datasets import load_svmlight_file, load_iris
-from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.preprocessing import StandardScaler, LabelEncoder, LabelBinarizer
 import numpy as np
 import pandas as pd
 
@@ -72,6 +72,7 @@ def get_ionosphere():
 def get_breast_cancer():
     X, y = load_svmlight_file('../data/breast-cancer')
     X = X.toarray().astype(np.float32)
+    y = LabelBinarizer().fit_transform(y).ravel()
 
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42)
@@ -285,20 +286,7 @@ def get_segment():
     return X_train, X_test, y_train, y_test, 'segment'
 
 
-datasets = [
-    # binary
-    get_a1a(),
-    get_svmguide3(),
-    get_heart(),
-    get_ionosphere(),
-    get_breast_cancer(),
-    get_german_numer(),
-    get_mushrooms(),
-    get_madelon(),
-    get_diabetes(),
-    get_australian(),
-    get_splice(),
-
+'''
     # multiclass
     get_iris(),
     get_glass(),
@@ -306,11 +294,25 @@ datasets = [
     get_wine(),
     get_dna(),
     get_segment()
+'''
+
+datasets = [
+    # binary
+    get_breast_cancer(),
+    get_german_numer(),
+    get_mushrooms(),
+    get_madelon(),
+    get_diabetes(),
+    get_australian(),
+    get_splice(),
+    get_a1a(),
+    get_svmguide3(),
+    get_heart(),
+    get_ionosphere()
 ]
 
 
 def get_datasets():
     for d in datasets:
         yield d
-
 
