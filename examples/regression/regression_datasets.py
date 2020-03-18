@@ -3,6 +3,7 @@ import pandas as pd
 from sklearn.datasets import load_svmlight_file, load_boston, make_friedman1
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder, StandardScaler
 from sklearn.model_selection import train_test_split
+from simforest.distance import dot_product, rbf
 
 
 def fix_dtypes(df):
@@ -28,13 +29,28 @@ def get_hardware_dataset():
     y = y + np.abs(np.min(y))
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.3, random_state=42)
+        X, y, test_size=0.2, random_state=42)
+
+    # shuffle training data - greed search does not do it automatically
+    random_state = np.random.RandomState(42)
+    shuffled_indices = random_state.permutation(len(y_train))
+
+    X_train, y_train = X_train.values[shuffled_indices], y_train.values[shuffled_indices]
 
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    return X_train, X_test, y_train, y_test, 'computer_hardware'
+    sf_params = dict()
+    sf_params['criterion'] = 'theil'
+    sf_params['n_directions'] = 1
+    sf_params['sim_function'] = dot_product
+    sf_params['max_depth'] = 14
+
+    rf_params = dict()
+    rf_params['max_depth'] = 10
+
+    return X_train, X_test, y_train, y_test, 'computer_hardware', sf_params, rf_params
 
 
 def get_concrete_slump_dataset():
@@ -62,7 +78,7 @@ def get_concrete_slump_dataset():
     y = y + np.abs(np.min(y))
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.3, random_state=42)
+        X, y, test_size=0.2, random_state=42)
 
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
@@ -96,13 +112,28 @@ def get_concrete_flow_dataset():
     y = y + np.abs(np.min(y))
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.3, random_state=42)
+        X, y, test_size=0.2, random_state=42)
+
+    # shuffle training data - greed search does not do it automatically
+    random_state = np.random.RandomState(42)
+    shuffled_indices = random_state.permutation(len(y_train))
+
+    X_train, y_train = X_train.values[shuffled_indices], y_train.values[shuffled_indices]
 
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    return X_train, X_test, y_train, y_test, 'concrete_flow'
+    sf_params = dict()
+    sf_params['criterion'] = 'theil'
+    sf_params['n_directions'] = 2
+    sf_params['sim_function'] = dot_product
+    sf_params['max_depth'] = 8
+
+    rf_params = dict()
+    rf_params['max_depth'] = 10
+
+    return X_train, X_test, y_train, y_test, 'concrete_flow', sf_params, rf_params
 
 
 def get_energy_efficiency_heating():
@@ -114,13 +145,28 @@ def get_energy_efficiency_heating():
     y = y + np.abs(np.min(y))
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.3, random_state=42)
+        X, y, test_size=0.2, random_state=42)
+
+    # shuffle training data - greed search does not do it automatically
+    random_state = np.random.RandomState(42)
+    shuffled_indices = random_state.permutation(len(y_train))
+
+    X_train, y_train = X_train.values[shuffled_indices], y_train.values[shuffled_indices]
 
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    return X_train, X_test, y_train, y_test, 'energy_efficiency_heating'
+    sf_params = dict()
+    sf_params['criterion'] = 'variance'
+    sf_params['n_directions'] = 3
+    sf_params['sim_function'] = dot_product
+    sf_params['max_depth'] = None
+
+    rf_params = dict()
+    rf_params['max_depth'] = None
+
+    return X_train, X_test, y_train, y_test, 'energy_efficiency_heating', sf_params, rf_params
 
 
 def get_energy_efficiency_cooling():
@@ -132,7 +178,7 @@ def get_energy_efficiency_cooling():
     y = y + np.abs(np.min(y))
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.3, random_state=42)
+        X, y, test_size=0.2, random_state=42)
 
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
@@ -155,7 +201,7 @@ def get_who_dataset():
     y = y + np.abs(np.min(y))
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.3, random_state=42)
+        X, y, test_size=0.2, random_state=42)
 
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
@@ -170,13 +216,28 @@ def get_mpg_dataset():
     y = y + np.abs(np.min(y))
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.3, random_state=42)
+        X, y, test_size=0.2, random_state=42)
+
+    # shuffle training data - greed search does not do it automatically
+    random_state = np.random.RandomState(42)
+    shuffled_indices = random_state.permutation(len(y_train))
+
+    X_train, y_train = X_train[shuffled_indices], y_train[shuffled_indices]
 
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    return X_train, X_test, y_train, y_test, 'mpg'
+    sf_params = dict()
+    sf_params['criterion'] = 'variance'
+    sf_params['n_directions'] = 3
+    sf_params['sim_function'] = rbf
+    sf_params['max_depth'] = 10
+
+    rf_params = dict()
+    rf_params['max_depth'] = 10
+
+    return X_train, X_test, y_train, y_test, 'mpg', sf_params, rf_params
 
 
 def get_eunite2001_dataset():
@@ -185,13 +246,28 @@ def get_eunite2001_dataset():
     y = y + np.abs(np.min(y))
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.3, random_state=42)
+        X, y, test_size=0.2, random_state=42)
+
+    # shuffle training data - greed search does not do it automatically
+    random_state = np.random.RandomState(42)
+    shuffled_indices = random_state.permutation(len(y_train))
+
+    X_train, y_train = X_train[shuffled_indices], y_train[shuffled_indices]
 
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    return X_train, X_test, y_train, y_test, 'eunite2001'
+    sf_params = dict()
+    sf_params['criterion'] = 'variance'
+    sf_params['n_directions'] = 3
+    sf_params['sim_function'] = rbf
+    sf_params['max_depth'] = 12
+
+    rf_params = dict()
+    rf_params['max_depth'] = 8
+
+    return X_train, X_test, y_train, y_test, 'eunite2001', sf_params, rf_params
 
 
 def get_abalone_dataset():
@@ -200,13 +276,28 @@ def get_abalone_dataset():
     y = y + np.abs(np.min(y))
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.3, random_state=42)
+        X, y, test_size=0.2, random_state=42)
+
+    # shuffle training data - greed search does not do it automatically
+    random_state = np.random.RandomState(42)
+    shuffled_indices = random_state.permutation(len(y_train))
+
+    X_train, y_train = X_train[shuffled_indices], y_train[shuffled_indices]
 
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    return X_train, X_test, y_train, y_test, 'abalone'
+    sf_params = dict()
+    sf_params['criterion'] = 'variance'
+    sf_params['n_directions'] = 3
+    sf_params['sim_function'] = dot_product
+    sf_params['max_depth'] = 8
+
+    rf_params = dict()
+    rf_params['max_depth'] = 10
+
+    return X_train, X_test, y_train, y_test, 'abalone', sf_params, rf_params
 
 
 def get_spacega_dataset():
@@ -215,13 +306,28 @@ def get_spacega_dataset():
     y = y + np.abs(np.min(y))
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.3, random_state=42)
+        X, y, test_size=0.2, random_state=42)
+
+    # shuffle training data - greed search does not do it automatically
+    random_state = np.random.RandomState(42)
+    shuffled_indices = random_state.permutation(len(y_train))
+
+    X_train, y_train = X_train[shuffled_indices], y_train[shuffled_indices]
 
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    return X_train, X_test, y_train, y_test, 'space_ga'
+    sf_params = dict()
+    sf_params['criterion'] = 'variance'
+    sf_params['n_directions'] = 1
+    sf_params['sim_function'] = rbf
+    sf_params['max_depth'] = 14
+
+    rf_params = dict()
+    rf_params['max_depth'] = 14
+
+    return X_train, X_test, y_train, y_test, 'space_ga', sf_params, rf_params
 
 
 def get_boston_dataset():
@@ -229,13 +335,28 @@ def get_boston_dataset():
     y = y + np.abs(np.min(y))
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.3, random_state=42)
+        X, y, test_size=0.2, random_state=42)
+
+    # shuffle training data - greed search does not do it automatically
+    random_state = np.random.RandomState(42)
+    shuffled_indices = random_state.permutation(len(y_train))
+
+    X_train, y_train = X_train[shuffled_indices], y_train[shuffled_indices]
 
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    return X_train, X_test, y_train, y_test, 'boston'
+    sf_params = dict()
+    sf_params['criterion'] = 'variance'
+    sf_params['n_directions'] = 1
+    sf_params['sim_function'] = dot_product
+    sf_params['max_depth'] = 12
+
+    rf_params = dict()
+    rf_params['max_depth'] = None
+
+    return X_train, X_test, y_train, y_test, 'boston', sf_params, rf_params
 
 
 def get_auto_dataset():
@@ -276,13 +397,28 @@ def get_wine_quality():
     y = y + np.abs(np.min(y))
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.3, random_state=42)
+        X, y, test_size=0.2, random_state=42)
+
+    # shuffle training data - greed search does not do it automatically
+    random_state = np.random.RandomState(42)
+    shuffled_indices = random_state.permutation(len(y_train))
+
+    X_train, y_train = X_train.values[shuffled_indices], y_train.values[shuffled_indices]
 
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    return X_train, X_test, y_train, y_test, 'wine_quality'
+    sf_params = dict()
+    sf_params['criterion'] = 'variance'
+    sf_params['n_directions'] = 2
+    sf_params['sim_function'] = rbf
+    sf_params['max_depth'] = None
+
+    rf_params = dict()
+    rf_params['max_depth'] = None
+
+    return X_train, X_test, y_train, y_test, 'wine_quality', sf_params, rf_params
 
 
 def get_friedman_dataset():
@@ -291,26 +427,41 @@ def get_friedman_dataset():
     y = y + np.abs(np.min(y))
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.3, random_state=42)
+        X, y, test_size=0.2, random_state=42)
+
+    # shuffle training data - greed search does not do it automatically
+    random_state = np.random.RandomState(42)
+    shuffled_indices = random_state.permutation(len(y_train))
+
+    X_train, y_train = X_train[shuffled_indices], y_train[shuffled_indices]
 
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    return X_train, X_test, y_train, y_test, 'friedman'
+    sf_params = dict()
+    sf_params['criterion'] = 'variance'
+    sf_params['n_directions'] = 3
+    sf_params['sim_function'] = dot_product
+    sf_params['max_depth'] = 14
+
+    rf_params = dict()
+    rf_params['max_depth'] = None
+
+    return X_train, X_test, y_train, y_test, 'friedman', sf_params, rf_params
 
 
 datasets = [
             get_boston_dataset(),
             get_mpg_dataset(),
-            get_concrete_flow_dataset(),
             get_hardware_dataset(),
             get_spacega_dataset(),
             get_eunite2001_dataset(),
             get_wine_quality(),
             get_abalone_dataset(),
             get_energy_efficiency_heating(),
-            get_friedman_dataset()
+            get_friedman_dataset(),
+            get_concrete_flow_dataset()
 ]
 
 

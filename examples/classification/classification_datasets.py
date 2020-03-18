@@ -24,11 +24,25 @@ def get_a1a():
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42)
 
+    # shuffle training data - greed search does not do it automatically
+    random_state = np.random.RandomState(42)
+    shuffled_indices = random_state.permutation(len(y_train))
+
+    X_train, y_train = X_train[shuffled_indices], y_train[shuffled_indices]
+
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    return X_train, X_test, y_train, y_test, 'a1a'
+    sf_params = dict()
+    sf_params['max_depth'] = 10
+    sf_params['n_estimators'] = 100
+    sf_params['n_directions'] = 2
+
+    rf_params = dict()
+    rf_params['max_depth'] = 10
+
+    return X_train, X_test, y_train, y_test, 'a1a', sf_params, rf_params
 
 
 def get_svmguide3():
@@ -38,11 +52,25 @@ def get_svmguide3():
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42)
 
+    # shuffle training data - greed search does not do it automatically
+    random_state = np.random.RandomState(42)
+    shuffled_indices = random_state.permutation(len(y_train))
+
+    X_train, y_train = X_train[shuffled_indices], y_train[shuffled_indices]
+
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    return X_train, X_test, y_train, y_test, 'svmguide3'
+    sf_params = dict()
+    sf_params['max_depth'] = 12
+    sf_params['n_estimators'] = 100
+    sf_params['n_directions'] = 2
+
+    rf_params = dict()
+    rf_params['max_depth'] = 10
+
+    return X_train, X_test, y_train, y_test, 'svmguide3', sf_params, rf_params
 
 
 def get_heart():
@@ -52,11 +80,25 @@ def get_heart():
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42)
 
+    # shuffle training data - greed search does not do it automatically
+    random_state = np.random.RandomState(42)
+    shuffled_indices = random_state.permutation(len(y_train))
+
+    X_train, y_train = X_train[shuffled_indices], y_train[shuffled_indices]
+
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    return X_train, X_test, y_train, y_test, 'heart'
+    sf_params = dict()
+    sf_params['max_depth'] = 14
+    sf_params['n_estimators'] = 100
+    sf_params['n_directions'] = 1
+
+    rf_params = dict()
+    rf_params['max_depth'] = 8
+
+    return X_train, X_test, y_train, y_test, 'heart', sf_params, rf_params
 
 
 def get_ionosphere():
@@ -66,7 +108,21 @@ def get_ionosphere():
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42)
 
-    return X_train, X_test, y_train, y_test, 'ionosphere_scale'
+    # shuffle training data - greed search does not do it automatically
+    random_state = np.random.RandomState(42)
+    shuffled_indices = random_state.permutation(len(y_train))
+
+    X_train, y_train = X_train[shuffled_indices], y_train[shuffled_indices]
+
+    sf_params = dict()
+    sf_params['max_depth'] = 14
+    sf_params['n_estimators'] = 100
+    sf_params['n_directions'] = 2
+
+    rf_params = dict()
+    rf_params['max_depth'] = 8
+
+    return X_train, X_test, y_train, y_test, 'ionosphere_scale', sf_params, rf_params
 
 
 def get_breast_cancer():
@@ -77,11 +133,25 @@ def get_breast_cancer():
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42)
 
+    # shuffle training data - greed search does not do it automatically
+    random_state = np.random.RandomState(42)
+    shuffled_indices = random_state.permutation(len(y_train))
+
+    X_train, y_train = X_train[shuffled_indices], y_train[shuffled_indices]
+
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    return X_train, X_test, y_train, y_test, 'breast_cancer'
+    sf_params = dict()
+    sf_params['max_depth'] = 8
+    sf_params['n_estimators'] = 100
+    sf_params['n_directions'] = 2
+
+    rf_params = dict()
+    rf_params['max_depth'] = 10
+
+    return X_train, X_test, y_train, y_test, 'breast_cancer', sf_params, rf_params
 
 
 def get_german_numer():
@@ -91,11 +161,25 @@ def get_german_numer():
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42)
 
+    # shuffle training data - greed search does not do it automatically
+    random_state = np.random.RandomState(42)
+    shuffled_indices = random_state.permutation(len(y_train))
+
+    X_train, y_train = X_train[shuffled_indices], y_train[shuffled_indices]
+
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    return X_train, X_test, y_train, y_test, 'german_numer'
+    sf_params = dict()
+    sf_params['max_depth'] = 14
+    sf_params['n_estimators'] = 100
+    sf_params['n_directions'] = 3
+
+    rf_params = dict()
+    rf_params['max_depth'] = 12
+
+    return X_train, X_test, y_train, y_test, 'german_numer', sf_params, rf_params
 
 
 def get_mushrooms():
@@ -105,11 +189,25 @@ def get_mushrooms():
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42)
 
+    # shuffle training data - greed search does not do it automatically
+    random_state = np.random.RandomState(42)
+    shuffled_indices = random_state.permutation(len(y_train))
+
+    X_train, y_train = X_train[shuffled_indices], y_train[shuffled_indices]
+
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    return X_train, X_test, y_train, y_test, 'mushrooms'
+    sf_params = dict()
+    sf_params['max_depth'] = 14
+    sf_params['n_estimators'] = 100
+    sf_params['n_directions'] = 3
+
+    rf_params = dict()
+    rf_params['max_depth'] = 8
+
+    return X_train, X_test, y_train, y_test, 'mushrooms', sf_params, rf_params
 
 
 def get_iris():
@@ -118,11 +216,25 @@ def get_iris():
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42)
 
+    # shuffle training data - greed search does not do it automatically
+    random_state = np.random.RandomState(42)
+    shuffled_indices = random_state.permutation(len(y_train))
+
+    X_train, y_train = X_train[shuffled_indices], y_train[shuffled_indices]
+
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    return X_train, X_test, y_train, y_test, 'iris'
+    sf_params = dict()
+    sf_params['max_depth'] = None
+    sf_params['n_estimators'] = 100
+    sf_params['n_directions'] = 3
+
+    rf_params = dict()
+    rf_params['max_depth'] = 8
+
+    return X_train, X_test, y_train, y_test, 'iris', sf_params, rf_params
 
 
 def get_glass():
@@ -133,6 +245,12 @@ def get_glass():
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42)
 
+    # shuffle training data - greed search does not do it automatically
+    random_state = np.random.RandomState(42)
+    shuffled_indices = random_state.permutation(len(y_train))
+
+    X_train, y_train = X_train.values[shuffled_indices], y_train.values[shuffled_indices]
+
     encoder = LabelEncoder()
     y_train = encoder.fit_transform(y_train)
     y_test = encoder.transform(y_test)
@@ -141,7 +259,15 @@ def get_glass():
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    return X_train, X_test, y_train, y_test, 'glass'
+    sf_params = dict()
+    sf_params['max_depth'] = 8
+    sf_params['n_estimators'] = 100
+    sf_params['n_directions'] = 1
+
+    rf_params = dict()
+    rf_params['max_depth'] = 8
+
+    return X_train, X_test, y_train, y_test, 'glass', sf_params, rf_params
 
 
 def get_seed():
@@ -152,6 +278,12 @@ def get_seed():
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42)
 
+    # shuffle training data - greed search does not do it automatically
+    random_state = np.random.RandomState(42)
+    shuffled_indices = random_state.permutation(len(y_train))
+
+    X_train, y_train = X_train.values[shuffled_indices], y_train.values[shuffled_indices]
+
     encoder = LabelEncoder()
     y_train = encoder.fit_transform(y_train)
     y_test = encoder.transform(y_test)
@@ -160,7 +292,15 @@ def get_seed():
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    return X_train, X_test, y_train, y_test, 'seed'
+    sf_params = dict()
+    sf_params['max_depth'] = 10
+    sf_params['n_estimators'] = 100
+    sf_params['n_directions'] = 1
+
+    rf_params = dict()
+    rf_params['max_depth'] = 8
+
+    return X_train, X_test, y_train, y_test, 'seed', sf_params, rf_params
 
 
 def get_wine():
@@ -171,6 +311,12 @@ def get_wine():
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42)
 
+    # shuffle training data - greed search does not do it automatically
+    random_state = np.random.RandomState(42)
+    shuffled_indices = random_state.permutation(len(y_train))
+
+    X_train, y_train = X_train.values[shuffled_indices], y_train.values[shuffled_indices]
+
     encoder = LabelEncoder()
     y_train = encoder.fit_transform(y_train)
     y_test = encoder.transform(y_test)
@@ -179,7 +325,15 @@ def get_wine():
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    return X_train, X_test, y_train, y_test, 'wine'
+    sf_params = dict()
+    sf_params['max_depth'] = 14
+    sf_params['n_estimators'] = 100
+    sf_params['n_directions'] = 1
+
+    rf_params = dict()
+    rf_params['max_depth'] = 8
+
+    return X_train, X_test, y_train, y_test, 'wine', sf_params, rf_params
 
 
 def get_splice():
@@ -189,11 +343,25 @@ def get_splice():
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42)
 
+    # shuffle training data - greed search does not do it automatically
+    random_state = np.random.RandomState(42)
+    shuffled_indices = random_state.permutation(len(y_train))
+
+    X_train, y_train = X_train[shuffled_indices], y_train[shuffled_indices]
+
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    return X_train, X_test, y_train, y_test, 'splice'
+    sf_params = dict()
+    sf_params['max_depth'] = 12
+    sf_params['n_estimators'] = 100
+    sf_params['n_directions'] = 2
+
+    rf_params = dict()
+    rf_params['max_depth'] = 14
+
+    return X_train, X_test, y_train, y_test, 'splice', sf_params, rf_params
 
 
 def get_madelon():
@@ -203,11 +371,25 @@ def get_madelon():
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42)
 
+    # shuffle training data - greed search does not do it automatically
+    random_state = np.random.RandomState(42)
+    shuffled_indices = random_state.permutation(len(y_train))
+
+    X_train, y_train = X_train[shuffled_indices], y_train[shuffled_indices]
+
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    return X_train, X_test, y_train, y_test, 'madelon'
+    sf_params = dict()
+    sf_params['max_depth'] = 8
+    sf_params['n_estimators'] = 100
+    sf_params['n_directions'] = 1
+
+    rf_params = dict()
+    rf_params['max_depth'] = 8
+
+    return X_train, X_test, y_train, y_test, 'madelon', sf_params, rf_params
 
 
 def get_diabetes():
@@ -217,11 +399,25 @@ def get_diabetes():
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42)
 
+    # shuffle training data - greed search does not do it automatically
+    random_state = np.random.RandomState(42)
+    shuffled_indices = random_state.permutation(len(y_train))
+
+    X_train, y_train = X_train[shuffled_indices], y_train[shuffled_indices]
+
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    return X_train, X_test, y_train, y_test, 'diabetes'
+    sf_params = dict()
+    sf_params['max_depth'] = 12
+    sf_params['n_estimators'] = 100
+    sf_params['n_directions'] = 1
+
+    rf_params = dict()
+    rf_params['max_depth'] = 8
+
+    return X_train, X_test, y_train, y_test, 'diabetes', sf_params, rf_params
 
 
 def get_australian():
@@ -231,11 +427,25 @@ def get_australian():
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42)
 
+    # shuffle training data - greed search does not do it automatically
+    random_state = np.random.RandomState(42)
+    shuffled_indices = random_state.permutation(len(y_train))
+
+    X_train, y_train = X_train[shuffled_indices], y_train[shuffled_indices]
+
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    return X_train, X_test, y_train, y_test, 'australian'
+    sf_params = dict()
+    sf_params['max_depth'] = 12
+    sf_params['n_estimators'] = 100
+    sf_params['n_directions'] = 2
+
+    rf_params = dict()
+    rf_params['max_depth'] = 10
+
+    return X_train, X_test, y_train, y_test, 'australian', sf_params, rf_params
 
 
 def get_dna():
@@ -245,7 +455,21 @@ def get_dna():
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42)
 
-    return X_train, X_test, y_train, y_test, 'dna'
+    # shuffle training data - greed search does not do it automatically
+    random_state = np.random.RandomState(42)
+    shuffled_indices = random_state.permutation(len(y_train))
+
+    X_train, y_train = X_train[shuffled_indices], y_train[shuffled_indices]
+
+    sf_params = dict()
+    sf_params['max_depth'] = 10
+    sf_params['n_estimators'] = 100
+    sf_params['n_directions'] = 2
+
+    rf_params = dict()
+    rf_params['max_depth'] = 14
+
+    return X_train, X_test, y_train, y_test, 'dna', sf_params, rf_params
 
 
 def get_letter():
@@ -279,24 +503,28 @@ def get_segment():
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42)
 
+    # shuffle training data - greed search does not do it automatically
+    random_state = np.random.RandomState(42)
+    shuffled_indices = random_state.permutation(len(y_train))
+
+    X_train, y_train = X_train[shuffled_indices], y_train[shuffled_indices]
+
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    return X_train, X_test, y_train, y_test, 'segment'
+    sf_params = dict()
+    sf_params['max_depth'] = None
+    sf_params['n_estimators'] = 100
+    sf_params['n_directions'] = 3
+
+    rf_params = dict()
+    rf_params['max_depth'] = 10
+
+    return X_train, X_test, y_train, y_test, 'segment', sf_params, rf_params
 
 
 '''
-    # multiclass
-    get_iris(),
-    get_glass(),
-    get_seed(),
-    get_wine(),
-    get_dna(),
-    get_segment()
-'''
-
-datasets = [
     # binary
     get_breast_cancer(),
     get_german_numer(),
@@ -309,6 +537,16 @@ datasets = [
     get_svmguide3(),
     get_heart(),
     get_ionosphere()
+'''
+
+datasets = [
+    # multiclass
+    get_iris(),
+    get_glass(),
+    get_seed(),
+    get_wine(),
+    get_dna(),
+    get_segment()
 ]
 
 

@@ -15,22 +15,12 @@ neptune.set_project('sfczekalski/SimilarityForest')
 
 neptune.init('sfczekalski/SimilarityForest')
 
-# set parameters
-params = dict()
-params['criterion'] = 'atkinson'
-params['discriminative_sampling'] = True
-params['max_depth'] = None
-params['n_estimators'] = 100
-params['sim_function'] = dot_product
-params['n_directions'] = 1
-
 
 # set experiment properties
 n_iterations = 20
 
 # create experiment
-neptune.create_experiment(name=f'Regression {params["criterion"]}',
-                          params=params,
+neptune.create_experiment(name='Regression - tuned',
                           properties={'n_iterations': n_iterations})
 
 # init log
@@ -39,7 +29,7 @@ df = pd.DataFrame(columns=['dataset', 'RF RMSE', ' SF RMSE', 'p-val'])
 
 # load and prepare data
 for d_idx, d in enumerate(get_datasets()):
-    X_train, X_test, y_train, y_test, dataset = d
+    X_train, X_test, y_train, y_test, dataset, sf_params, rf_params = d
 
     # store mse for t-test
     rf_mse = np.zeros(shape=(n_iterations,), dtype=np.float32)
@@ -48,12 +38,12 @@ for d_idx, d in enumerate(get_datasets()):
     # run
     for i in range(n_iterations):
         print(f'{dataset}, {i+1} / {n_iterations}')
-        rf = RandomForestRegressor()
+        rf = RandomForestRegressor(**rf_params)
         rf.fit(X_train, y_train)
         rf_pred = rf.predict(X_test)
         rf_mse[i] = mean_squared_error(y_test, rf_pred)
 
-        sf = SimilarityForestRegressor(**params)
+        sf = SimilarityForestRegressor(**sf_params)
         sf.fit(X_train, y_train)
         sf_pred = sf.predict(X_test)
         sf_mse[i] = mean_squared_error(y_test, sf_pred)
@@ -72,7 +62,7 @@ for d_idx, d in enumerate(get_datasets()):
     df.loc[d_idx] = [dataset, mean_rf_rmse, mean_sf_rmse, p]
 
 
-log_name = f'logs/regression_{params["criterion"]}_log.csv'
+log_name = 'logs/regression_tuned_log.csv'
 df.to_csv(log_name, index=False)
 neptune.log_artifact(log_name)
 neptune.stop()
