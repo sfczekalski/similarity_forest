@@ -292,7 +292,7 @@ cdef class CSimilarityForestClusterer:
                     if i == j:
                         continue
                     similarity = current_tree.distance(X_view[i], X_view[j])
-                    distance_matrix_view[i, j] += 1 / <float>similarity
+                    distance_matrix_view[i, j] += <float>similarity#1 / <float>similarity
                     distance_matrix_view[j, i] = distance_matrix_view[i, j]
 
 

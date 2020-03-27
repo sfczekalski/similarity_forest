@@ -19,17 +19,17 @@ neptune.init('sfczekalski/SimilarityForest')
 params = dict()
 params['max_depth'] = 5
 params['n_estimators'] = 20
-params['technique'] = 'ahc'
+params['technique'] = 'hdbscan'
 params['bootstrap'] = False
 params['sim_function'] = 'dot'
 
 # set experiment properties
 n_iterations = 20
 plot = True
-other_algorithm = 'AHC'
+other_algorithm = 'hdbscan'
 
 # create experiment
-neptune.create_experiment(name='Clustering - ahc',
+neptune.create_experiment(name='Clustering - hdbscan',
                           params=params,
                           properties={'n_iterations': n_iterations,
                                       'plot': plot})
@@ -37,7 +37,7 @@ neptune.create_experiment(name='Clustering - ahc',
 # init log
 df = pd.DataFrame(columns=['dataset', 'SF silhouette', f'{other_algorithm} silhouette', 'p-val silhouette',
                            'sf davies bouldin', f'{other_algorithm} davies bouldin', 'p-val davies bouldin'])
-log_name = 'logs/classification_log.csv'
+log_name = 'logs/clustering_log.csv'
 
 for d_idx, (dataset, X, n_clusters) in enumerate(get_datasets()):
 
@@ -65,7 +65,7 @@ for d_idx, (dataset, X, n_clusters) in enumerate(get_datasets()):
         sf_db[i] = davies_bouldin_score(X, sf_clusters)
 
         # fit_predict second algorithm
-        other_clusters = AgglomerativeClustering(n_clusters=n_clusters).fit_predict(X)
+        other_clusters = hdbscan.HDBSCAN().fit_predict(X)
         other_silhouette[i] = silhouette_score(X, other_clusters)
         other_db[i] = davies_bouldin_score(X, other_clusters)
 

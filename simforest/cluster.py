@@ -126,12 +126,12 @@ class SimilarityForestCluster(BaseEstimator, ClusterMixin):
             self.distance_matrix_ = self.forest_.ppredict_(X)
 
             if self.technique == 'ahc':
-                self.links_ = linkage(squareform(self.distance_matrix_))
+                self.links_ = linkage(1 / squareform(self.distance_matrix_))
                 clusters = fcluster(self.links_, self.n_clusters, criterion='maxclust')
 
             elif self.technique == 'hdbscan':
                 hdb = hdbscan.HDBSCAN(metric='precomputed')
-                hdb.fit(self.distance_matrix_.astype(float))
+                hdb.fit(1 / self.distance_matrix_.astype(float))
                 clusters = hdb.labels_
 
             # cluster labels should start from 0
