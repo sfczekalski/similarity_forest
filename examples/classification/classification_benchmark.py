@@ -10,8 +10,8 @@ from examples.classification.classification_datasets import get_datasets
 from sklearn.multiclass import OneVsRestClassifier
 
 
-use_neptune = False
-binary = False
+use_neptune = True
+binary = True
 
 if use_neptune:
     neptune.set_project('sfczekalski/SimilarityForest')
@@ -21,17 +21,26 @@ if use_neptune:
 # set experiment properties
 n_iterations = 20
 
-# create experiment
-if use_neptune:
-    neptune.create_experiment(name='Multiclass classification',
-                              properties={'n_iterations': n_iterations})
 
 # init log
 df = pd.DataFrame(columns=['dataset',
                            'SF f1', 'SF roc-auc', 'SF acc',
                            'RF f1', 'RF roc-auc', 'RF acc',
                            'p-val f1', 'p-val roc-auc', 'p-val acc'])
-log_name = 'logs/multiclass_classification_log.csv'
+
+if binary:
+    log_name = 'logs/binary_classification_log.csv'
+    # create experiment
+    if use_neptune:
+        neptune.create_experiment(name='High dimensional binary classification - tuned',
+                                  properties={'n_iterations': n_iterations})
+else:
+    log_name = 'logs/multiclass_classification_log.csv'
+    # create experiment
+    if use_neptune:
+        neptune.create_experiment(name='Multiclass classification - tuned',
+                                  properties={'n_iterations': n_iterations})
+
 
 
 # load and prepare data

@@ -22,22 +22,27 @@ rf_params = {
 
 # init log
 df = pd.DataFrame(columns=['dataset',
-                           'SF f1', 'SF roc-auc', 'SF params',
-                           'RF f1', 'RF roc-auc', 'RF params'])
+                           'SF f1',
+                           'SF roc-auc',
+                           'SF max_depth',
+                           'SF n_dir',
+                           'SF s_fun',
+                           'RF f1',
+                           'RF roc-auc',
+                           'RF max_depth'])
 
-log_name = 'logs/multiclass_classification_tuning.csv'
+binary = True
 
-binary = False
+if binary:
+    log_name = 'logs/high_dims_binary_classification_tuning1.csv'
+else:
+    log_name = 'logs/multiclass_classification_tuning.csv'
+
 
 # load and prepare data
 for d_idx, d in enumerate(get_datasets()):
-    X_train, X_test, y_train, y_test, dataset = d
+    X_train, X_test, y_train, y_test, dataset, _, _ = d
     print(dataset)
-
-    # shuffle training data - greed search does not do it automatically
-    random_state = np.random.RandomState(42)
-    shuffled_indices = random_state.permutation(len(y_train))
-    X_train, y_train = X_train[shuffled_indices], y_train[shuffled_indices]
 
     # RF
     rf = GridSearchCV(RandomForestClassifier(), param_grid=rf_params, cv=3)
@@ -63,6 +68,17 @@ for d_idx, d in enumerate(get_datasets()):
     else:
         sf_roc = roc_auc_score(y_test, sf_dec_f, average='weighted', multi_class='ovr')
 
-    df.loc[d_idx] = [dataset, sf_f1, sf_roc, sf.best_params_, rf_f1, rf_roc, rf.best_params_]
-    print(df.loc[d_idx])
+    df_new = pd.DataFrame({'dataset': [dataset],
+                           'SF f1': [sf_f1],
+                           'SF roc-auc': [sf_roc],
+                           'SF max_depth': [sf.best_params_['max_depth']],
+                           'SF n_dir': [sf.best_params_['n_directions']],
+                           'SF s_fun': [sf.best_params_['sim_function']],
+                           'RF f1': [rf_f1],
+                           'RF roc-auc': [rf_roc],
+                           'RF max_depth': [rf.best_params_['max_depth']]}, index=[d_idx])
+
+    df = df.append(df_new)
+    print((df.loc[d_idx]))
+
     df.to_csv(log_name, index=False)
