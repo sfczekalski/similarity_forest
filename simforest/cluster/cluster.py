@@ -1,15 +1,12 @@
 import numpy as np
 from scipy.spatial.distance import euclidean
 from scipy.cluster.hierarchy import linkage, fcluster
-from sklearn.base import BaseEstimator, ClusterMixin, TransformerMixin
-from sklearn.utils.validation import check_array, check_is_fitted, check_random_state, check_X_y
-from sklearn.metrics import silhouette_score
+from sklearn.base import BaseEstimator, ClusterMixin
+from sklearn.utils.validation import check_array, check_is_fitted, check_random_state
 from scipy.special import comb
 from scipy.spatial.distance import squareform
-from joblib import Parallel, delayed, Memory
-from simforest._cluster import CSimilarityForestClusterer
+from ._cluster import CSimilarityForestClusterer
 import hdbscan
-import time
 
 
 class SimilarityForestCluster(BaseEstimator, ClusterMixin):

@@ -3,9 +3,7 @@ from sklearn.datasets import load_svmlight_file, load_iris, fetch_openml
 from sklearn.preprocessing import StandardScaler, LabelEncoder, LabelBinarizer
 import numpy as np
 import pandas as pd
-from distance import rbf, dot_product
 from sklearn.utils import shuffle
-from scipy.io.arff import loadarff
 
 
 def fix_dtypes(df):

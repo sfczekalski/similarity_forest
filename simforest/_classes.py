@@ -8,11 +8,11 @@ import numpy as np
 from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin, is_classifier
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted, check_random_state
 from sklearn.utils.multiclass import unique_labels, check_classification_targets
-from rcriterion import theil
+from simforest.rcriterion import theil
 from ineqpy import atkinson
-from utils import plot_projection
-from splitter import find_split
-from distance import dot_product, rbf
+from simforest.utils import plot_projection
+from simforest.splitter import find_split
+from simforest.distance import dot_product, rbf
 from multiprocessing import Pool
 
 

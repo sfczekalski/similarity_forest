@@ -4,7 +4,7 @@ from sklearn.metrics import roc_auc_score
 from scipy.stats import ttest_ind
 import neptune
 from sklearn.ensemble import IsolationForest
-from simforest.isolation_simforest import IsolationSimilarityForest
+from simforest.outliers.isolation_simforest import IsolationSimilarityForest
 from examples.outliers.outliers_datasets import get_datasets
 
 

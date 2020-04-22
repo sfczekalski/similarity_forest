@@ -1,6 +1,6 @@
 import numpy as np
 from sklearn.base import BaseEstimator, OutlierMixin
-from sklearn.utils.validation import check_X_y, check_array, check_is_fitted, check_random_state
+from sklearn.utils.validation import check_array, check_is_fitted, check_random_state
 from simforest.distance import dot_product
 
 

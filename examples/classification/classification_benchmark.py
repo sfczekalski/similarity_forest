@@ -5,8 +5,8 @@ from scipy.stats import ttest_ind
 import neptune
 from sklearn.ensemble import RandomForestClassifier
 from simforest import SimilarityForestClassifier
-from distance import rbf, dot_product
-from classification_datasets import get_datasets
+from simforest.distance import rbf, dot_product
+from examples.classification.classification_datasets import get_datasets
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.model_selection import GridSearchCV
 

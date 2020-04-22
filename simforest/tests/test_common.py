@@ -1,9 +1,8 @@
 import pytest
-from sklearn.utils.estimator_checks import check_estimator, check_clustering
+from sklearn.utils.estimator_checks import check_estimator
 from simforest import SimilarityTreeClassifier, SimilarityForestClassifier, SimilarityTreeRegressor, \
     SimilarityForestRegressor
-from simforest.cluster import SimilarityForestCluster
-from simforest.isolation_simforest import IsolationSimilarityTree, IsolationSimilarityForest
+from simforest.outliers.isolation_simforest import IsolationSimilarityTree, IsolationSimilarityForest
 from sklearn.utils.estimator_checks import parametrize_with_checks
 
 

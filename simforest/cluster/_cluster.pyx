@@ -1,4 +1,4 @@
-from cpython.mem cimport PyMem_Malloc, PyMem_Realloc, PyMem_Free
+# from cpython.mem cimport PyMem_Malloc, PyMem_Realloc, PyMem_Free
 # https://cython.readthedocs.io/en/latest/src/tutorial/memory_allocation.html
 import numpy as np
 cimport numpy as np

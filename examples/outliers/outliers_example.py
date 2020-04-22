@@ -1,8 +1,8 @@
-from simforest.isolation_simforest import IsolationSimilarityForest
+from simforest.outliers import IsolationSimilarityForest
 from sklearn.ensemble import IsolationForest
 from sklearn.model_selection import train_test_split
-from sklearn.datasets import fetch_kddcup99, fetch_covtype, fetch_openml, load_svmlight_file
-from sklearn.preprocessing import StandardScaler, LabelBinarizer, LabelEncoder
+from sklearn.datasets import fetch_kddcup99
+from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import confusion_matrix, roc_auc_score
 import numpy as np
 import pandas as pd

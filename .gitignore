@@ -68,3 +68,9 @@ target/
 
 #Pycharm specific settings
 .idea
+/simforest/cluster/_cluster.c
+/simforest/cluster/_cluster.html
+/simforest/_distance.c
+/simforest/_distance.html
+/simforest/criterion.c
+/simforest/criterion.html
