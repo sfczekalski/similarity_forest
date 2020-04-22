@@ -12,7 +12,7 @@ from rcriterion import theil
 from ineqpy import atkinson
 from utils import plot_projection
 from splitter import find_split
-from distance import dot_product
+from distance import dot_product, rbf
 from multiprocessing import Pool
 
 
@@ -459,7 +459,7 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
                  random_state=None,
                  n_estimators=20,
                  n_directions=1,
-                 sim_function=dot_product,
+                 sim_function='dot',
                  max_depth=None,
                  oob_score=False,
                  bootstrap=True,
@@ -522,6 +522,14 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
 
         if not isinstance(self.n_directions, int):
             raise ValueError('n_directions parameter must be an int')
+
+        # Default similarity functions: dot product or rbf kernel
+        if self.sim_function == 'dot':
+            self.sim_function = dot_product
+        elif self.sim_function == 'rbf':
+            self.sim_function = rbf
+
+        print(self.sim_function)
 
         self.oob_score_ = 0.0
 
@@ -1124,7 +1132,7 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
                 random_state=None,
                 n_estimators=20,
                 n_directions=1,
-                sim_function=dot_product,
+                sim_function='dot',
                 max_depth=None,
                 min_samples_split=2,
                 min_samples_leaf=1,
@@ -1227,6 +1235,12 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
 
         if not isinstance(self.n_directions, int):
             raise ValueError('n_directions parameter must be an int')
+
+        # Default similarity functions: dot product or rbf kernel
+        if self.sim_function == 'dot':
+            self.sim_function = dot_product
+        elif self.sim_function == 'rbf':
+            self.sim_function = rbf
 
         self.oob_score_ = 0.0
 
