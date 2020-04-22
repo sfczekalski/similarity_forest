@@ -354,50 +354,10 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
             return self
         return t.apply_x(x)
 
-    def decision_path(self, X, check_input=True):
-        """Return the decision path in the tree."""
-
-        if check_input:
-            # Check is fit had been called
-            check_is_fitted(self, ['is_fitted_'])
-
-            # Input validation
-            X = check_array(X)
-            X = self._validate_X_predict(X, check_input)
-
-        if self._is_leaf:
-            return f'In the leaf node, containing samples: \n {list(zip(X, y))}'
-
-        similarity = self.sim_function(X, self._q) - self.sim_function(X, self._p)
-        left = similarity <= self._split_point
-        t = self._lhs if left else self._rhs
-        if t is None:
-            return f'In the leaf node, containing samples: \n {list(zip(X, y))}'
-
-        if left:
-            print(f'Going left P: {self._p}, \t Q: {self._q}, \t split point: {self._split_point}, \t similarity: {similarity}')
-        else:
-            print(f'Going right P: {self._p}, \t Q: {self._q}, \t split point: {self._split_point}, \t similarity: {similarity}')
-
-        return t.decision_path(X, check_input=False)
-
-    def _prune_tree(self):
-        """Prune tree using Minimal Cost-Complexity Pruning."""
-        pass
-
-    def cost_complexity_pruning_path(self, X, y, sample_weight=None):
-        """Compute the pruning path during Minimal Cost-Complexity Pruning."""
-        pass
-
     def _is_pure(self, y):
         """Check whenever current node containts only elements from one class."""
 
         return np.unique(y).size == 1
-
-    @property
-    def feature_importances_(self):
-        """Return the feature importances."""
-        pass
 
 
 class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
@@ -737,37 +697,6 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
             return self
         return t.apply_x(x)
 
-    def decision_path(self, X, check_input=True):
-        """Return the decision path in the tree."""
-
-        if check_input:
-            # Check is fit had been called
-            check_is_fitted(self, ['is_fitted_'])
-
-            # Input validation
-            X = check_array(X)
-            X = self._validate_X_predict(X, check_input)
-
-        if self._is_leaf:
-            return f'In the leaf node, containing samples: \n {list(zip(self.X_, self.y_))}'
-
-        similarity = self.sim_function(X, self._p, self._q)[0]
-        left = similarity <= self._split_point
-        t = self._lhs if left else self._rhs
-        if t is None:
-            return f'In the leaf node, containing samples: \n {list(zip(self.X_, self.y_))}'
-
-        if left:
-            print(
-                f'Going left P: {self._p}, \t Q: {self._q}, \t split point: {self._split_point},'
-                f'\t similarity: {similarity}')
-        else:
-            print(
-                f'Going right P: {self._p}, \t Q: {self._q}, \t split point: {self._split_point},'
-                f'\t similarity: {similarity}')
-
-        return t.decision_path(X, check_input=False)
-
     def get_depth(self):
         """Returns the depth of the decision tree.
         The depth of a tree is the maximum distance between the root
@@ -991,27 +920,11 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
             rhs_idxs = np.nonzero(self._similarities - self._split_point > -e)[0]
 
             if len(lhs_idxs) > 0 and len(rhs_idxs) > 0:
-                self._lhs = SimilarityTreeRegressor(random_state=self.random_state,
-                                                     n_directions=self.n_directions,
-                                                     sim_function=self.sim_function,
-                                                     max_depth=self.max_depth,
-                                                     depth=self.depth + 1,
-                                                     discriminative_sampling=self.discriminative_sampling,
-                                                     criterion=self.criterion,
-                                                     gamma=self.gamma,
-                                                     plot_splits=self.plot_splits).\
-                    fit(X[lhs_idxs], y[lhs_idxs], check_input=False)
+                params = self.get_params()
+                params['depth'] += 1
+                self._lhs = SimilarityTreeRegressor(**params).fit(X[lhs_idxs], y[lhs_idxs], check_input=False)
 
-                self._rhs = SimilarityTreeRegressor(random_state=self.random_state,
-                                                     n_directions=self.n_directions,
-                                                     sim_function=self.sim_function,
-                                                     max_depth=self.max_depth,
-                                                     depth=self.depth + 1,
-                                                     discriminative_sampling=self.discriminative_sampling,
-                                                     criterion=self.criterion,
-                                                     gamma=self.gamma,
-                                                     plot_splits=self.plot_splits).\
-                    fit(X[rhs_idxs], y[rhs_idxs], check_input=False)
+                self._rhs = SimilarityTreeRegressor(**params).fit(X[rhs_idxs], y[rhs_idxs], check_input=False)
             else:
                 raise ValueError('Left- and right-hand-side indexes havn\'t been found,'
                                  'even though the split had been found')
@@ -1057,11 +970,6 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         """Check whenever current node containts only elements from one class."""
 
         return np.unique(y).size == 1
-
-    @property
-    def feature_importances_(self):
-        """Return the feature importances."""
-        pass
 
 
 class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
@@ -1129,18 +1037,18 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
             To obtain a deterministic behaviour during fitting, ``random_state`` has to be fixed.
     """
     def __init__(self,
-                random_state=None,
-                n_estimators=20,
-                n_directions=1,
-                sim_function='dot',
-                max_depth=None,
-                min_samples_split=2,
-                min_samples_leaf=1,
-                oob_score=False,
-                discriminative_sampling=True,
-                bootstrap=True,
-                sub_sample_fraction=1.0,
-                criterion='variance',
+                 random_state=None,
+                 n_estimators=20,
+                 n_directions=1,
+                 sim_function='dot',
+                 max_depth=None,
+                 min_samples_split=2,
+                 min_samples_leaf=1,
+                 oob_score=False,
+                 discriminative_sampling=True,
+                 bootstrap=True,
+                 sub_sample_fraction=1.0,
+                 criterion='variance',
                  gamma=None):
         self.random_state = random_state
         self.n_estimators = n_estimators
@@ -1301,37 +1209,3 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
             X = self._validate_X_predict(X, check_input)
 
         return np.mean([t.predict(X) for t in self.estimators_], axis=0)
-
-    def outlyingness(self, X, check_input=True):
-        """Get outlyingness measure for X.
-            Parameters
-            ----------
-            X : array-like, shape (n_samples, n_features)
-                The input samples.
-            check_input : bool indicating if input values should be checked or not.
-            Returns
-            -------
-            outlyingness : ndarray, shape (n_samples,)
-                The outlyingness measure, values are scaled to fit within range between 0 and 1.
-        """
-
-        if check_input:
-            # Check if fit had been called
-            check_is_fitted(self, ['is_fitted_'])
-
-            # Input validation
-            X = check_array(X)
-
-            X = self._validate_X_predict(X, check_input)
-
-        path_lengths = np.mean([t.path_length_(X, check_input=False) for t in self.estimators_], axis=0)
-        n = X.size
-        # Scaling factor is chosen as an average tree length in BST, in the same fashion as in Isolation Forest
-        scaling_factor = 2 * (np.log(n - 1) + 0.5772156649) - (2 * (n - 1) / n)
-        score = np.array([2 ** (-pl/scaling_factor) for pl in path_lengths])
-        return score
-
-    @property
-    def feature_importances_(self):
-        """Return the feature importances."""
-        pass
