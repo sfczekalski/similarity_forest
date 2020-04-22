@@ -3,7 +3,7 @@ from sklearn.datasets import load_svmlight_file, load_iris, fetch_openml
 from sklearn.preprocessing import StandardScaler, LabelEncoder, LabelBinarizer
 import numpy as np
 import pandas as pd
-from simforest.distance import rbf, dot_product
+from distance import rbf, dot_product
 from sklearn.utils import shuffle
 from scipy.io.arff import loadarff
 
@@ -37,16 +37,7 @@ def get_a1a():
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    sf_params = dict()
-    sf_params['max_depth'] = 14
-    sf_params['n_estimators'] = 100
-    sf_params['n_directions'] = 2
-    sf_params['sim_function'] = dot_product
-
-    rf_params = dict()
-    rf_params['max_depth'] = 10
-
-    return X_train, X_test, y_train, y_test, 'a1a', sf_params, rf_params
+    return X_train, X_test, y_train, y_test, 'a1a'
 
 
 def get_svmguide3():
@@ -66,16 +57,7 @@ def get_svmguide3():
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    sf_params = dict()
-    sf_params['max_depth'] = 14
-    sf_params['n_estimators'] = 100
-    sf_params['n_directions'] = 1
-    sf_params['sim_function'] = rbf
-
-    rf_params = dict()
-    rf_params['max_depth'] = None
-
-    return X_train, X_test, y_train, y_test, 'svmguide3', sf_params, rf_params
+    return X_train, X_test, y_train, y_test, 'svmguide3'
 
 
 def get_heart():
@@ -95,16 +77,7 @@ def get_heart():
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    sf_params = dict()
-    sf_params['max_depth'] = 14
-    sf_params['n_estimators'] = 100
-    sf_params['n_directions'] = 2
-    sf_params['sim_function'] = rbf
-
-    rf_params = dict()
-    rf_params['max_depth'] = None
-
-    return X_train, X_test, y_train, y_test, 'heart', sf_params, rf_params
+    return X_train, X_test, y_train, y_test, 'heart'
 
 
 def get_ionosphere():
@@ -120,16 +93,7 @@ def get_ionosphere():
 
     X_train, y_train = X_train[shuffled_indices], y_train[shuffled_indices]
 
-    sf_params = dict()
-    sf_params['max_depth'] = 14
-    sf_params['n_estimators'] = 100
-    sf_params['n_directions'] = 2
-    sf_params['sim_function'] = rbf
-
-    rf_params = dict()
-    rf_params['max_depth'] = 12
-
-    return X_train, X_test, y_train, y_test, 'ionosphere_scale', sf_params, rf_params
+    return X_train, X_test, y_train, y_test, 'ionosphere_scale'
 
 
 def get_breast_cancer():
@@ -150,16 +114,7 @@ def get_breast_cancer():
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    sf_params = dict()
-    sf_params['max_depth'] = None
-    sf_params['n_estimators'] = 100
-    sf_params['n_directions'] = 2
-    sf_params['sim_function'] = dot_product
-
-    rf_params = dict()
-    rf_params['max_depth'] = None
-
-    return X_train, X_test, y_train, y_test, 'breast_cancer', sf_params, rf_params
+    return X_train, X_test, y_train, y_test, 'breast_cancer'
 
 
 def get_german_numer():
@@ -179,16 +134,7 @@ def get_german_numer():
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    sf_params = dict()
-    sf_params['max_depth'] = 10
-    sf_params['n_estimators'] = 100
-    sf_params['n_directions'] = 2
-    sf_params['sim_function'] = dot_product
-
-    rf_params = dict()
-    rf_params['max_depth'] = None
-
-    return X_train, X_test, y_train, y_test, 'german_numer', sf_params, rf_params
+    return X_train, X_test, y_train, y_test, 'german_numer'
 
 
 def get_mushrooms():
@@ -208,16 +154,7 @@ def get_mushrooms():
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    sf_params = dict()
-    sf_params['max_depth'] = 10
-    sf_params['n_estimators'] = 100
-    sf_params['n_directions'] = 2
-    sf_params['sim_function'] = rbf
-
-    rf_params = dict()
-    rf_params['max_depth'] = 8
-
-    return X_train, X_test, y_train, y_test, 'mushrooms', sf_params, rf_params
+    return X_train, X_test, y_train, y_test, 'mushrooms'
 
 
 def get_iris():
@@ -236,16 +173,7 @@ def get_iris():
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    sf_params = dict()
-    sf_params['max_depth'] = 8
-    sf_params['n_estimators'] = 100
-    sf_params['n_directions'] = 2
-    sf_params['sim_function'] = dot_product
-
-    rf_params = dict()
-    rf_params['max_depth'] = None
-
-    return X_train, X_test, y_train, y_test, 'iris', sf_params, rf_params
+    return X_train, X_test, y_train, y_test, 'iris'
 
 
 def get_glass():
@@ -270,16 +198,7 @@ def get_glass():
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    sf_params = dict()
-    sf_params['max_depth'] = 10
-    sf_params['n_estimators'] = 100
-    sf_params['n_directions'] = 1
-    sf_params['sim_function'] = rbf
-
-    rf_params = dict()
-    rf_params['max_depth'] = 12
-
-    return X_train, X_test, y_train, y_test, 'glass', sf_params, rf_params
+    return X_train, X_test, y_train, y_test, 'glass'
 
 
 def get_seed():
@@ -304,16 +223,7 @@ def get_seed():
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    sf_params = dict()
-    sf_params['max_depth'] = 8
-    sf_params['n_estimators'] = 100
-    sf_params['n_directions'] = 3
-    sf_params['sim_function'] = rbf
-
-    rf_params = dict()
-    rf_params['max_depth'] = 12
-
-    return X_train, X_test, y_train, y_test, 'seed', sf_params, rf_params
+    return X_train, X_test, y_train, y_test, 'seed'
 
 
 def get_wine():
@@ -338,16 +248,7 @@ def get_wine():
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    sf_params = dict()
-    sf_params['max_depth'] = 8
-    sf_params['n_estimators'] = 100
-    sf_params['n_directions'] = 1
-    sf_params['sim_function'] = rbf
-
-    rf_params = dict()
-    rf_params['max_depth'] = 12
-
-    return X_train, X_test, y_train, y_test, 'wine', sf_params, rf_params
+    return X_train, X_test, y_train, y_test, 'wine'
 
 
 def get_splice():
@@ -367,16 +268,7 @@ def get_splice():
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    sf_params = dict()
-    sf_params['max_depth'] = 12
-    sf_params['n_estimators'] = 100
-    sf_params['n_directions'] = 2
-    sf_params['sim_function'] = rbf
-
-    rf_params = dict()
-    rf_params['max_depth'] = 12
-
-    return X_train, X_test, y_train, y_test, 'splice', sf_params, rf_params
+    return X_train, X_test, y_train, y_test, 'splice'
 
 
 def get_madelon():
@@ -396,16 +288,7 @@ def get_madelon():
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    sf_params = dict()
-    sf_params['max_depth'] = 8
-    sf_params['n_estimators'] = 100
-    sf_params['n_directions'] = 2
-    sf_params['sim_function'] = dot_product
-
-    rf_params = dict()
-    rf_params['max_depth'] = None
-
-    return X_train, X_test, y_train, y_test, 'madelon', sf_params, rf_params
+    return X_train, X_test, y_train, y_test, 'madelon'
 
 
 def get_diabetes():
@@ -425,16 +308,7 @@ def get_diabetes():
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    sf_params = dict()
-    sf_params['max_depth'] = None
-    sf_params['n_estimators'] = 100
-    sf_params['n_directions'] = 3
-    sf_params['sim_function'] = dot_product
-
-    rf_params = dict()
-    rf_params['max_depth'] = 12
-
-    return X_train, X_test, y_train, y_test, 'diabetes', sf_params, rf_params
+    return X_train, X_test, y_train, y_test, 'diabetes'
 
 
 def get_australian():
@@ -454,16 +328,7 @@ def get_australian():
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    sf_params = dict()
-    sf_params['max_depth'] = None
-    sf_params['n_estimators'] = 100
-    sf_params['n_directions'] = 3
-    sf_params['sim_function'] = rbf
-
-    rf_params = dict()
-    rf_params['max_depth'] = 8
-
-    return X_train, X_test, y_train, y_test, 'australian', sf_params, rf_params
+    return X_train, X_test, y_train, y_test, 'australian'
 
 
 def get_dna():
@@ -479,16 +344,7 @@ def get_dna():
 
     X_train, y_train = X_train[shuffled_indices], y_train[shuffled_indices]
 
-    sf_params = dict()
-    sf_params['max_depth'] = 10
-    sf_params['n_estimators'] = 100
-    sf_params['n_directions'] = 3
-    sf_params['sim_function'] = dot_product
-
-    rf_params = dict()
-    rf_params['max_depth'] = None
-
-    return X_train, X_test, y_train, y_test, 'dna', sf_params, rf_params
+    return X_train, X_test, y_train, y_test, 'dna'
 
 
 def get_letter():
@@ -532,51 +388,40 @@ def get_segment():
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    sf_params = dict()
-    sf_params['max_depth'] = 14
-    sf_params['n_estimators'] = 100
-    sf_params['n_directions'] = 3
-    sf_params['sim_function'] = dot_product
-
-    rf_params = dict()
-    rf_params['max_depth'] = 14
-
-    return X_train, X_test, y_train, y_test, 'segment', sf_params, rf_params
-
+    return X_train, X_test, y_train, y_test, 'segment'
 
 def get_arcene():
+
+    label_bin = LabelBinarizer()
     X_train = pd.read_csv('../data/arcene_train.data', sep=' ', header=None)
     X_train = X_train.drop(columns=[10000])
     X_train = X_train.astype(np.int32)
     y_train = pd.read_csv('../data/arcene_train.labels', sep=' ', header=None)
-    y_train = LabelBinarizer().fit_transform(y_train).ravel()
+    y_train = label_bin.fit_transform(y_train).ravel()
 
     X_test = pd.read_csv('../data/arcene_valid.data', sep=' ', header=None)
     X_test = X_test.drop(columns=[10000])
     X_test = X_test.astype(np.int32)
     y_test = pd.read_csv('../data/arcene_valid.labels', sep=' ', header=None)
-    y_test = LabelBinarizer().fit_transform(y_test).ravel()
+    y_test = label_bin.transform(y_test).ravel()
+
+    X = np.concatenate([X_train, X_test], axis=0).astype(np.float32)
+    y = np.concatenate([y_train, y_test], axis=0)
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42)
 
     # shuffle training data - greed search does not do it automatically
-    '''random_state = np.random.RandomState(42)
+    random_state = np.random.RandomState(42)
     shuffled_indices = random_state.permutation(len(y_train))
 
-    X_train, y_train = X_train[shuffled_indices], y_train[shuffled_indices]'''
+    X_train, y_train = X_train[shuffled_indices], y_train[shuffled_indices]
 
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train).astype(np.float32)
     X_test = scaler.transform(X_test).astype(np.float32)
 
-    sf_params = dict()
-    sf_params['n_estimators'] = 100
-    sf_params['max_depth'] = None
-    sf_params['n_directions'] = 1
-    sf_params['sim_function'] = dot_product
-
-    rf_params = dict()
-    rf_params['max_depth'] = 8
-
-    return X_train, X_test, y_train, y_test, 'arcene', sf_params, rf_params
+    return X_train, X_test, y_train, y_test, 'arcene'
 
 
 def get_dexter():
@@ -589,12 +434,7 @@ def get_dexter():
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42)
 
-    sf_params = dict()
-    sf_params['n_estimators'] = 100
-
-    rf_params = dict()
-
-    return X_train, X_test, y_train, y_test, 'dexter', sf_params, rf_params
+    return X_train, X_test, y_train, y_test, 'dexter'
 
 
 def get_asian_religions():
@@ -605,12 +445,7 @@ def get_asian_religions():
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42)
 
-    sf_params = dict()
-    #sf_params['n_estimators'] = 100
-
-    rf_params = dict()
-
-    return X_train, X_test, y_train, y_test, 'asian_religions', sf_params, rf_params
+    return X_train, X_test, y_train, y_test, 'asian_religions'
 
 
 def get_liver_disorders():
@@ -619,6 +454,12 @@ def get_liver_disorders():
 
     X_test, y_test = load_svmlight_file('../data/liver-disorders.t')
     X_test = X_test.toarray().astype(np.float32)
+
+    X = np.concatenate([X_train, X_test], axis=0).astype(np.float32)
+    y = np.concatenate([y_train, y_test], axis=0)
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42)
 
     # shuffle training data - greed search does not do it automatically
     random_state = np.random.RandomState(42)
@@ -630,12 +471,7 @@ def get_liver_disorders():
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    sf_params = dict()
-    sf_params['n_estimators'] = 100
-
-    rf_params = dict()
-
-    return X_train, X_test, y_train, y_test, 'liver-disorders', sf_params, rf_params
+    return X_train, X_test, y_train, y_test, 'liver-disorders'
 
 
 def get_leukemia():
@@ -661,16 +497,7 @@ def get_leukemia():
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    sf_params = dict()
-    sf_params['n_estimators'] = 100
-    sf_params['max_depth'] = 10
-    sf_params['n_directions'] = 2
-    sf_params['sim_function'] = dot_product
-
-    rf_params = dict()
-    rf_params['max_depth'] = 12
-
-    return X_train, X_test, y_train, y_test, 'leukemia', sf_params, rf_params
+    return X_train, X_test, y_train, y_test, 'leukemia'
 
 
 def get_fourclass():
@@ -690,16 +517,7 @@ def get_fourclass():
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)'''
 
-    sf_params = dict()
-    sf_params['n_estimators'] = 100
-    sf_params['max_depth'] = 8
-    sf_params['n_directions'] = 1
-    sf_params['sim_function'] = dot_product
-
-    rf_params = dict()
-    rf_params['max_depth'] = 8
-
-    return X_train, X_test, y_train, y_test, 'fourclass', sf_params, rf_params
+    return X_train, X_test, y_train, y_test, 'fourclass'
 
 
 def get_duke():
@@ -719,16 +537,7 @@ def get_duke():
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    sf_params = dict()
-    sf_params['n_estimators'] = 100
-    sf_params['max_depth'] = 8
-    sf_params['n_directions'] = 3
-    sf_params['sim_function'] = rbf
-
-    rf_params = dict()
-    rf_params['max_depth'] = 8
-
-    return X_train, X_test, y_train, y_test, 'duke', sf_params, rf_params
+    return X_train, X_test, y_train, y_test, 'duke'
 
 
 def get_colon_cancer():
@@ -748,18 +557,7 @@ def get_colon_cancer():
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    sf_params = dict()
-    sf_params['n_estimators'] = 100
-    sf_params['max_depth'] = 8
-    sf_params['n_directions'] = 2
-    sf_params['sim_function'] = rbf
-
-    rf_params = dict()
-    rf_params['max_depth'] = 8
-
-    rf_params = dict()
-
-    return X_train, X_test, y_train, y_test, 'colon-cancer', sf_params, rf_params
+    return X_train, X_test, y_train, y_test, 'colon-cancer'
 
 
 def get_gisette():
@@ -781,53 +579,40 @@ def get_gisette():
 
     X_train, y_train = X_train[shuffled_indices], y_train[shuffled_indices]
 
-    sf_params = dict()
-    sf_params['n_estimators'] = 100
-    sf_params['max_depth'] = None
-    sf_params['n_directions'] = 1
-    sf_params['sim_function'] = dot_product
+    return X_train, X_test, y_train, y_test, 'gisette'
 
-    rf_params = dict()
-    rf_params['max_depth'] = 8
-
-    return X_train, X_test, y_train, y_test, 'gisette', sf_params, rf_params
-
-
-'''
-    # binary
-    get_madelon(),
-    get_diabetes(),
-    get_australian(),
-    get_splice(),
-    get_a1a(),
-    get_svmguide3(),
-    get_heart(),
-    get_ionosphere()
-    get_breast_cancer(),
-    get_german_numer(),
-    get_mushrooms(),
-    get_liver_disorders()
-    
-    # multiclass
-    get_iris(),
-    get_glass(),
-    get_seed(),
-    get_wine(),
-    get_dna(),
-    get_segment()
-
-'''
 
 datasets = [
+    # binary
+    #get_heart(),
+    #get_ionosphere(),
+    #get_breast_cancer(),
+    #get_german_numer(),
+    get_madelon(),
+    #get_diabetes(),
+    #get_australian(),
+    #get_splice(),
+    get_a1a(),
+    #get_svmguide3(),
+    #get_liver_disorders(),
+
+    # multiclass
+    #get_iris(),
+    #get_glass(),
+    #get_seed(),
+    #get_wine(),
+    #get_dna(),
+    #get_segment(),
+
     # very high dimensionality
-    get_arcene(),
+    #get_arcene(),
     #get_asian_religions(),
     get_leukemia(),
     get_duke(),
-    get_colon_cancer(),
+    get_colon_cancer()
 
     # very low dimensionality
-    get_fourclass()
+    #get_fourclass()
 ]
 
 

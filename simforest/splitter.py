@@ -4,7 +4,7 @@ from rcriterion import gini_index
 from sklearn.preprocessing import LabelEncoder
 
 
-def find_split(X, y, p, q, criterion, sim_function):
+def find_split(X, y, p, q, criterion, sim_function, gamma=None):
     """ Find split among direction drew on pair of data-points
         Parameters
         ----------
@@ -21,7 +21,7 @@ def find_split(X, y, p, q, criterion, sim_function):
             split_point : split threshold
             similarities : array of shape (n_samples,), values of similarity-values based projection
     """
-    similarities = sim_function(X, p, q)
+    similarities = sim_function(X, p, q, gamma)
     indices = sorted([i for i in range(len(y)) if not np.isnan(similarities[i])],
                      key=lambda x: similarities[x])
     y = y[indices]

@@ -41,16 +41,7 @@ def get_hardware_dataset():
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    sf_params = dict()
-    sf_params['criterion'] = 'theil'
-    sf_params['n_directions'] = 1
-    sf_params['sim_function'] = dot_product
-    sf_params['max_depth'] = 14
-
-    rf_params = dict()
-    rf_params['max_depth'] = 10
-
-    return X_train, X_test, y_train, y_test, 'computer_hardware', sf_params, rf_params
+    return X_train, X_test, y_train, y_test, 'computer_hardware'
 
 
 def get_concrete_slump_dataset():
@@ -124,16 +115,7 @@ def get_concrete_flow_dataset():
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    sf_params = dict()
-    sf_params['criterion'] = 'theil'
-    sf_params['n_directions'] = 2
-    sf_params['sim_function'] = dot_product
-    sf_params['max_depth'] = 8
-
-    rf_params = dict()
-    rf_params['max_depth'] = 10
-
-    return X_train, X_test, y_train, y_test, 'concrete_flow', sf_params, rf_params
+    return X_train, X_test, y_train, y_test, 'concrete_flow'
 
 
 def get_energy_efficiency_heating():
@@ -157,16 +139,7 @@ def get_energy_efficiency_heating():
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    sf_params = dict()
-    sf_params['criterion'] = 'variance'
-    sf_params['n_directions'] = 3
-    sf_params['sim_function'] = dot_product
-    sf_params['max_depth'] = None
-
-    rf_params = dict()
-    rf_params['max_depth'] = None
-
-    return X_train, X_test, y_train, y_test, 'energy_efficiency_heating', sf_params, rf_params
+    return X_train, X_test, y_train, y_test, 'energy_efficiency_heating'
 
 
 def get_energy_efficiency_cooling():
@@ -228,16 +201,7 @@ def get_mpg_dataset():
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    sf_params = dict()
-    sf_params['criterion'] = 'variance'
-    sf_params['n_directions'] = 3
-    sf_params['sim_function'] = rbf
-    sf_params['max_depth'] = 10
-
-    rf_params = dict()
-    rf_params['max_depth'] = 10
-
-    return X_train, X_test, y_train, y_test, 'mpg', sf_params, rf_params
+    return X_train, X_test, y_train, y_test, 'mpg'
 
 
 def get_eunite2001_dataset():
@@ -258,16 +222,7 @@ def get_eunite2001_dataset():
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    sf_params = dict()
-    sf_params['criterion'] = 'variance'
-    sf_params['n_directions'] = 3
-    sf_params['sim_function'] = rbf
-    sf_params['max_depth'] = 12
-
-    rf_params = dict()
-    rf_params['max_depth'] = 8
-
-    return X_train, X_test, y_train, y_test, 'eunite2001', sf_params, rf_params
+    return X_train, X_test, y_train, y_test, 'eunite2001'
 
 
 def get_abalone_dataset():
@@ -288,16 +243,7 @@ def get_abalone_dataset():
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    sf_params = dict()
-    sf_params['criterion'] = 'variance'
-    sf_params['n_directions'] = 3
-    sf_params['sim_function'] = dot_product
-    sf_params['max_depth'] = 8
-
-    rf_params = dict()
-    rf_params['max_depth'] = 10
-
-    return X_train, X_test, y_train, y_test, 'abalone', sf_params, rf_params
+    return X_train, X_test, y_train, y_test, 'abalone'
 
 
 def get_spacega_dataset():
@@ -318,16 +264,7 @@ def get_spacega_dataset():
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    sf_params = dict()
-    sf_params['criterion'] = 'variance'
-    sf_params['n_directions'] = 1
-    sf_params['sim_function'] = rbf
-    sf_params['max_depth'] = 14
-
-    rf_params = dict()
-    rf_params['max_depth'] = 14
-
-    return X_train, X_test, y_train, y_test, 'space_ga', sf_params, rf_params
+    return X_train, X_test, y_train, y_test, 'space_ga'
 
 
 def get_boston_dataset():
@@ -347,16 +284,7 @@ def get_boston_dataset():
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    sf_params = dict()
-    sf_params['criterion'] = 'variance'
-    sf_params['n_directions'] = 1
-    sf_params['sim_function'] = dot_product
-    sf_params['max_depth'] = 12
-
-    rf_params = dict()
-    rf_params['max_depth'] = None
-
-    return X_train, X_test, y_train, y_test, 'boston', sf_params, rf_params
+    return X_train, X_test, y_train, y_test, 'boston'
 
 
 def get_auto_dataset():
@@ -409,16 +337,7 @@ def get_wine_quality():
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    sf_params = dict()
-    sf_params['criterion'] = 'variance'
-    sf_params['n_directions'] = 2
-    sf_params['sim_function'] = rbf
-    sf_params['max_depth'] = None
-
-    rf_params = dict()
-    rf_params['max_depth'] = None
-
-    return X_train, X_test, y_train, y_test, 'wine_quality', sf_params, rf_params
+    return X_train, X_test, y_train, y_test, 'wine_quality',
 
 
 def get_friedman_dataset():
@@ -439,28 +358,19 @@ def get_friedman_dataset():
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    sf_params = dict()
-    sf_params['criterion'] = 'variance'
-    sf_params['n_directions'] = 3
-    sf_params['sim_function'] = dot_product
-    sf_params['max_depth'] = 14
-
-    rf_params = dict()
-    rf_params['max_depth'] = None
-
-    return X_train, X_test, y_train, y_test, 'friedman', sf_params, rf_params
+    return X_train, X_test, y_train, y_test, 'friedman'
 
 
 datasets = [
-            get_boston_dataset(),
-            get_mpg_dataset(),
-            get_hardware_dataset(),
-            get_spacega_dataset(),
-            get_eunite2001_dataset(),
-            get_wine_quality(),
-            get_abalone_dataset(),
-            get_energy_efficiency_heating(),
-            get_friedman_dataset(),
+            #get_boston_dataset(),
+            #get_mpg_dataset(),
+            #get_hardware_dataset(),
+            #get_spacega_dataset(),
+            #get_eunite2001_dataset(),
+
+            #get_wine_quality(),
+            #get_abalone_dataset(),
+            #get_energy_efficiency_heating(),
             get_concrete_flow_dataset()
 ]
 

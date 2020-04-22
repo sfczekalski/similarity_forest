@@ -63,13 +63,15 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
                  sim_function=dot_product,
                  classes=None,
                  max_depth=None,
-                 depth=1):
+                 depth=1,
+                 gamma=None):
         self.random_state = random_state
         self.n_directions = n_directions
         self.sim_function = sim_function
         self.classes = classes
         self.max_depth = max_depth
         self.depth = depth
+        self.gamma = gamma
 
     def get_depth(self):
         """
@@ -221,7 +223,8 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
         similarities = []
         for i, j in self._sample_directions(random_state, y,  self.n_directions):
 
-            impurity, split_point, curr_similarities = find_split(X, y, X[i], X[j], 'gini', self.sim_function)
+            impurity, split_point, curr_similarities = find_split(X, y, X[i], X[j], 'gini',
+                                                                  self.sim_function, gamma=self.gamma)
             if impurity < best_impurity:
                 best_impurity = impurity
                 best_split_point = split_point
@@ -346,7 +349,7 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
         if self._is_leaf:
             return self
 
-        t = self._lhs if self.sim_function(x, self._p, self._q)[0] <= self._split_point else self._rhs
+        t = self._lhs if self.sim_function(x, self._p, self._q, self.gamma)[0] <= self._split_point else self._rhs
         if t is None:
             return self
         return t.apply_x(x)
@@ -459,7 +462,8 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
                  sim_function=dot_product,
                  max_depth=None,
                  oob_score=False,
-                 bootstrap=True):
+                 bootstrap=True,
+                 gamma=None):
         self.random_state = random_state
         self.n_estimators = n_estimators
         self.n_directions = n_directions
@@ -467,6 +471,7 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
         self.max_depth = max_depth
         self.oob_score = oob_score
         self.bootstrap = bootstrap
+        self.gamma = gamma
 
     def _validate_X_predict(self, X, check_input):
         """Validate X whenever one tries to predict, apply, predict_proba."""
@@ -527,7 +532,8 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
                 all_idxs = range(len(y))
                 idxs = random_state.choice(all_idxs, len(y), replace=True)
                 tree = SimilarityTreeClassifier(classes=self.classes_, n_directions=self.n_directions,
-                                                sim_function=self.sim_function, random_state=self.random_state)
+                                                sim_function=self.sim_function, random_state=self.random_state,
+                                                gamma=self.gamma)
                 tree.fit(X[idxs], y[idxs], check_input=False)
 
                 self.estimators_.append(tree)
@@ -539,7 +545,7 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
             else:
                 tree = SimilarityTreeClassifier(classes=self.classes_, n_directions=self.n_directions,
                                                 sim_function=self.sim_function, random_state=self.random_state,
-                                                max_depth=self.max_depth)
+                                                max_depth=self.max_depth, gamma=self.gamma)
                 tree.fit(X, y, check_input=False)
 
                 self.estimators_.append(tree)
@@ -684,7 +690,8 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
                  depth=1,
                  discriminative_sampling=True,
                  criterion='variance',
-                 plot_splits=False):
+                 plot_splits=False,
+                 gamma=None):
         self.random_state = random_state
         self.n_directions = n_directions
         self.sim_function = sim_function
@@ -695,6 +702,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         self.discriminative_sampling = discriminative_sampling
         self.criterion = criterion
         self.plot_splits = plot_splits
+        self.gamma = gamma
 
     def apply(self, X, check_input=False):
         """Returns the index of the leaf that each sample is predicted as."""
@@ -948,7 +956,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
         similarities = []
         for i, j in self._sample_directions(random_state, y, self.n_directions):
 
-            impurity, split_point, curr_similarities = find_split(X, y, X[i], X[j], self.criterion, self.sim_function)
+            impurity, split_point, curr_similarities = find_split(X, y, X[i], X[j], self.criterion, self.sim_function, gamma=self.gamma)
 
             if impurity < best_impurity:
                 best_impurity = impurity
@@ -982,6 +990,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
                                                      depth=self.depth + 1,
                                                      discriminative_sampling=self.discriminative_sampling,
                                                      criterion=self.criterion,
+                                                     gamma=self.gamma,
                                                      plot_splits=self.plot_splits).\
                     fit(X[lhs_idxs], y[lhs_idxs], check_input=False)
 
@@ -992,6 +1001,7 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
                                                      depth=self.depth + 1,
                                                      discriminative_sampling=self.discriminative_sampling,
                                                      criterion=self.criterion,
+                                                     gamma=self.gamma,
                                                      plot_splits=self.plot_splits).\
                     fit(X[rhs_idxs], y[rhs_idxs], check_input=False)
             else:
@@ -1122,7 +1132,8 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
                 discriminative_sampling=True,
                 bootstrap=True,
                 sub_sample_fraction=1.0,
-                criterion='variance'):
+                criterion='variance',
+                 gamma=None):
         self.random_state = random_state
         self.n_estimators = n_estimators
         self.n_directions = n_directions
@@ -1135,6 +1146,7 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
         self.bootstrap = bootstrap
         self.sub_sample_fraction = sub_sample_fraction
         self.criterion = criterion
+        self.gamma = gamma
 
     def apply(self, X, check_input=False):
         """Returns the index of the leaf that each sample is predicted as."""
@@ -1229,11 +1241,11 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
                                            min_samples_split=self.min_samples_split,
                                            min_samples_leaf=self.min_samples_leaf,
                                            discriminative_sampling=self.discriminative_sampling,
-                                           criterion=self.criterion)
+                                           criterion=self.criterion, gamma=self.gamma)
 
             self.estimators_.append(tree)
 
-        pool = Pool(processes=4)
+        pool = Pool(processes=1)
         self.estimators_ = pool.map(self.fit_tree_, self.estimators_)
         pool.close()
         pool.join()

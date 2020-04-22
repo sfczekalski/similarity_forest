@@ -23,7 +23,7 @@ def rbf(X, p, q, gamma=None):
            np.exp(-gamma * (ne.evaluate("(X - p) ** 2").sum(1)))
 
 
-def sqeuclidean(X, p, q):
+def sqeuclidean(X, p, q, gamma=None):
     """A function calculating squared euclidean distance based projection of data-points in matrix X
         Parameters
         ----------
@@ -47,7 +47,7 @@ def sqeuclidean(X, p, q):
     return np.dot(X, p - q)
 
 
-def euclidean(X, p, q):
+def euclidean(X, p, q, gamma=None):
     """A function calculating euclidean distance based projection of data-points in matrix X
         Parameters
         ----------
@@ -64,7 +64,7 @@ def euclidean(X, p, q):
     return np.sqrt(ne.evaluate("(X - q) ** 2").sum(1)) - np.sqrt(ne.evaluate("(X - p) ** 2").sum(1))
 
 
-def dot_product(X, p, q):
+def dot_product(X, p, q, gamma=None):
     """A function calculating dot product distance based projection of data-points in matrix X
         Parameters
         ----------
