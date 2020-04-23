@@ -7,6 +7,7 @@ import pandas as pd
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import confusion_matrix
 import seaborn as sns
+from scipy.stats import pearsonr
 
 
 def outliers_rank_stability(model, X, plot=True):
@@ -165,3 +166,47 @@ def plot_confusion_matrix(model, X_test, y_test, classes, cmap='Purples'):
     plt.ylabel('True Class')
     plt.title('Confusion Matrix')
     plt.show()
+
+
+def create_correlated_feature(y, a=10, b=5, fraction=0.2, seed=None, verbose=False):
+    """
+    Create synthetic column, strongly correlated with target.
+    Each value is calculated according to the formula:
+        v = y * a + random(-b, b)
+        So its scaled target value with some noise.
+    Then a fraction of values is permuted, to reduce the correlation.
+
+    Parameters
+    ---------
+        y : np.ndarray, target vector
+        a : int or float (default=10), scaling factor in a formula above
+        b : int or float (default=5), value that determines the range of noise to be added
+        fraction : float (default=0.2), fraction of values to be permuted to reduce the correlation
+        seed : int (default=None), random seed that can be specified to obtain deterministic behaviour
+        verbose : bool (default=False), when True, print correlation before and after the shuffling
+
+    Returns
+    ----------
+        new_column : np.ndarray, new feature vector
+        corr : float, correlation of new feature vector with target vector
+        p : float, p value of correlation
+    """
+    if seed is not None:
+        np.seed(seed)
+
+    new_column = y * a + np.random.uniform(low=-b, high=b, size=len(y))
+    if verbose:
+        print(f'Initial new feature correlation, without shuffling: {pearsonr(new_column, y)}')
+
+    # Choose which samples to permute
+    indices = np.random.choice(range(len(y)), int(fraction * len(y)))
+
+    # Find new order of this samples
+    shuffled_indices = np.random.permutation(len(indices))
+    new_column[indices] = new_column[indices][shuffled_indices]
+    corr, p = pearsonr(new_column, y)
+    if verbose:
+        print(f'New feature correlation, after shuffling {fraction} of samples: {pearsonr(new_column, y)}')
+
+    return new_column, corr, p
+
