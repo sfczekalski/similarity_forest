@@ -192,11 +192,12 @@ def create_correlated_feature(y, a=10, b=5, fraction=0.2, seed=None, verbose=Fal
         p : float, p value of correlation
     """
     if seed is not None:
-        np.seed(seed)
+        np.random.seed(seed)
 
     new_column = y * a + np.random.uniform(low=-b, high=b, size=len(y))
     if verbose:
-        print(f'Initial new feature correlation, without shuffling: {pearsonr(new_column, y)}')
+        corr, v = pearsonr(new_column, y)
+        print(f'Initial new feature correlation, without shuffling: {round(corr, 3)}, p: {round(v, 3)}')
 
     # Choose which samples to permute
     indices = np.random.choice(range(len(y)), int(fraction * len(y)))
@@ -206,7 +207,7 @@ def create_correlated_feature(y, a=10, b=5, fraction=0.2, seed=None, verbose=Fal
     new_column[indices] = new_column[indices][shuffled_indices]
     corr, p = pearsonr(new_column, y)
     if verbose:
-        print(f'New feature correlation, after shuffling {fraction} of samples: {pearsonr(new_column, y)}')
+        print(f'Initial new feature correlation, without shuffling: {round(corr, 3)}, p: {round(v, 3)}')
 
     return new_column, corr, p
 
