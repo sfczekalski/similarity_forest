@@ -22,7 +22,7 @@ def outliers_rank_stability(model, X, plot=True):
                 First column represented Spearman correlation of ranking predicted with current number of trees,
                 second column gives p-values
     """
-
+    model = model(n_estimators=100).fit(X)
     initial_decision_function = model.decision_function(X, check_input=True, n_estimators=1)
     n_outliers = np.where(initial_decision_function <= 0)[0].size
     order = initial_decision_function[::-1].argsort()
@@ -31,6 +31,7 @@ def outliers_rank_stability(model, X, plot=True):
     rcorrelations = np.zeros(shape=(9, 2), dtype=np.float)
 
     for idx, v in enumerate(trees):
+        model = model(n_estimators=v).fit(X)
         decision_function = model.decision_function(X, check_input=False, n_estimators=v)
         rcorr, p = spearmanr(initial_decision_function[::-1][order][:n_outliers],
                              decision_function[::-1][order][:n_outliers])

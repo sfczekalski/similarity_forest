@@ -582,16 +582,16 @@ def get_gisette():
 
 datasets = [
     # binary
-    #get_heart(),
+    get_heart(),
     #get_ionosphere(),
     #get_breast_cancer(),
-    #get_german_numer(),
-    get_madelon(),
-    #get_diabetes(),
+    get_german_numer(),
+    #get_madelon(),
+    get_diabetes(),
     #get_australian(),
     #get_splice(),
     get_a1a(),
-    #get_svmguide3(),
+    get_svmguide3()
     #get_liver_disorders(),
 
     # multiclass
@@ -605,9 +605,9 @@ datasets = [
     # very high dimensionality
     #get_arcene(),
     #get_asian_religions(),
-    get_leukemia(),
-    get_duke(),
-    get_colon_cancer()
+    #get_leukemia(),
+    #get_duke(),
+    #get_colon_cancer()
 
     # very low dimensionality
     #get_fourclass()

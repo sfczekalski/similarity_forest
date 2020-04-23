@@ -489,8 +489,6 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
         elif self.sim_function == 'rbf':
             self.sim_function = rbf
 
-        print(self.sim_function)
-
         self.oob_score_ = 0.0
 
         self.estimators_ = []

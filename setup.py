@@ -92,10 +92,10 @@ setup(
 
 setup(
     cmdclass={'build_ext': build_ext},
-    ext_modules=cythonize(["simforest/*.pyx"]),
-    include_dirs=[numpy.get_include()],
-    extra_compile_args=['-O3', '-march=native', '-ffast-math', '-fopenmp'],
-    extra_link_args=['-fopenmp']
+    ext_modules=cythonize(["simforest/*.pyx", "simforest/cluster/*.pyx"]),
+    include_dirs=[numpy.get_include()]
+    #,extra_compile_args=['-O3', '-march=native', '-ffast-math', '-fopenmp'],
+    #extra_link_args=['-fopenmp']
 )
 
 
