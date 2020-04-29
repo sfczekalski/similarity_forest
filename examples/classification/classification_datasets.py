@@ -582,10 +582,10 @@ def get_gisette():
 
 datasets = [
     # binary
-    get_heart(),
+    #get_heart(),
     get_ionosphere(),
     get_breast_cancer(),
-    get_german_numer(),
+    #get_german_numer(),
     #get_madelon(),
     #get_diabetes(),
     #get_australian(),
