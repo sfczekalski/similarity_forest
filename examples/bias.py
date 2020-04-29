@@ -233,7 +233,7 @@ def plot_bias(fraction_range, correlations, rf_scores, sf_scores, permutation_im
     ax4 = ax3.twiny()
     plt.xticks(rotation=90)
     ax4.set_xticks(ax3.get_xticks())
-    ax3.set_xlim(0.0, 1.0)
+    ax4.set_xlim(0.0, 1.0)
     ax3.set_xticklabels(tick_function(correlations))
     ax3.set_xlabel('Correlation')
 

@@ -45,6 +45,8 @@ log_name = 'logs/outlier_detection_more_metrics_log.csv'
 # load and prepare data
 for d_idx, d in enumerate(get_datasets()):
     X_train, X_test, y_train, y_test, dataset = d
+    y_train = y_train.ravel().astype(np.int32)
+    y_test = y_test.ravel().astype(np.int32)
 
     # store auc-roc for t-test
     if_auc = np.zeros(shape=(n_iterations,), dtype=np.float32)
@@ -71,10 +73,10 @@ for d_idx, d in enumerate(get_datasets()):
         IF = IsolationForest()
         IF.fit(X_train, y_train)
         if_pred = IF.decision_function(X_test)
-        if_auc[i] = roc_auc_score(y_test, if_pred[:, 1])
+        if_auc[i] = roc_auc_score(y_test, if_pred)
 
         if_class_pred = np.ones_like(if_pred)
-        if_class_pred[if_pred <= 0.0] = 0
+        if_class_pred[if_pred <= 0.0] = -1
         if_precison[i] = precision_score(y_test, if_class_pred)
         if_recall[i] = recall_score(y_test, if_class_pred)
         if_f1[i] = f1_score(y_test, if_class_pred)
@@ -82,10 +84,10 @@ for d_idx, d in enumerate(get_datasets()):
         sf = IsolationSimilarityForest(**params)
         sf.fit(X_train, y_train)
         sf_pred = sf.decision_function(X_test)
-        sf_auc[i] = roc_auc_score(y_test, sf_pred[:, 1])
+        sf_auc[i] = roc_auc_score(y_test, sf_pred)
 
         sf_class_pred = np.ones_like(sf_pred)
-        sf_class_pred[sf_pred <= 0.0] = 0
+        sf_class_pred[sf_pred <= 0.0] = -1
         sf_precision[i] = precision_score(y_test, sf_class_pred)
         sf_recall[i] = recall_score(y_test, sf_class_pred)
         sf_f1[i] = f1_score(y_test, sf_class_pred)
