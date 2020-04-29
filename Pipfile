@@ -17,6 +17,7 @@ ineqpy = {git = "https://github.com/mmngreco/IneqPy"}
 yellowbrick = "*"
 numexpr = "*"
 seaborn = "*"
+tqdm = "*"
 
 [dev-packages]
 pytest = "*"

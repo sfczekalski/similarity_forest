@@ -11,7 +11,7 @@ from sklearn.multiclass import OneVsRestClassifier
 from sklearn.model_selection import GridSearchCV
 
 
-use_neptune = False
+use_neptune = True
 binary = True
 multiclass_strategy = False
 
@@ -215,5 +215,5 @@ for d_idx, d in enumerate(get_datasets()):
 
 if use_neptune:
     neptune.log_artifact(log_name + '.csv')
-    neptune.log_artifact(log_name + 'cv_std_score.csv')
+    neptune.log_artifact(log_name + '_cv_std_score.csv')
     neptune.stop()
