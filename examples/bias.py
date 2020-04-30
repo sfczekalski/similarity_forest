@@ -2,23 +2,24 @@ from simforest import SimilarityForestClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import f1_score
+from sklearn.metrics import f1_score, matthews_corrcoef
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.inspection import permutation_importance
-from scipy.stats import pearsonr
+from scipy.stats import pointbiserialr
 import tqdm
 
 
-def create_correlated_feature(y, a=10, b=5, fraction=0.2, seed=None, verbose=False):
+def create_numeric_feature_classification(y, a=10, b=5, fraction=0.2, seed=None, verbose=False):
     """
-    Create synthetic column, strongly correlated with target.
+    Create synthetic numeric column, strongly correlated with binary classification target.
     Each value is calculated according to the formula:
         v = y * a + random(-b, b)
         So its scaled target value with some noise.
     Then a fraction of values is permuted, to reduce the correlation.
 
+    Point biserial correlation is used to measure association.
     Parameters
     ---------
         y : np.ndarray, target vector
@@ -39,20 +40,60 @@ def create_correlated_feature(y, a=10, b=5, fraction=0.2, seed=None, verbose=Fal
 
     new_column = y * a + np.random.uniform(low=-b, high=b, size=len(y))
     if verbose:
-        corr, v = pearsonr(new_column, y)
-        print(f'Initial new feature - target correlation, without shuffling: {round(corr, 3)}, p: {round(v, 3)}')
+        corr, v = pointbiserialr(new_column, y)
+        print(f'Initial new feature - target point biserial correlation, without shuffling: {round(corr, 3)}, p: {round(v, 3)}')
 
     # Choose which samples to permute
-    indices = np.random.choice(range(len(y)), int(fraction * len(y)))
+    indices = np.random.choice(range(len(y)), int(fraction * len(y)), replace=False)
 
     # Find new order of this samples
     shuffled_indices = np.random.permutation(len(indices))
     new_column[indices] = new_column[indices][shuffled_indices]
-    corr, p = pearsonr(new_column, y)
+    corr, p = pointbiserialr(new_column, y)
     if verbose:
-        print(f'New feature - target correlation, after shuffling: {round(corr, 3)}, p: {round(v, 3)}')
+        print(f'New feature - target point biserial correlation, after shuffling: {round(corr, 3)}, p: {round(v, 3)}')
 
     return new_column, corr, p
+
+
+def create_categorical_feature_classification(y, fraction=0.2, seed=None, verbose=False):
+    """
+    Create synthetic categorical binary column, strongly correlated with binary classification target.
+    New column is a copy of target, with a `fraction` of samples shuffled to reduce the correlation.
+
+    Phi coefficient is used to measure association.
+    Parameters
+    ---------
+        y : np.ndarray, target vector
+        fraction : float (default=0.2), fraction of values to be permuted to reduce the correlation
+        seed : int (default=None), random seed that can be specified to obtain deterministic behaviour
+        verbose : bool (default=False), when True, print correlation before and after the shuffling
+
+    Returns
+    ----------
+        new_column : np.ndarray, new feature vector
+        corr : float, correlation of new feature vector with target vector
+    """
+    if seed is not None:
+        np.random.seed(seed)
+
+    new_column = y.copy()
+    if verbose:
+        corr = matthews_corrcoef(new_column, y)
+        print(f'Initial new feature - target point Phi coefficient, without shuffling: {round(corr, 3)}')
+
+    # Choose which samples to permute
+    indices = np.random.choice(range(len(y)), int(fraction * len(y)), replace=False)
+
+    # Find new order of this samples
+    shuffled_indices = np.random.permutation(len(indices))
+    new_column[indices] = new_column[indices][shuffled_indices]
+
+    corr = matthews_corrcoef(new_column, y)
+    if verbose:
+        print(f'New feature - target point Phi coefficient, after shuffling: {round(corr, 3)}')
+
+    return new_column, corr
 
 
 def importance(model, X, y):
@@ -163,7 +204,7 @@ def bias_experiment(df, y, fraction_range, SEED=None):
             df.pop('new_feature')
 
         # Add new
-        new_feature, correlations[i], _ = create_correlated_feature(y, fraction=f, seed=SEED)
+        new_feature, correlations[i], _ = create_numeric_feature_classification(y, fraction=f, seed=SEED)
         df = pd.concat([pd.Series(new_feature, name='new_feature'), df], axis=1)
 
         # Split the data with random seed
@@ -195,8 +236,8 @@ def tick_function(correlations):
 def plot_bias(fraction_range, correlations, rf_scores, sf_scores, permutation_importances):
     # Axis for scores
     # Set figure and first axis
-    fig = plt.figure(figsize=(20, 6))
-    ax1 = fig.add_subplot(1, 2, 1)
+    fig = plt.figure(figsize=(14, 16))
+    ax1 = fig.add_subplot(2, 1, 1)
     plt.xticks(rotation=90)
     ax1.set_xticks(fraction_range)
     ax1.set_xlim(0.0, 1.0)
@@ -223,7 +264,7 @@ def plot_bias(fraction_range, correlations, rf_scores, sf_scores, permutation_im
     df_permutation_importances = pd.DataFrame(permutation_importances)
 
     # Set figure and first axis
-    ax3 = fig.add_subplot(1, 2, 2)
+    ax3 = fig.add_subplot(2, 1, 2)
     plt.xticks(rotation=90)
     ax3.set_xticks(fraction_range)
     ax3.set_xlim(0.0, 1.0)

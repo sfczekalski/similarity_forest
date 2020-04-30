@@ -14,9 +14,7 @@ neptune.init('sfczekalski/SimilarityForest')
 
 # set parameters
 params = dict()
-'''params['most_different'] = True
-params['max_samples'] = 256
-params['max_depth'] = int(np.ceil(np.log2(256)))'''
+params['most_different'] = True
 params['n_estimators'] = 100
 
 
@@ -39,7 +37,8 @@ df = pd.DataFrame(columns=['dataset',
                            'IF recall std', 'SF recall std',
                            'IF f1 std', 'SF f1 std',
                            'p-val roc-auc', 'p-val precision', 'p-val recall', 'p-val f1'])
-log_name = 'logs/outlier_detection_more_metrics_log.csv'
+
+log_name = 'logs/outlier_detectionmost_different_more_metrics_log.csv'
 
 
 # load and prepare data
