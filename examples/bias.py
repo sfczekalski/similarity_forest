@@ -33,7 +33,6 @@ def create_numeric_feature_classification(y, a=10, b=5, fraction=0.2, seed=None,
     ----------
         new_column : np.ndarray, new feature vector
         corr : float, correlation of new feature vector with target vector
-        p : float, p value of correlation
     """
     if seed is not None:
         np.random.seed(seed)
@@ -53,7 +52,7 @@ def create_numeric_feature_classification(y, a=10, b=5, fraction=0.2, seed=None,
     if verbose:
         print(f'New feature - target point biserial correlation, after shuffling: {round(corr, 3)}, p: {round(v, 3)}')
 
-    return new_column, corr, p
+    return new_column, corr
 
 
 def create_categorical_feature_classification(y, fraction=0.2, seed=None, verbose=False):
@@ -175,7 +174,7 @@ def score_model(model, X_train, y_train, X_test, y_test):
     return model, score
 
 
-def bias_experiment(df, y, fraction_range, SEED=None):
+def bias_experiment(df, y, task, column_type, fraction_range, SEED=None):
     """
     Conduct a experiment, measuring how Random Forest and Similarity Forest compare,
     if a biased column is added to a dataset.
@@ -189,10 +188,25 @@ def bias_experiment(df, y, fraction_range, SEED=None):
 
     :param df: pandas DataFrame with the dataset
     :param y: vector with labels
+    :param task: string, `classification` or `regression`
+    :param column_type: string, `numeric` or `categorical`
     :param fraction_range:
     :param SEED: random number generator seed
     :return:
     """
+    # Function used to create synthetic feature
+    create_feature = None
+
+    if task == 'classification':
+        if column_type == 'numeric':
+            create_feature = create_numeric_feature_classification
+        elif column_type == 'categorical':
+            create_feature = create_categorical_feature_classification
+        else:
+            raise ValueError(f'column_type should be either `numeric` or `categorical`, found: {column_type}')
+    else:
+        raise NotImplementedError
+
     correlations = np.zeros(len(fraction_range), dtype=np.float32)
     rf_scores = np.zeros(len(fraction_range), dtype=np.float32)
     sf_scores = np.zeros(len(fraction_range), dtype=np.float32)
@@ -204,7 +218,7 @@ def bias_experiment(df, y, fraction_range, SEED=None):
             df.pop('new_feature')
 
         # Add new
-        new_feature, correlations[i], _ = create_numeric_feature_classification(y, fraction=f, seed=SEED)
+        new_feature, correlations[i] = create_feature(y, fraction=f, seed=SEED)
         df = pd.concat([pd.Series(new_feature, name='new_feature'), df], axis=1)
 
         # Split the data with random seed
@@ -233,7 +247,7 @@ def tick_function(correlations):
     return [round(c, 2) for c in correlations]
 
 
-def plot_bias(fraction_range, correlations, rf_scores, sf_scores, permutation_importances):
+def plot_bias(fraction_range, correlations, rf_scores, sf_scores, permutation_importances, dataset_name):
     # Axis for scores
     # Set figure and first axis
     fig = plt.figure(figsize=(14, 16))
@@ -258,7 +272,7 @@ def plot_bias(fraction_range, correlations, rf_scores, sf_scores, permutation_im
     # Set legend and titles
     plt.legend()
     ax1.set_ylabel('Score')
-    plt.title('Scores', fontsize=16)
+    plt.title(f'Scores, {dataset_name} dataset', fontsize=16)
 
     # Axis for importances
     df_permutation_importances = pd.DataFrame(permutation_importances)
@@ -275,8 +289,8 @@ def plot_bias(fraction_range, correlations, rf_scores, sf_scores, permutation_im
     plt.xticks(rotation=90)
     ax4.set_xticks(ax3.get_xticks())
     ax4.set_xlim(0.0, 1.0)
-    ax3.set_xticklabels(tick_function(correlations))
-    ax3.set_xlabel('Correlation')
+    ax4.set_xticklabels(tick_function(correlations))
+    ax4.set_xlabel('New feature correlation')
 
     # Plot importances
     plt.plot(fraction_range, df_permutation_importances['rf_train'].values, label='Random Forest, train')
@@ -287,6 +301,7 @@ def plot_bias(fraction_range, correlations, rf_scores, sf_scores, permutation_im
     # Set legend and titles
     plt.legend()
     ax3.set_ylabel('New feature importance')
-    plt.title('Permutation importance', fontsize=16)
+    plt.title(f'Permutation importance, {dataset_name} dataset', fontsize=16)
+    plt.tight_layout()
     plt.show()
 
