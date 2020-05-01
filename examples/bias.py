@@ -1,19 +1,20 @@
-from simforest import SimilarityForestClassifier
-from sklearn.ensemble import RandomForestClassifier
+from simforest import SimilarityForestClassifier, SimilarityForestRegressor
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+from sklearn.base import is_classifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import f1_score, matthews_corrcoef
+from sklearn.metrics import f1_score, matthews_corrcoef, r2_score
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.inspection import permutation_importance
-from scipy.stats import pointbiserialr
+from scipy.stats import pointbiserialr, spearmanr
 import tqdm
 
 
-def create_numeric_feature_classification(y, a=10, b=5, fraction=0.2, seed=None, verbose=False):
+def create_numerical_feature_classification(y, a=10, b=5, fraction=0.2, seed=None, verbose=False):
     """
-    Create synthetic numeric column, strongly correlated with binary classification target.
+    Create synthetic numerical column, strongly correlated with binary classification target.
     Each value is calculated according to the formula:
         v = y * a + random(-b, b)
         So its scaled target value with some noise.
@@ -95,6 +96,54 @@ def create_categorical_feature_classification(y, fraction=0.2, seed=None, verbos
     return new_column, corr
 
 
+def create_numerical_feature_regression(y, fraction=0.2, seed=None, verbose=False):
+    """
+    Create synthetic numerical column, strongly correlated with regression target.
+    Each value is calculated according to the formula:
+        v = y * a + random(-b, b)
+        Where:
+            a: 10
+            b: one standard deviation of target vector
+        So its scaled target value with some noise.
+    Then a fraction of values is permuted, to reduce the correlation.
+
+    Spearman rank correlation is used to measure association.
+    Parameters
+    ---------
+        y : np.ndarray, target vector
+        fraction : float (default=0.2), fraction of values to be permuted to reduce the correlation
+        seed : int (default=None), random seed that can be specified to obtain deterministic behaviour
+        verbose : bool (default=False), when True, print correlation before and after the shuffling
+
+    Returns
+    ----------
+        new_column : np.ndarray, new feature vector
+        corr : float, correlation of new feature vector with target vector
+    """
+    if seed is not None:
+        np.random.seed(seed)
+
+    a = 10
+    b = np.std(y)
+    new_column = y * a + np.random.uniform(low=-b, high=b, size=len(y))
+
+    if verbose:
+        corr, v = spearmanr(new_column, y)
+        print(f'Initial new feature - target Spearman correlation, without shuffling: {round(corr, 3)}, p: {round(v, 3)}')
+
+    # Choose which samples to permute
+    indices = np.random.choice(range(len(y)), int(fraction * len(y)), replace=False)
+
+    # Find new order of this samples
+    shuffled_indices = np.random.permutation(len(indices))
+    new_column[indices] = new_column[indices][shuffled_indices]
+    corr, p = spearmanr(new_column, y)
+    if verbose:
+        print(f'New feature - target Spearman correlation, after shuffling: {round(corr, 3)}, p: {round(v, 3)}')
+
+    return new_column, corr
+
+
 def importance(model, X, y):
     """
     Measure permutation importance of features in a dataset, according to a given model.
@@ -166,11 +215,16 @@ def get_permutation_importances(rf, sf, X_train, y_train, X_test, y_test, corr=N
 def score_model(model, X_train, y_train, X_test, y_test):
     """
     Fit the model on train set and score it on test set.
+    For classification, use f1 score, for regression use r2 score.
     Handy function to avoid some duplicated code.
     """
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
-    score = f1_score(y_test, y_pred)
+
+    if is_classifier(model):
+        score = f1_score(y_test, y_pred)
+    else:
+        score = r2_score(y_test, y_pred)
     return model, score
 
 
@@ -189,7 +243,7 @@ def bias_experiment(df, y, task, column_type, fraction_range, SEED=None):
     :param df: pandas DataFrame with the dataset
     :param y: vector with labels
     :param task: string, `classification` or `regression`
-    :param column_type: string, `numeric` or `categorical`
+    :param column_type: string, `numerical` or `categorical`
     :param fraction_range:
     :param SEED: random number generator seed
     :return:
@@ -198,14 +252,26 @@ def bias_experiment(df, y, task, column_type, fraction_range, SEED=None):
     create_feature = None
 
     if task == 'classification':
-        if column_type == 'numeric':
-            create_feature = create_numeric_feature_classification
+        RandomForest = RandomForestClassifier
+        SimilarityForest = SimilarityForestClassifier
+        if column_type == 'numerical':
+            create_feature = create_numerical_feature_classification
         elif column_type == 'categorical':
             create_feature = create_categorical_feature_classification
         else:
-            raise ValueError(f'column_type should be either `numeric` or `categorical`, found: {column_type}')
+            raise ValueError(f'column_type should be either `numerical` or `categorical`, found: {column_type}')
+
+    elif task == 'regression':
+        RandomForest = RandomForestRegressor
+        SimilarityForest = SimilarityForestRegressor
+        if column_type == 'numerical':
+            create_feature = create_numerical_feature_regression
+        elif column_type == 'categorical':
+            raise NotImplementedError
+        else:
+            raise ValueError(f'column_type should be either `numerical` or `categorical`, found: {column_type}')
     else:
-        raise NotImplementedError
+        raise ValueError(f'task should be either `classification` or `regression`, found: {column_type}')
 
     correlations = np.zeros(len(fraction_range), dtype=np.float32)
     rf_scores = np.zeros(len(fraction_range), dtype=np.float32)
@@ -231,10 +297,10 @@ def bias_experiment(df, y, task, column_type, fraction_range, SEED=None):
         X_test = scaler.transform(X_test)
 
         # Score
-        rf, rf_scores[i] = score_model(RandomForestClassifier(random_state=SEED),
+        rf, rf_scores[i] = score_model(RandomForest(random_state=SEED),
                                        X_train, y_train, X_test, y_test)
 
-        sf, sf_scores[i] = score_model(SimilarityForestClassifier(n_estimators=100, random_state=SEED),
+        sf, sf_scores[i] = score_model(SimilarityForest(n_estimators=100, random_state=SEED),
                                        X_train, y_train, X_test, y_test)
 
         # Measure features importances
