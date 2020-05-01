@@ -2,7 +2,7 @@ from simforest import SimilarityForestClassifier, SimilarityForestRegressor
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.base import is_classifier
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, KBinsDiscretizer
 from sklearn.metrics import f1_score, matthews_corrcoef, r2_score
 import numpy as np
 import pandas as pd
@@ -144,6 +144,54 @@ def create_numerical_feature_regression(y, fraction=0.2, seed=None, verbose=Fals
     return new_column, corr
 
 
+def create_categorical_feature_regression(y, fraction=0.2, seed=None, verbose=False):
+    """
+    Create synthetic categorical column, strongly correlated with regression target.
+    Each value is calculated according to the formula:
+        v = y * a + random(-b, b)
+        Where:
+            a: 10
+            b: one standard deviation of target vector
+        So its scaled target value with some noise.
+    Then a fraction of values is permuted, to reduce the correlation.
+
+    Point biserial correlation is used to measure association.
+    Parameters
+    ---------
+        y : np.ndarray, target vector
+        fraction : float (default=0.2), fraction of values to be permuted to reduce the correlation
+        seed : int (default=None), random seed that can be specified to obtain deterministic behaviour
+        verbose : bool (default=False), when True, print correlation before and after the shuffling
+
+    Returns
+    ----------
+        new_column : np.ndarray, new feature vector
+        corr : float, correlation of new feature vector with target vector
+    """
+    if seed is not None:
+        np.random.seed(seed)
+
+    discretizer = KBinsDiscretizer(n_bins=5, encode='ordinal', strategy='uniform')
+    new_column = discretizer.fit_transform(y.reshape(-1, 1))
+    new_column = new_column.ravel()
+
+    if verbose:
+        corr, v = pointbiserialr(new_column, y)
+        print(f'Initial new feature - target point biserial correlation, without shuffling: {round(corr, 3)}, p: {round(v, 3)}')
+
+    # Choose which samples to permute
+    indices = np.random.choice(range(len(y)), int(fraction * len(y)), replace=False)
+
+    # Find new order of this samples
+    shuffled_indices = np.random.permutation(len(indices))
+    new_column[indices] = new_column[indices][shuffled_indices]
+    corr, p = pointbiserialr(new_column, y)
+    if verbose:
+        print(f'New feature - target point biserial correlation, after shuffling: {round(corr, 3)}, p: {round(p, 3)}')
+
+    return new_column, corr
+
+
 def importance(model, X, y):
     """
     Measure permutation importance of features in a dataset, according to a given model.
@@ -182,21 +230,29 @@ def get_permutation_importances(rf, sf, X_train, y_train, X_test, y_test, corr=N
     sf_test_result, sf_test_sorted_idx = importance(sf, X_test, y_test)
 
     if plot:
+        # By default, max value on axis is 0.5
+        xlim_max = 0.5
+
+        # If an importance value is greater than that, adjust max
+        max_importance = max(rf_train_result['importances_mean'][0], rf_test_result['importances_mean'][0])
+        if max_importance >= xlim_max:
+            xlim_max = max_importance
+
         fig, ax = plt.subplots(2, 2, figsize=(14, 8))
-        ax[0, 0].set_xlim(-0.05, 0.5)
+        ax[0, 0].set_xlim(-0.05, xlim_max)
         ax[0, 0].boxplot(rf_train_result.importances[rf_train_sorted_idx].T,
                          vert=False, labels=labels[rf_train_sorted_idx])
         ax[0, 0].set_title('Random Forest, train set')
-        ax[0, 1].set_xlim(-0.05, 0.5)
+        ax[0, 1].set_xlim(-0.05, xlim_max)
         ax[0, 1].boxplot(rf_test_result.importances[rf_test_sorted_idx].T,
                          vert=False, labels=labels[rf_test_sorted_idx])
         ax[0, 1].set_title('Random Forest, test set')
 
-        ax[1, 0].set_xlim(-0.05, 0.5)
+        ax[1, 0].set_xlim(-0.05, xlim_max)
         ax[1, 0].boxplot(sf_train_result.importances[sf_train_sorted_idx].T,
                          vert=False, labels=labels[sf_train_sorted_idx])
         ax[1, 0].set_title('Similarity Forest, train set')
-        ax[1, 1].set_xlim(-0.05, 0.5)
+        ax[1, 1].set_xlim(-0.05, xlim_max)
         ax[1, 1].boxplot(sf_test_result.importances[sf_test_sorted_idx].T,
                          vert=False, labels=labels[sf_test_sorted_idx])
         ax[1, 1].set_title('Similarity Forest, test set')
@@ -267,7 +323,7 @@ def bias_experiment(df, y, task, column_type, fraction_range, SEED=None):
         if column_type == 'numerical':
             create_feature = create_numerical_feature_regression
         elif column_type == 'categorical':
-            raise NotImplementedError
+            create_feature = create_categorical_feature_regression
         else:
             raise ValueError(f'column_type should be either `numerical` or `categorical`, found: {column_type}')
     else:

@@ -1165,7 +1165,7 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
 
             self.estimators_.append(tree)
 
-        pool = Pool(processes=1)
+        pool = Pool(processes=4)
         self.estimators_ = pool.map(self.fit_tree_, self.estimators_)
         pool.close()
         pool.join()
