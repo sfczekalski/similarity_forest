@@ -582,8 +582,8 @@ def get_gisette():
 
 datasets = [
     # binary
-    #get_heart(),
-    get_ionosphere(),
+    get_heart(),
+    #get_ionosphere(),
     get_breast_cancer(),
     #get_german_numer(),
     #get_madelon(),
@@ -617,6 +617,3 @@ datasets = [
 def get_datasets():
     for d in datasets:
         yield d
-
-
-#get_datasets()

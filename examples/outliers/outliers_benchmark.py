@@ -38,7 +38,7 @@ df = pd.DataFrame(columns=['dataset',
                            'IF f1 std', 'SF f1 std',
                            'p-val roc-auc', 'p-val precision', 'p-val recall', 'p-val f1'])
 
-log_name = 'logs/outlier_detectionmost_different_more_metrics_log.csv'
+log_name = 'logs/outlier_detection_most_different_more_metrics_log.csv'
 
 
 # load and prepare data

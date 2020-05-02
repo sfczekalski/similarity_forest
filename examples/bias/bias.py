@@ -206,7 +206,8 @@ def importance(model, X, y):
     return result, sorted_idx
 
 
-def get_permutation_importances(rf, sf, X_train, y_train, X_test, y_test, corr=None, labels=None, plot=False):
+def get_permutation_importances(rf, sf, X_train, y_train, X_test, y_test,
+                                corr=None, labels=None, plot=False, image_path=None):
     """
     Measure permutation features importances according to two models, on both train and test set
     :param rf: first model, already fitted
@@ -257,6 +258,9 @@ def get_permutation_importances(rf, sf, X_train, y_train, X_test, y_test, corr=N
                          vert=False, labels=labels[sf_test_sorted_idx])
         ax[1, 1].set_title('Similarity Forest, test set')
         plt.suptitle(f'Feature importances, correlation: {round(corr, 3)}', fontsize=16)
+
+        if image_path is not None:
+            plt.savefig(image_path, dpi=100)
         plt.show()
 
     # Return importance of new feature (it's first in the list)
@@ -369,11 +373,12 @@ def tick_function(correlations):
     return [round(c, 2) for c in correlations]
 
 
-def plot_bias(fraction_range, correlations, rf_scores, sf_scores, permutation_importances, dataset_name):
+def plot_bias(fraction_range, correlations, rf_scores, sf_scores, permutation_importances,
+              dataset_name, image_path=None):
     # Axis for scores
     # Set figure and first axis
-    fig = plt.figure(figsize=(14, 16))
-    ax1 = fig.add_subplot(2, 1, 1)
+    fig = plt.figure(figsize=(16, 6))
+    ax1 = fig.add_subplot(1, 2, 1)
     plt.xticks(rotation=90)
     ax1.set_xticks(fraction_range)
     ax1.set_xlim(0.0, 1.0)
@@ -400,7 +405,7 @@ def plot_bias(fraction_range, correlations, rf_scores, sf_scores, permutation_im
     df_permutation_importances = pd.DataFrame(permutation_importances)
 
     # Set figure and first axis
-    ax3 = fig.add_subplot(2, 1, 2)
+    ax3 = fig.add_subplot(1, 2, 2)
     plt.xticks(rotation=90)
     ax3.set_xticks(fraction_range)
     ax3.set_xlim(0.0, 1.0)
@@ -425,5 +430,8 @@ def plot_bias(fraction_range, correlations, rf_scores, sf_scores, permutation_im
     ax3.set_ylabel('New feature importance')
     plt.title(f'Permutation importance, {dataset_name} dataset', fontsize=16)
     plt.tight_layout()
+
+    if image_path is not None:
+        plt.savefig(image_path, dpi=100)
     plt.show()
 
