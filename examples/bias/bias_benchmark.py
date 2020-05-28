@@ -2,11 +2,12 @@ from examples.classification.classification_datasets import get_datasets as get_
 from examples.regression.regression_datasets import get_datasets as get_regression_datasets
 from examples.bias.bias import *
 
+import json
 import neptune
 import seaborn as sns
 sns.set_style('whitegrid')
 
-task = 'classification'
+task = 'regression'
 feature = 'numerical'
 if task == 'classification':
     get_datasets = get_classification_datasets
@@ -35,6 +36,19 @@ for d in get_datasets():
                                                                                   fraction_range, SEED)
     plot_bias(fraction_range, correlations, rf_scores, sf_scores,
               permutation_importances, dataset_name, image_path+'.png')
+
+    # Log chart and raw results into Neptune
     neptune.send_image(f'{dataset_name}', image_path+'.png')
+    results_dict = {
+        'correlations': correlations,
+        'rf_scores': rf_scores,
+        'sf_scores': sf_scores,
+        'permutation_importances': permutation_importances
+    }
+    results_json = json.dumps(results_dict)
+    result_file_path = f'./logs/{task}_{dataset_name}_{feature}_results.json'
+    with open(result_file_path, 'w+') as f:
+        json.dump(results_json, f)
+    neptune.log_artifact(result_file_path)
 
 neptune.stop()

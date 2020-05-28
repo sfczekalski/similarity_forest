@@ -585,12 +585,12 @@ datasets = [
     get_heart(),
     #get_ionosphere(),
     get_breast_cancer(),
-    #get_german_numer(),
+    get_german_numer(),
     #get_madelon(),
     #get_diabetes(),
     #get_australian(),
     #get_splice(),
-    get_a1a(),
+    #get_a1a(),
     get_svmguide3()
     #get_liver_disorders()
 
