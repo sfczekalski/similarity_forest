@@ -395,8 +395,8 @@ def plot_bias(fraction_range, correlations, rf_scores, sf_scores, permutation_im
     ax2.set_xlabel('New feature correlation')
 
     # Plot scores
-    plt.plot(fraction_range, rf_scores, label='Random Forest')
-    plt.plot(fraction_range, sf_scores, label='Similarity Forest')
+    plt.plot(fraction_range, rf_scores, label='Random Forest', color='black', linestyle='dashdot')
+    plt.plot(fraction_range, sf_scores, label='Similarity Forest', color='black', linestyle='solid')
 
     # Set legend and titles
     plt.legend()
@@ -422,10 +422,14 @@ def plot_bias(fraction_range, correlations, rf_scores, sf_scores, permutation_im
     ax4.set_xlabel('New feature correlation')
 
     # Plot importances
-    plt.plot(fraction_range, df_permutation_importances['rf_train'].values, label='Random Forest, train')
-    plt.plot(fraction_range, df_permutation_importances['rf_test'].values, label='Random Forest, test')
-    plt.plot(fraction_range, df_permutation_importances['sf_train'].values, label='Similarity Forest, train')
-    plt.plot(fraction_range, df_permutation_importances['sf_test'].values, label='Similarity Forest, test')
+    plt.plot(fraction_range, df_permutation_importances['rf_train'].values,
+             label='Random Forest, train', color='black', linestyle='dashdot')
+    plt.plot(fraction_range, df_permutation_importances['rf_test'].values,
+             label='Random Forest, test', color='black', linestyle='dotted')
+    plt.plot(fraction_range, df_permutation_importances['sf_train'].values,
+             label='Similarity Forest, train', color='black', linestyle='solid')
+    plt.plot(fraction_range, df_permutation_importances['sf_test'].values,
+             label='Similarity Forest, test', color='black', linestyle='dashed')
 
     # Set legend and titles
     plt.legend()
