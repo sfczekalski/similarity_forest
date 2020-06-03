@@ -15,6 +15,15 @@ def tick_function(correlations):
 @click.option('--feat', prompt='Feature type',
               help='categorical or numerical')
 def visualize_bias(task, feat):
+    """
+    Simple CLI application to visualize how synthetic column influences fitting RF and SF.
+    Two plots are prepared:
+        first with a scores, depending on synthetic column correlation
+        second with permutation feature importances, depending on synthetic column correlation
+    :param task: task to perfom, either classification or regression
+    :param feat: type of synthetic feature to be generated, either numerical or categorical
+    :return: None
+    """
     assert task in ['classification', 'regression'], \
         f'task should be either classification or regression, found: {task}'
     assert feat in ['categorical', 'numerical'], \
