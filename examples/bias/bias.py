@@ -192,7 +192,7 @@ def create_categorical_feature_regression(y, fraction=0.2, seed=None, verbose=Fa
     return new_column, corr
 
 
-def importance(model, X, y):
+def importance(model, X, y, scoring):
     """
     Measure permutation importance of features in a dataset, according to a given model.
     Returns
@@ -200,13 +200,13 @@ def importance(model, X, y):
     dictionary with permutation importances
     index of features, from most to least important
     """
-    result = permutation_importance(model, X, y, n_repeats=10, random_state=42, n_jobs=4)
+    result = permutation_importance(model, X, y, scoring=scoring, n_repeats=4, random_state=42, n_jobs=4)
     sorted_idx = result.importances_mean.argsort()
 
     return result, sorted_idx
 
 
-def get_permutation_importances(rf, sf, X_train, y_train, X_test, y_test,
+def get_permutation_importances(rf, sf, X_train, y_train, X_test, y_test, scoring,
                                 corr=None, labels=None, plot=False, image_path=None):
     """
     Measure permutation features importances according to two models, on both train and test set
@@ -225,10 +225,10 @@ def get_permutation_importances(rf, sf, X_train, y_train, X_test, y_test,
     """
 
     # Get feature importances for both training and test set
-    rf_train_result, rf_train_sorted_idx = importance(rf, X_train, y_train)
-    rf_test_result, rf_test_sorted_idx = importance(rf, X_test, y_test)
-    sf_train_result, sf_train_sorted_idx = importance(sf, X_train, y_train)
-    sf_test_result, sf_test_sorted_idx = importance(sf, X_test, y_test)
+    rf_train_result, rf_train_sorted_idx = importance(rf, X_train, y_train, scoring)
+    rf_test_result, rf_test_sorted_idx = importance(rf, X_test, y_test, scoring)
+    sf_train_result, sf_train_sorted_idx = importance(sf, X_train, y_train, scoring)
+    sf_test_result, sf_test_sorted_idx = importance(sf, X_test, y_test, scoring)
 
     if plot:
         # By default, max value on axis is 0.5
@@ -314,6 +314,7 @@ def bias_experiment(df, y, task, column_type, fraction_range, SEED=None):
     if task == 'classification':
         RandomForest = RandomForestClassifier
         SimilarityForest = SimilarityForestClassifier
+        scoring = 'f1'
         if column_type == 'numerical':
             create_feature = create_numerical_feature_classification
         elif column_type == 'categorical':
@@ -324,6 +325,7 @@ def bias_experiment(df, y, task, column_type, fraction_range, SEED=None):
     elif task == 'regression':
         RandomForest = RandomForestRegressor
         SimilarityForest = SimilarityForestRegressor
+        scoring = 'r2'
         if column_type == 'numerical':
             create_feature = create_numerical_feature_regression
         elif column_type == 'categorical':
@@ -364,7 +366,7 @@ def bias_experiment(df, y, task, column_type, fraction_range, SEED=None):
                                        X_train, y_train, X_test, y_test)
 
         # Measure features importances
-        permutation_importances.append(get_permutation_importances(rf, sf, X_train, y_train, X_test, y_test))
+        permutation_importances.append(get_permutation_importances(rf, sf, X_train, y_train, X_test, y_test, scoring))
 
     return correlations, rf_scores, sf_scores, permutation_importances
 

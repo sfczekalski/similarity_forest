@@ -366,10 +366,9 @@ datasets = [
             get_mpg(),
             #get_hardware(),
             get_spacega(),
-            #get_eunite2001(),
-
-            get_wine_quality()
-            #get_abalone(),
+            get_eunite2001(),
+            get_wine_quality(),
+            get_abalone(),
             #get_energy_efficiency_heating(),
             #get_concrete_flow()
 ]
