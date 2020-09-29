@@ -66,7 +66,7 @@ doc/generated/
 # PyBuilder
 target/
 
-#Pycharm specific settings
+# Pycharm specific settings
 .idea
 /simforest/cluster/_cluster.c
 /simforest/cluster/_cluster.html
@@ -74,3 +74,12 @@ target/
 /simforest/_distance.html
 /simforest/criterion.c
 /simforest/criterion.html
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints
+
+# Pytest
+.pytest_cache
+
+# Circleci
+.circleci
