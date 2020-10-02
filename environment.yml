@@ -10,3 +10,8 @@ dependencies:
   - neptune-client
   - hdbscan
   - seaborn
+  - cython
+  - numexpr
+  - pip
+  - pip:
+      - git+https://github.com/mmngreco/IneqPy.git
