@@ -68,11 +68,10 @@ target/
 
 # Pycharm specific settings
 .idea
-/simforest/cluster/_cluster.c
+
+# Cython compiling reports
 /simforest/cluster/_cluster.html
-/simforest/_distance.c
 /simforest/_distance.html
-/simforest/criterion.c
 /simforest/criterion.html
 
 # Jupyter notebook checkpoints
