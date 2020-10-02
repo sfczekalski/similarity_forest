@@ -18,14 +18,14 @@ with open(ver_file) as f:
     exec(f.read())
 
 DISTNAME = 'simforest'
-DESCRIPTION = 'A template for scikit-learn compatible packages.'
+DESCRIPTION = 'Similarity Forest implementation compatible with Scikit-Learn API.'
 with codecs.open('README.rst', encoding='utf-8-sig') as f:
     LONG_DESCRIPTION = f.read()
-MAINTAINER = 'V. Birodkars, G. Lemaitre'
-MAINTAINER_EMAIL = 'vighneshbirodkar@nyu.edu, g.lemaitre58@gmail.com'
-URL = 'https://github.com/scikit-learn-contrib/project-template'
+MAINTAINER = 'Stanisław Czekalski'
+MAINTAINER_EMAIL = 'sfczekalski@gmail.com'
+URL = 'https://github.com/sfczekalski/similarity_forest'
 LICENSE = 'new BSD'
-DOWNLOAD_URL = 'https://github.com/scikit-learn-contrib/project-template'
+DOWNLOAD_URL = 'https://github.com/sfczekalski/similarity_forest'
 VERSION = __version__
 INSTALL_REQUIRES = ['numpy', 'scipy', 'scikit-learn']
 CLASSIFIERS = ['Intended Audience :: Science/Research',
@@ -68,53 +68,8 @@ setup(name=DISTNAME,
       classifiers=CLASSIFIERS,
       packages=find_packages(),
       install_requires=INSTALL_REQUIRES,
-      extras_require=EXTRAS_REQUIRE)
-
-# Cython compiling
-'''works ext_modules = [
-    Extension("_cluster", ["simforest/_cluster.pyx"]),
-    Extension("criterion", ["simforest/criterion.pyx"]),
-    Extension("_distance", ["simforest/_distance.pyx"])
-]
-
-setup(
-    cmdclass={'build_ext': build_ext},
-    ext_modules=cythonize([ext_utils]),
-    include_dirs=[numpy.get_include()],
-    extra_compile_args=['-O3', '-march=native', '-ffast-math', '-fopenmp'],
-    extra_link_args=['-fopenmp']
-)'''
-
-'''ext_modules=[
-    Extension("cluster", ["simforest/_cluster.pyx"]),
-    Extension("criterion", ["simforest/criterion.pyx"])
-]'''
-
-setup(
-    cmdclass={'build_ext': build_ext},
-    ext_modules=cythonize(["simforest/*.pyx", "simforest/cluster/*.pyx"]),
-    include_dirs=[numpy.get_include()]
-    #,extra_compile_args=['-O3', '-march=native', '-ffast-math', '-fopenmp'],
-    #extra_link_args=['-fopenmp']
-)
-
-
-
-'''ext_utils = Extension(
-    'simforest'
-    , sources=['simforest/_cluster.pyx', 'simforest/criterion.pyx', 'simforest/_distance.pyx']
-    , include_dirs=[numpy.get_include()]
-    , extra_compile_args=['-O3', '-march=native', '-ffast-math', '-fopenmp']
-    , extra_link_args=['-fopenmp']
-)
-setup(
-    name='simforest',
-    setup_requires=['cython', 'numpy']
-    , cmdclass={'build_ext': build_ext}
-    , ext_modules=cythonize([ext_utils]),
-)
-
-setup(
-      ext_modules=cythonize("simforest/criterion.pyx", annotate=True),
-      include_path=[numpy.get_include()]
-)'''
+      extras_require=EXTRAS_REQUIRE,
+      cmdclass={'build_ext': build_ext},  # Cython compiling
+      ext_modules=cythonize(["simforest/*.pyx", "simforest/cluster/*.pyx"]),
+      include_dirs=[numpy.get_include()]
+      )
