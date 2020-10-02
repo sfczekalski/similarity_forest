@@ -27,7 +27,7 @@ URL = 'https://github.com/sfczekalski/similarity_forest'
 LICENSE = 'new BSD'
 DOWNLOAD_URL = 'https://github.com/sfczekalski/similarity_forest'
 VERSION = __version__
-INSTALL_REQUIRES = ['numpy', 'scipy', 'scikit-learn']
+INSTALL_REQUIRES = ['cython', 'numpy', 'scipy', 'scikit-learn']
 CLASSIFIERS = ['Intended Audience :: Science/Research',
                'Intended Audience :: Developers',
                'License :: OSI Approved',
