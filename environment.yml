@@ -12,6 +12,7 @@ dependencies:
   - seaborn
   - cython
   - numexpr
+  - notebook
   - pip
   - pip:
       - git+https://github.com/mmngreco/IneqPy.git

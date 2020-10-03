@@ -1259,7 +1259,7 @@ struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityForestClusterer {
 };
 
 
-/* "simforest/cluster/_cluster.pyx":302
+/* "simforest/cluster/_cluster.pyx":257
  * 
  * 
  * cdef class CSimilarityTreeCluster:             # <<<<<<<<<<<<<<
@@ -1375,12 +1375,11 @@ struct __pyx_memoryviewslice_obj {
 struct __pyx_vtabstruct_9simforest_7cluster_8_cluster_CSimilarityForestClusterer {
   struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityForestClusterer *(*fit)(struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityForestClusterer *, PyArrayObject *, int __pyx_skip_dispatch);
   PyArrayObject *(*predict_)(struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityForestClusterer *, PyArrayObject *, int __pyx_skip_dispatch);
-  PyArrayObject *(*ppredict_)(struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityForestClusterer *, PyArrayObject *, int __pyx_skip_dispatch);
 };
 static struct __pyx_vtabstruct_9simforest_7cluster_8_cluster_CSimilarityForestClusterer *__pyx_vtabptr_9simforest_7cluster_8_cluster_CSimilarityForestClusterer;
 
 
-/* "simforest/cluster/_cluster.pyx":302
+/* "simforest/cluster/_cluster.pyx":257
  * 
  * 
  * cdef class CSimilarityTreeCluster:             # <<<<<<<<<<<<<<
@@ -1393,7 +1392,7 @@ struct __pyx_vtabstruct_9simforest_7cluster_8_cluster_CSimilarityTreeCluster {
   int (*sample_split_direction)(struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *, PyArrayObject *, int, int __pyx_skip_dispatch);
   void (*_find_split)(struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *, __Pyx_memviewslice, __pyx_t_9simforest_7cluster_8_cluster_f_type);
   struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *(*fit)(struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *, PyArrayObject *, int __pyx_skip_dispatch);
-  int (*distance)(struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *, __Pyx_memviewslice, __Pyx_memviewslice);
+  int (*similarity)(struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *, __Pyx_memviewslice, __Pyx_memviewslice);
   PyArrayObject *(*predict_)(struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *, PyArrayObject *, int __pyx_skip_dispatch);
 };
 static struct __pyx_vtabstruct_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__pyx_vtabptr_9simforest_7cluster_8_cluster_CSimilarityTreeCluster;
@@ -2219,10 +2218,10 @@ static int __Pyx_ValidateAndInit_memviewslice(
 static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_ds_int(PyObject *, int writable_flag);
 
 /* ObjectToMemviewSlice.proto */
-static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_ds_float(PyObject *, int writable_flag);
+static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_dsds_float(PyObject *, int writable_flag);
 
 /* ObjectToMemviewSlice.proto */
-static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_dsds_float(PyObject *, int writable_flag);
+static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_ds_float(PyObject *, int writable_flag);
 
 /* CheckBinaryVersion.proto */
 static int __Pyx_check_binary_version(void);
@@ -2232,12 +2231,11 @@ static int __Pyx_InitStrings(__Pyx_StringTabEntry *t);
 
 static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityForestClusterer *__pyx_f_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_fit(struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityForestClusterer *__pyx_v_self, PyArrayObject *__pyx_v_X, int __pyx_skip_dispatch); /* proto*/
 static PyArrayObject *__pyx_f_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_predict_(struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityForestClusterer *__pyx_v_self, PyArrayObject *__pyx_v_X, int __pyx_skip_dispatch); /* proto*/
-static PyArrayObject *__pyx_f_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_ppredict_(struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityForestClusterer *__pyx_v_self, PyArrayObject *__pyx_v_X, int __pyx_skip_dispatch); /* proto*/
 static int __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_is_pure(CYTHON_UNUSED struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__pyx_v_self, __Pyx_memviewslice __pyx_v_X); /* proto*/
 static int __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_sample_split_direction(struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__pyx_v_self, PyArrayObject *__pyx_v_X, int __pyx_v_first, int __pyx_skip_dispatch); /* proto*/
 static void __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster__find_split(struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__pyx_v_self, __Pyx_memviewslice __pyx_v_X, __pyx_t_9simforest_7cluster_8_cluster_f_type __pyx_v_projection); /* proto*/
 static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_fit(struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__pyx_v_self, PyArrayObject *__pyx_v_X, int __pyx_skip_dispatch); /* proto*/
-static int __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_distance(struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__pyx_v_self, __Pyx_memviewslice __pyx_v_xi, __Pyx_memviewslice __pyx_v_xj); /* proto*/
+static int __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_similarity(struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__pyx_v_self, __Pyx_memviewslice __pyx_v_xi, __Pyx_memviewslice __pyx_v_xj); /* proto*/
 static PyArrayObject *__pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_predict_(struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__pyx_v_self, PyArrayObject *__pyx_v_X, int __pyx_skip_dispatch); /* proto*/
 static PyObject *__pyx_array_get_memview(struct __pyx_array_obj *__pyx_v_self); /* proto*/
 static char *__pyx_memoryview_get_item_pointer(struct __pyx_memoryview_obj *__pyx_v_self, PyObject *__pyx_v_index); /* proto*/
@@ -2418,10 +2416,8 @@ static const char __pyx_k_randint[] = "randint";
 static const char __pyx_k_replace[] = "replace";
 static const char __pyx_k_uniform[] = "uniform";
 static const char __pyx_k_Ellipsis[] = "Ellipsis";
-static const char __pyx_k_distance[] = "distance";
 static const char __pyx_k_getstate[] = "__getstate__";
 static const char __pyx_k_itemsize[] = "itemsize";
-static const char __pyx_k_ppredict[] = "ppredict_";
 static const char __pyx_k_pyx_type[] = "__pyx_type";
 static const char __pyx_k_setstate[] = "__setstate__";
 static const char __pyx_k_TypeError[] = "TypeError";
@@ -2541,7 +2537,6 @@ static PyObject *__pyx_kp_s_contiguous_and_direct;
 static PyObject *__pyx_kp_s_contiguous_and_indirect;
 static PyObject *__pyx_n_s_depth;
 static PyObject *__pyx_n_s_dict;
-static PyObject *__pyx_n_s_distance;
 static PyObject *__pyx_n_s_dot;
 static PyObject *__pyx_n_s_dtype;
 static PyObject *__pyx_n_s_dtype_is_object;
@@ -2585,7 +2580,6 @@ static PyObject *__pyx_n_s_ones;
 static PyObject *__pyx_n_s_order;
 static PyObject *__pyx_n_s_pack;
 static PyObject *__pyx_n_s_pickle;
-static PyObject *__pyx_n_s_ppredict;
 static PyObject *__pyx_n_s_predict;
 static PyObject *__pyx_n_s_pyx_PickleError;
 static PyObject *__pyx_n_s_pyx_checksum;
@@ -2631,12 +2625,11 @@ static PyObject *__pyx_n_s_zeros;
 static int __pyx_pf_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer___cinit__(struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityForestClusterer *__pyx_v_self, PyObject *__pyx_v_random_state, PyObject *__pyx_v_sim_function, int __pyx_v_max_depth, int __pyx_v_n_estimators, int __pyx_v_bootstrap); /* proto */
 static PyObject *__pyx_pf_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_2fit(struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityForestClusterer *__pyx_v_self, PyArrayObject *__pyx_v_X); /* proto */
 static PyObject *__pyx_pf_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_4predict_(struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityForestClusterer *__pyx_v_self, PyArrayObject *__pyx_v_X); /* proto */
-static PyObject *__pyx_pf_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_6ppredict_(struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityForestClusterer *__pyx_v_self, PyArrayObject *__pyx_v_X); /* proto */
 static PyObject *__pyx_pf_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_11estimators____get__(struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityForestClusterer *__pyx_v_self); /* proto */
 static int __pyx_pf_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_11estimators__2__set__(struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityForestClusterer *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
 static int __pyx_pf_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_11estimators__4__del__(struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityForestClusterer *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_8__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityForestClusterer *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_10__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityForestClusterer *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
+static PyObject *__pyx_pf_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_6__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityForestClusterer *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_8__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityForestClusterer *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
 static int __pyx_pf_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster___cinit__(struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__pyx_v_self, PyObject *__pyx_v_random_state, PyObject *__pyx_v_sim_function, int __pyx_v_max_depth, int __pyx_v_depth); /* proto */
 static PyObject *__pyx_pf_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_2sample_split_direction(struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__pyx_v_self, PyArrayObject *__pyx_v_X, int __pyx_v_first); /* proto */
 static PyObject *__pyx_pf_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_4fit(struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__pyx_v_self, PyArrayObject *__pyx_v_X); /* proto */
@@ -4060,6 +4053,7 @@ static PyObject *__pyx_pf_9simforest_7cluster_8_cluster_26CSimilarityForestClust
 static PyObject *__pyx_pw_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_5predict_(PyObject *__pyx_v_self, PyObject *__pyx_v_X); /*proto*/
 static PyArrayObject *__pyx_f_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_predict_(struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityForestClusterer *__pyx_v_self, PyArrayObject *__pyx_v_X, int __pyx_skip_dispatch) {
   int __pyx_v_n;
+  __Pyx_memviewslice __pyx_v_X_view = { 0, 0, { 0 }, { 0 }, { 0 } };
   PyArrayObject *__pyx_v_distance_matrix = 0;
   __Pyx_memviewslice __pyx_v_view = { 0, 0, { 0 }, { 0 }, { 0 } };
   CYTHON_UNUSED int __pyx_v_num_threads;
@@ -4069,6 +4063,7 @@ static PyArrayObject *__pyx_f_9simforest_7cluster_8_cluster_26CSimilarityForestC
   int __pyx_v_i;
   int __pyx_v_j;
   int __pyx_v_e;
+  struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__pyx_v_current_tree = 0;
   __Pyx_LocalBuf_ND __pyx_pybuffernd_X;
   __Pyx_Buffer __pyx_pybuffer_X;
   __Pyx_LocalBuf_ND __pyx_pybuffernd_distance_matrix;
@@ -4079,12 +4074,12 @@ static PyArrayObject *__pyx_f_9simforest_7cluster_8_cluster_26CSimilarityForestC
   PyObject *__pyx_t_2 = NULL;
   PyObject *__pyx_t_3 = NULL;
   PyObject *__pyx_t_4 = NULL;
-  PyObject *__pyx_t_5 = NULL;
-  int __pyx_t_6;
-  PyObject *__pyx_t_7 = NULL;
-  PyArrayObject *__pyx_t_8 = NULL;
-  __Pyx_memviewslice __pyx_t_9 = { 0, 0, { 0 }, { 0 }, { 0 } };
-  int __pyx_t_10;
+  __Pyx_memviewslice __pyx_t_5 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  PyObject *__pyx_t_6 = NULL;
+  int __pyx_t_7;
+  PyObject *__pyx_t_8 = NULL;
+  PyArrayObject *__pyx_t_9 = NULL;
+  __Pyx_memviewslice __pyx_t_10 = { 0, 0, { 0 }, { 0 }, { 0 } };
   int __pyx_t_11;
   int __pyx_t_12;
   int __pyx_t_13;
@@ -4093,9 +4088,8 @@ static PyArrayObject *__pyx_f_9simforest_7cluster_8_cluster_26CSimilarityForestC
   int __pyx_t_16;
   int __pyx_t_17;
   int __pyx_t_18;
-  PyObject *__pyx_t_19 = NULL;
-  float __pyx_t_20;
-  Py_ssize_t __pyx_t_21;
+  __Pyx_memviewslice __pyx_t_19 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  Py_ssize_t __pyx_t_20;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -4165,126 +4159,138 @@ static PyArrayObject *__pyx_f_9simforest_7cluster_8_cluster_26CSimilarityForestC
  *             distance_matrix : ndarray of shape = comb(n_samples, 2) containing the distances
  *         """
  *         cdef int n = X.shape[0]             # <<<<<<<<<<<<<<
+ *         cdef float [:, :] X_view = X
  *         cdef np.ndarray[np.float32_t, ndim=1] distance_matrix = np.ones(<int>comb(n, 2), np.float32, order='c')
- *         cdef float [:] view = distance_matrix
  */
   __pyx_v_n = (__pyx_v_X->dimensions[0]);
 
   /* "simforest/cluster/_cluster.pyx":228
  *         """
  *         cdef int n = X.shape[0]
+ *         cdef float [:, :] X_view = X             # <<<<<<<<<<<<<<
+ *         cdef np.ndarray[np.float32_t, ndim=1] distance_matrix = np.ones(<int>comb(n, 2), np.float32, order='c')
+ *         cdef float [:] view = distance_matrix
+ */
+  __pyx_t_5 = __Pyx_PyObject_to_MemoryviewSlice_dsds_float(((PyObject *)__pyx_v_X), PyBUF_WRITABLE); if (unlikely(!__pyx_t_5.memview)) __PYX_ERR(0, 228, __pyx_L1_error)
+  __pyx_v_X_view = __pyx_t_5;
+  __pyx_t_5.memview = NULL;
+  __pyx_t_5.data = NULL;
+
+  /* "simforest/cluster/_cluster.pyx":229
+ *         cdef int n = X.shape[0]
+ *         cdef float [:, :] X_view = X
  *         cdef np.ndarray[np.float32_t, ndim=1] distance_matrix = np.ones(<int>comb(n, 2), np.float32, order='c')             # <<<<<<<<<<<<<<
  *         cdef float [:] view = distance_matrix
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 228, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 229, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_ones); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 228, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_ones); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 229, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_comb); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 228, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_comb); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 229, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_n); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 228, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_n); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 229, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = NULL;
-  __pyx_t_6 = 0;
+  __pyx_t_6 = NULL;
+  __pyx_t_7 = 0;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
-    __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_3);
-    if (likely(__pyx_t_5)) {
+    __pyx_t_6 = PyMethod_GET_SELF(__pyx_t_3);
+    if (likely(__pyx_t_6)) {
       PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
-      __Pyx_INCREF(__pyx_t_5);
+      __Pyx_INCREF(__pyx_t_6);
       __Pyx_INCREF(function);
       __Pyx_DECREF_SET(__pyx_t_3, function);
-      __pyx_t_6 = 1;
+      __pyx_t_7 = 1;
     }
   }
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_3)) {
-    PyObject *__pyx_temp[3] = {__pyx_t_5, __pyx_t_4, __pyx_int_2};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 228, __pyx_L1_error)
-    __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
+    PyObject *__pyx_temp[3] = {__pyx_t_6, __pyx_t_4, __pyx_int_2};
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 229, __pyx_L1_error)
+    __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   } else
   #endif
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
-    PyObject *__pyx_temp[3] = {__pyx_t_5, __pyx_t_4, __pyx_int_2};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 228, __pyx_L1_error)
-    __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
+    PyObject *__pyx_temp[3] = {__pyx_t_6, __pyx_t_4, __pyx_int_2};
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 229, __pyx_L1_error)
+    __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   } else
   #endif
   {
-    __pyx_t_7 = PyTuple_New(2+__pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 228, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_7);
-    if (__pyx_t_5) {
-      __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_t_5); __pyx_t_5 = NULL;
+    __pyx_t_8 = PyTuple_New(2+__pyx_t_7); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 229, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_8);
+    if (__pyx_t_6) {
+      __Pyx_GIVEREF(__pyx_t_6); PyTuple_SET_ITEM(__pyx_t_8, 0, __pyx_t_6); __pyx_t_6 = NULL;
     }
     __Pyx_GIVEREF(__pyx_t_4);
-    PyTuple_SET_ITEM(__pyx_t_7, 0+__pyx_t_6, __pyx_t_4);
+    PyTuple_SET_ITEM(__pyx_t_8, 0+__pyx_t_7, __pyx_t_4);
     __Pyx_INCREF(__pyx_int_2);
     __Pyx_GIVEREF(__pyx_int_2);
-    PyTuple_SET_ITEM(__pyx_t_7, 1+__pyx_t_6, __pyx_int_2);
+    PyTuple_SET_ITEM(__pyx_t_8, 1+__pyx_t_7, __pyx_int_2);
     __pyx_t_4 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_7, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 228, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_8, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 229, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+    __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_6 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 228, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_7 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 229, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyInt_From_int(((int)__pyx_t_6)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 228, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int(((int)__pyx_t_7)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 229, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 228, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 229, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_float32); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 228, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_7);
+  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_float32); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 229, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 228, __pyx_L1_error)
+  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 229, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GIVEREF(__pyx_t_1);
   PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_1);
-  __Pyx_GIVEREF(__pyx_t_7);
-  PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_t_7);
+  __Pyx_GIVEREF(__pyx_t_8);
+  PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_t_8);
   __pyx_t_1 = 0;
-  __pyx_t_7 = 0;
-  __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 228, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_7);
-  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_order, __pyx_n_s_c) < 0) __PYX_ERR(0, 228, __pyx_L1_error)
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, __pyx_t_7); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 228, __pyx_L1_error)
+  __pyx_t_8 = 0;
+  __pyx_t_8 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 229, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_8);
+  if (PyDict_SetItem(__pyx_t_8, __pyx_n_s_order, __pyx_n_s_c) < 0) __PYX_ERR(0, 229, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, __pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 229, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 228, __pyx_L1_error)
-  __pyx_t_8 = ((PyArrayObject *)__pyx_t_1);
+  __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 229, __pyx_L1_error)
+  __pyx_t_9 = ((PyArrayObject *)__pyx_t_1);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_distance_matrix.rcbuffer->pybuffer, (PyObject*)__pyx_t_8, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float32_t, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_distance_matrix.rcbuffer->pybuffer, (PyObject*)__pyx_t_9, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float32_t, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
       __pyx_v_distance_matrix = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_distance_matrix.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 228, __pyx_L1_error)
+      __PYX_ERR(0, 229, __pyx_L1_error)
     } else {__pyx_pybuffernd_distance_matrix.diminfo[0].strides = __pyx_pybuffernd_distance_matrix.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_distance_matrix.diminfo[0].shape = __pyx_pybuffernd_distance_matrix.rcbuffer->pybuffer.shape[0];
     }
   }
-  __pyx_t_8 = 0;
+  __pyx_t_9 = 0;
   __pyx_v_distance_matrix = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "simforest/cluster/_cluster.pyx":229
- *         cdef int n = X.shape[0]
+  /* "simforest/cluster/_cluster.pyx":230
+ *         cdef float [:, :] X_view = X
  *         cdef np.ndarray[np.float32_t, ndim=1] distance_matrix = np.ones(<int>comb(n, 2), np.float32, order='c')
  *         cdef float [:] view = distance_matrix             # <<<<<<<<<<<<<<
  * 
  *         cdef int num_threads = 4
  */
-  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_ds_float(((PyObject *)__pyx_v_distance_matrix), PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 229, __pyx_L1_error)
-  __pyx_v_view = __pyx_t_9;
-  __pyx_t_9.memview = NULL;
-  __pyx_t_9.data = NULL;
+  __pyx_t_10 = __Pyx_PyObject_to_MemoryviewSlice_ds_float(((PyObject *)__pyx_v_distance_matrix), PyBUF_WRITABLE); if (unlikely(!__pyx_t_10.memview)) __PYX_ERR(0, 230, __pyx_L1_error)
+  __pyx_v_view = __pyx_t_10;
+  __pyx_t_10.memview = NULL;
+  __pyx_t_10.data = NULL;
 
-  /* "simforest/cluster/_cluster.pyx":231
+  /* "simforest/cluster/_cluster.pyx":232
  *         cdef float [:] view = distance_matrix
  * 
  *         cdef int num_threads = 4             # <<<<<<<<<<<<<<
@@ -4293,7 +4299,7 @@ static PyArrayObject *__pyx_f_9simforest_7cluster_8_cluster_26CSimilarityForestC
  */
   __pyx_v_num_threads = 4;
 
-  /* "simforest/cluster/_cluster.pyx":232
+  /* "simforest/cluster/_cluster.pyx":233
  * 
  *         cdef int num_threads = 4
  *         cdef int diagonal = 1             # <<<<<<<<<<<<<<
@@ -4302,7 +4308,7 @@ static PyArrayObject *__pyx_f_9simforest_7cluster_8_cluster_26CSimilarityForestC
  */
   __pyx_v_diagonal = 1;
 
-  /* "simforest/cluster/_cluster.pyx":233
+  /* "simforest/cluster/_cluster.pyx":234
  *         cdef int num_threads = 4
  *         cdef int diagonal = 1
  *         cdef int idx = 0             # <<<<<<<<<<<<<<
@@ -4311,7 +4317,7 @@ static PyArrayObject *__pyx_f_9simforest_7cluster_8_cluster_26CSimilarityForestC
  */
   __pyx_v_idx = 0;
 
-  /* "simforest/cluster/_cluster.pyx":234
+  /* "simforest/cluster/_cluster.pyx":235
  *         cdef int diagonal = 1
  *         cdef int idx = 0
  *         cdef float similarity = 0.0             # <<<<<<<<<<<<<<
@@ -4320,7 +4326,7 @@ static PyArrayObject *__pyx_f_9simforest_7cluster_8_cluster_26CSimilarityForestC
  */
   __pyx_v_similarity = 0.0;
 
-  /* "simforest/cluster/_cluster.pyx":235
+  /* "simforest/cluster/_cluster.pyx":236
  *         cdef int idx = 0
  *         cdef float similarity = 0.0
  *         cdef int i = 0             # <<<<<<<<<<<<<<
@@ -4329,153 +4335,135 @@ static PyArrayObject *__pyx_f_9simforest_7cluster_8_cluster_26CSimilarityForestC
  */
   __pyx_v_i = 0;
 
-  /* "simforest/cluster/_cluster.pyx":236
+  /* "simforest/cluster/_cluster.pyx":237
  *         cdef float similarity = 0.0
  *         cdef int i = 0
  *         cdef int j = 0             # <<<<<<<<<<<<<<
  *         cdef int e = 0
- *         for i in range(n):
+ *         cdef CSimilarityTreeCluster current_tree
  */
   __pyx_v_j = 0;
 
-  /* "simforest/cluster/_cluster.pyx":237
+  /* "simforest/cluster/_cluster.pyx":238
  *         cdef int i = 0
  *         cdef int j = 0
  *         cdef int e = 0             # <<<<<<<<<<<<<<
- *         for i in range(n):
- *             for j in range(diagonal, n):
+ *         cdef CSimilarityTreeCluster current_tree
+ * 
  */
   __pyx_v_e = 0;
 
-  /* "simforest/cluster/_cluster.pyx":238
- *         cdef int j = 0
- *         cdef int e = 0
+  /* "simforest/cluster/_cluster.pyx":241
+ *         cdef CSimilarityTreeCluster current_tree
+ * 
  *         for i in range(n):             # <<<<<<<<<<<<<<
  *             for j in range(diagonal, n):
  *                 for e in range(self.n_estimators,):
  */
-  __pyx_t_6 = __pyx_v_n;
-  __pyx_t_10 = __pyx_t_6;
-  for (__pyx_t_11 = 0; __pyx_t_11 < __pyx_t_10; __pyx_t_11+=1) {
-    __pyx_v_i = __pyx_t_11;
+  __pyx_t_7 = __pyx_v_n;
+  __pyx_t_11 = __pyx_t_7;
+  for (__pyx_t_12 = 0; __pyx_t_12 < __pyx_t_11; __pyx_t_12+=1) {
+    __pyx_v_i = __pyx_t_12;
 
-    /* "simforest/cluster/_cluster.pyx":239
- *         cdef int e = 0
+    /* "simforest/cluster/_cluster.pyx":242
+ * 
  *         for i in range(n):
  *             for j in range(diagonal, n):             # <<<<<<<<<<<<<<
  *                 for e in range(self.n_estimators,):
- *                     similarity += self.estimators_[e].distance(X[i], X[j])
+ *                     current_tree = self.estimators_[e]
  */
-    __pyx_t_12 = __pyx_v_n;
-    __pyx_t_13 = __pyx_t_12;
-    for (__pyx_t_14 = __pyx_v_diagonal; __pyx_t_14 < __pyx_t_13; __pyx_t_14+=1) {
-      __pyx_v_j = __pyx_t_14;
+    __pyx_t_13 = __pyx_v_n;
+    __pyx_t_14 = __pyx_t_13;
+    for (__pyx_t_15 = __pyx_v_diagonal; __pyx_t_15 < __pyx_t_14; __pyx_t_15+=1) {
+      __pyx_v_j = __pyx_t_15;
 
-      /* "simforest/cluster/_cluster.pyx":240
+      /* "simforest/cluster/_cluster.pyx":243
  *         for i in range(n):
  *             for j in range(diagonal, n):
  *                 for e in range(self.n_estimators,):             # <<<<<<<<<<<<<<
- *                     similarity += self.estimators_[e].distance(X[i], X[j])
- * 
+ *                     current_tree = self.estimators_[e]
+ *                     similarity += current_tree.similarity(X_view[i], X_view[j])
  */
-      __pyx_t_15 = __pyx_v_self->n_estimators;
-      __pyx_t_16 = __pyx_t_15;
-      for (__pyx_t_17 = 0; __pyx_t_17 < __pyx_t_16; __pyx_t_17+=1) {
-        __pyx_v_e = __pyx_t_17;
+      __pyx_t_16 = __pyx_v_self->n_estimators;
+      __pyx_t_17 = __pyx_t_16;
+      for (__pyx_t_18 = 0; __pyx_t_18 < __pyx_t_17; __pyx_t_18+=1) {
+        __pyx_v_e = __pyx_t_18;
 
-        /* "simforest/cluster/_cluster.pyx":241
+        /* "simforest/cluster/_cluster.pyx":244
  *             for j in range(diagonal, n):
  *                 for e in range(self.n_estimators,):
- *                     similarity += self.estimators_[e].distance(X[i], X[j])             # <<<<<<<<<<<<<<
+ *                     current_tree = self.estimators_[e]             # <<<<<<<<<<<<<<
+ *                     similarity += current_tree.similarity(X_view[i], X_view[j])
+ * 
+ */
+        if (unlikely(__pyx_v_self->estimators_ == Py_None)) {
+          PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
+          __PYX_ERR(0, 244, __pyx_L1_error)
+        }
+        if (!(likely(((PyList_GET_ITEM(__pyx_v_self->estimators_, __pyx_v_e)) == Py_None) || likely(__Pyx_TypeTest(PyList_GET_ITEM(__pyx_v_self->estimators_, __pyx_v_e), __pyx_ptype_9simforest_7cluster_8_cluster_CSimilarityTreeCluster))))) __PYX_ERR(0, 244, __pyx_L1_error)
+        __pyx_t_1 = PyList_GET_ITEM(__pyx_v_self->estimators_, __pyx_v_e);
+        __Pyx_INCREF(__pyx_t_1);
+        __Pyx_XDECREF_SET(__pyx_v_current_tree, ((struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *)__pyx_t_1));
+        __pyx_t_1 = 0;
+
+        /* "simforest/cluster/_cluster.pyx":245
+ *                 for e in range(self.n_estimators,):
+ *                     current_tree = self.estimators_[e]
+ *                     similarity += current_tree.similarity(X_view[i], X_view[j])             # <<<<<<<<<<<<<<
  * 
  *                 # similarity is an average depth at which points split across all trees
  */
-        __pyx_t_1 = PyFloat_FromDouble(__pyx_v_similarity); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 241, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_1);
-        if (unlikely(__pyx_v_self->estimators_ == Py_None)) {
-          PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-          __PYX_ERR(0, 241, __pyx_L1_error)
-        }
-        __pyx_t_3 = __Pyx_PyObject_GetAttrStr(PyList_GET_ITEM(__pyx_v_self->estimators_, __pyx_v_e), __pyx_n_s_distance); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 241, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_3);
-        __pyx_t_2 = __Pyx_GetItemInt(((PyObject *)__pyx_v_X), __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 0, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 241, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_2);
-        __pyx_t_4 = __Pyx_GetItemInt(((PyObject *)__pyx_v_X), __pyx_v_j, int, 1, __Pyx_PyInt_From_int, 0, 0, 0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 241, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_4);
-        __pyx_t_5 = NULL;
-        __pyx_t_18 = 0;
-        if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_3))) {
-          __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_3);
-          if (likely(__pyx_t_5)) {
-            PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
-            __Pyx_INCREF(__pyx_t_5);
-            __Pyx_INCREF(function);
-            __Pyx_DECREF_SET(__pyx_t_3, function);
-            __pyx_t_18 = 1;
-          }
-        }
-        #if CYTHON_FAST_PYCALL
-        if (PyFunction_Check(__pyx_t_3)) {
-          PyObject *__pyx_temp[3] = {__pyx_t_5, __pyx_t_2, __pyx_t_4};
-          __pyx_t_7 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_18, 2+__pyx_t_18); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 241, __pyx_L1_error)
-          __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-          __Pyx_GOTREF(__pyx_t_7);
-          __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-          __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-        } else
-        #endif
-        #if CYTHON_FAST_PYCCALL
-        if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
-          PyObject *__pyx_temp[3] = {__pyx_t_5, __pyx_t_2, __pyx_t_4};
-          __pyx_t_7 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_18, 2+__pyx_t_18); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 241, __pyx_L1_error)
-          __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-          __Pyx_GOTREF(__pyx_t_7);
-          __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-          __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-        } else
-        #endif
+        __pyx_t_10.data = __pyx_v_X_view.data;
+        __pyx_t_10.memview = __pyx_v_X_view.memview;
+        __PYX_INC_MEMVIEW(&__pyx_t_10, 0);
         {
-          __pyx_t_19 = PyTuple_New(2+__pyx_t_18); if (unlikely(!__pyx_t_19)) __PYX_ERR(0, 241, __pyx_L1_error)
-          __Pyx_GOTREF(__pyx_t_19);
-          if (__pyx_t_5) {
-            __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_19, 0, __pyx_t_5); __pyx_t_5 = NULL;
-          }
-          __Pyx_GIVEREF(__pyx_t_2);
-          PyTuple_SET_ITEM(__pyx_t_19, 0+__pyx_t_18, __pyx_t_2);
-          __Pyx_GIVEREF(__pyx_t_4);
-          PyTuple_SET_ITEM(__pyx_t_19, 1+__pyx_t_18, __pyx_t_4);
-          __pyx_t_2 = 0;
-          __pyx_t_4 = 0;
-          __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_19, NULL); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 241, __pyx_L1_error)
-          __Pyx_GOTREF(__pyx_t_7);
-          __Pyx_DECREF(__pyx_t_19); __pyx_t_19 = 0;
-        }
-        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-        __pyx_t_3 = PyNumber_InPlaceAdd(__pyx_t_1, __pyx_t_7); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 241, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_3);
-        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-        __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-        __pyx_t_20 = __pyx_PyFloat_AsFloat(__pyx_t_3); if (unlikely((__pyx_t_20 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 241, __pyx_L1_error)
-        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-        __pyx_v_similarity = __pyx_t_20;
+    Py_ssize_t __pyx_tmp_idx = __pyx_v_i;
+    Py_ssize_t __pyx_tmp_stride = __pyx_v_X_view.strides[0];
+        __pyx_t_10.data += __pyx_tmp_idx * __pyx_tmp_stride;
+}
+
+__pyx_t_10.shape[0] = __pyx_v_X_view.shape[1];
+__pyx_t_10.strides[0] = __pyx_v_X_view.strides[1];
+    __pyx_t_10.suboffsets[0] = -1;
+
+__pyx_t_19.data = __pyx_v_X_view.data;
+        __pyx_t_19.memview = __pyx_v_X_view.memview;
+        __PYX_INC_MEMVIEW(&__pyx_t_19, 0);
+        {
+    Py_ssize_t __pyx_tmp_idx = __pyx_v_j;
+    Py_ssize_t __pyx_tmp_stride = __pyx_v_X_view.strides[0];
+        __pyx_t_19.data += __pyx_tmp_idx * __pyx_tmp_stride;
+}
+
+__pyx_t_19.shape[0] = __pyx_v_X_view.shape[1];
+__pyx_t_19.strides[0] = __pyx_v_X_view.strides[1];
+    __pyx_t_19.suboffsets[0] = -1;
+
+__pyx_v_similarity = (__pyx_v_similarity + ((struct __pyx_vtabstruct_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *)__pyx_v_current_tree->__pyx_vtab)->similarity(__pyx_v_current_tree, __pyx_t_10, __pyx_t_19));
+        __PYX_XDEC_MEMVIEW(&__pyx_t_10, 1);
+        __pyx_t_10.memview = NULL;
+        __pyx_t_10.data = NULL;
+        __PYX_XDEC_MEMVIEW(&__pyx_t_19, 1);
+        __pyx_t_19.memview = NULL;
+        __pyx_t_19.data = NULL;
       }
 
-      /* "simforest/cluster/_cluster.pyx":246
- *                 #similarity = similarity/<float>self.n_estimators
- *                 # distance = 1 / similarity
+      /* "simforest/cluster/_cluster.pyx":249
+ *                 # similarity is an average depth at which points split across all trees
+ *                 # but we don't need to divide the accumulated similarities as this only rescales the distance
  *                 view[idx] = 1 / <float>similarity             # <<<<<<<<<<<<<<
  *                 similarity = 0.0
  *                 idx += 1
  */
       if (unlikely(((float)__pyx_v_similarity) == 0)) {
         PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-        __PYX_ERR(0, 246, __pyx_L1_error)
+        __PYX_ERR(0, 249, __pyx_L1_error)
       }
-      __pyx_t_21 = __pyx_v_idx;
-      *((float *) ( /* dim=0 */ (__pyx_v_view.data + __pyx_t_21 * __pyx_v_view.strides[0]) )) = (1.0 / ((float)__pyx_v_similarity));
+      __pyx_t_20 = __pyx_v_idx;
+      *((float *) ( /* dim=0 */ (__pyx_v_view.data + __pyx_t_20 * __pyx_v_view.strides[0]) )) = (1.0 / ((float)__pyx_v_similarity));
 
-      /* "simforest/cluster/_cluster.pyx":247
- *                 # distance = 1 / similarity
+      /* "simforest/cluster/_cluster.pyx":250
+ *                 # but we don't need to divide the accumulated similarities as this only rescales the distance
  *                 view[idx] = 1 / <float>similarity
  *                 similarity = 0.0             # <<<<<<<<<<<<<<
  *                 idx += 1
@@ -4483,7 +4471,7 @@ static PyArrayObject *__pyx_f_9simforest_7cluster_8_cluster_26CSimilarityForestC
  */
       __pyx_v_similarity = 0.0;
 
-      /* "simforest/cluster/_cluster.pyx":248
+      /* "simforest/cluster/_cluster.pyx":251
  *                 view[idx] = 1 / <float>similarity
  *                 similarity = 0.0
  *                 idx += 1             # <<<<<<<<<<<<<<
@@ -4493,7 +4481,7 @@ static PyArrayObject *__pyx_f_9simforest_7cluster_8_cluster_26CSimilarityForestC
       __pyx_v_idx = (__pyx_v_idx + 1);
     }
 
-    /* "simforest/cluster/_cluster.pyx":249
+    /* "simforest/cluster/_cluster.pyx":252
  *                 similarity = 0.0
  *                 idx += 1
  *             diagonal += 1             # <<<<<<<<<<<<<<
@@ -4503,12 +4491,12 @@ static PyArrayObject *__pyx_f_9simforest_7cluster_8_cluster_26CSimilarityForestC
     __pyx_v_diagonal = (__pyx_v_diagonal + 1);
   }
 
-  /* "simforest/cluster/_cluster.pyx":251
+  /* "simforest/cluster/_cluster.pyx":254
  *             diagonal += 1
  * 
  *         return distance_matrix             # <<<<<<<<<<<<<<
  * 
- *     @cython.boundscheck(False)
+ * 
  */
   __Pyx_XDECREF(((PyObject *)__pyx_r));
   __Pyx_INCREF(((PyObject *)__pyx_v_distance_matrix));
@@ -4529,10 +4517,11 @@ static PyArrayObject *__pyx_f_9simforest_7cluster_8_cluster_26CSimilarityForestC
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_XDECREF(__pyx_t_7);
-  __PYX_XDEC_MEMVIEW(&__pyx_t_9, 1);
-  __Pyx_XDECREF(__pyx_t_19);
+  __PYX_XDEC_MEMVIEW(&__pyx_t_5, 1);
+  __Pyx_XDECREF(__pyx_t_6);
+  __Pyx_XDECREF(__pyx_t_8);
+  __PYX_XDEC_MEMVIEW(&__pyx_t_10, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_t_19, 1);
   { PyObject *__pyx_type, *__pyx_value, *__pyx_tb;
     __Pyx_PyThreadState_declare
     __Pyx_PyThreadState_assign
@@ -4547,8 +4536,10 @@ static PyArrayObject *__pyx_f_9simforest_7cluster_8_cluster_26CSimilarityForestC
   __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_X.rcbuffer->pybuffer);
   __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_distance_matrix.rcbuffer->pybuffer);
   __pyx_L2:;
+  __PYX_XDEC_MEMVIEW(&__pyx_v_X_view, 1);
   __Pyx_XDECREF((PyObject *)__pyx_v_distance_matrix);
   __PYX_XDEC_MEMVIEW(&__pyx_v_view, 1);
+  __Pyx_XDECREF((PyObject *)__pyx_v_current_tree);
   __Pyx_XGIVEREF((PyObject *)__pyx_r);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
@@ -4612,592 +4603,6 @@ static PyObject *__pyx_pf_9simforest_7cluster_8_cluster_26CSimilarityForestClust
     __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_X.rcbuffer->pybuffer);
   __Pyx_ErrRestore(__pyx_type, __pyx_value, __pyx_tb);}
   __Pyx_AddTraceback("simforest.cluster._cluster.CSimilarityForestClusterer.predict_", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __pyx_r = NULL;
-  goto __pyx_L2;
-  __pyx_L0:;
-  __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_X.rcbuffer->pybuffer);
-  __pyx_L2:;
-  __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-/* "simforest/cluster/_cluster.pyx":255
- *     @cython.boundscheck(False)
- *     @cython.wraparound(False)
- *     cpdef np.ndarray[np.float32_t, ndim=2] ppredict_(self, np.ndarray[np.float32_t, ndim=2] X):             # <<<<<<<<<<<<<<
- *         """Parallel implementation. Produce pairwise distance matrix.
- *             Parameters
- */
-
-static PyObject *__pyx_pw_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_7ppredict_(PyObject *__pyx_v_self, PyObject *__pyx_v_X); /*proto*/
-static PyArrayObject *__pyx_f_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_ppredict_(struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityForestClusterer *__pyx_v_self, PyArrayObject *__pyx_v_X, int __pyx_skip_dispatch) {
-  int __pyx_v_n;
-  __Pyx_memviewslice __pyx_v_X_view = { 0, 0, { 0 }, { 0 }, { 0 } };
-  PyArrayObject *__pyx_v_distance_matrix = 0;
-  __Pyx_memviewslice __pyx_v_distance_matrix_view = { 0, 0, { 0 }, { 0 }, { 0 } };
-  float __pyx_v_similarity;
-  CYTHON_UNUSED int __pyx_v_num_threads;
-  CYTHON_UNUSED int __pyx_v_diagonal;
-  int __pyx_v_i;
-  int __pyx_v_j;
-  int __pyx_v_e;
-  struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__pyx_v_current_tree = 0;
-  __Pyx_LocalBuf_ND __pyx_pybuffernd_X;
-  __Pyx_Buffer __pyx_pybuffer_X;
-  __Pyx_LocalBuf_ND __pyx_pybuffernd_distance_matrix;
-  __Pyx_Buffer __pyx_pybuffer_distance_matrix;
-  PyArrayObject *__pyx_r = NULL;
-  __Pyx_RefNannyDeclarations
-  PyObject *__pyx_t_1 = NULL;
-  PyObject *__pyx_t_2 = NULL;
-  PyObject *__pyx_t_3 = NULL;
-  PyObject *__pyx_t_4 = NULL;
-  __Pyx_memviewslice __pyx_t_5 = { 0, 0, { 0 }, { 0 }, { 0 } };
-  PyObject *__pyx_t_6 = NULL;
-  PyArrayObject *__pyx_t_7 = NULL;
-  int __pyx_t_8;
-  int __pyx_t_9;
-  int __pyx_t_10;
-  int __pyx_t_11;
-  int __pyx_t_12;
-  int __pyx_t_13;
-  int __pyx_t_14;
-  int __pyx_t_15;
-  int __pyx_t_16;
-  int __pyx_t_17;
-  __Pyx_memviewslice __pyx_t_18 = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_t_19 = { 0, 0, { 0 }, { 0 }, { 0 } };
-  Py_ssize_t __pyx_t_20;
-  Py_ssize_t __pyx_t_21;
-  Py_ssize_t __pyx_t_22;
-  Py_ssize_t __pyx_t_23;
-  int __pyx_lineno = 0;
-  const char *__pyx_filename = NULL;
-  int __pyx_clineno = 0;
-  __Pyx_RefNannySetupContext("ppredict_", 0);
-  __pyx_pybuffer_distance_matrix.pybuffer.buf = NULL;
-  __pyx_pybuffer_distance_matrix.refcount = 0;
-  __pyx_pybuffernd_distance_matrix.data = NULL;
-  __pyx_pybuffernd_distance_matrix.rcbuffer = &__pyx_pybuffer_distance_matrix;
-  __pyx_pybuffer_X.pybuffer.buf = NULL;
-  __pyx_pybuffer_X.refcount = 0;
-  __pyx_pybuffernd_X.data = NULL;
-  __pyx_pybuffernd_X.rcbuffer = &__pyx_pybuffer_X;
-  {
-    __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_X.rcbuffer->pybuffer, (PyObject*)__pyx_v_X, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float32_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 255, __pyx_L1_error)
-  }
-  __pyx_pybuffernd_X.diminfo[0].strides = __pyx_pybuffernd_X.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_X.diminfo[0].shape = __pyx_pybuffernd_X.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_X.diminfo[1].strides = __pyx_pybuffernd_X.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_X.diminfo[1].shape = __pyx_pybuffernd_X.rcbuffer->pybuffer.shape[1];
-  /* Check if called by wrapper */
-  if (unlikely(__pyx_skip_dispatch)) ;
-  /* Check if overridden in Python */
-  else if (unlikely((Py_TYPE(((PyObject *)__pyx_v_self))->tp_dictoffset != 0) || (Py_TYPE(((PyObject *)__pyx_v_self))->tp_flags & (Py_TPFLAGS_IS_ABSTRACT | Py_TPFLAGS_HEAPTYPE)))) {
-    #if CYTHON_USE_DICT_VERSIONS && CYTHON_USE_PYTYPE_LOOKUP && CYTHON_USE_TYPE_SLOTS
-    static PY_UINT64_T __pyx_tp_dict_version = __PYX_DICT_VERSION_INIT, __pyx_obj_dict_version = __PYX_DICT_VERSION_INIT;
-    if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
-      PY_UINT64_T __pyx_type_dict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
-      #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_ppredict); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 255, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_1);
-      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_7ppredict_)) {
-        __Pyx_XDECREF(((PyObject *)__pyx_r));
-        __Pyx_INCREF(__pyx_t_1);
-        __pyx_t_3 = __pyx_t_1; __pyx_t_4 = NULL;
-        if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
-          __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_3);
-          if (likely(__pyx_t_4)) {
-            PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
-            __Pyx_INCREF(__pyx_t_4);
-            __Pyx_INCREF(function);
-            __Pyx_DECREF_SET(__pyx_t_3, function);
-          }
-        }
-        __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, ((PyObject *)__pyx_v_X)) : __Pyx_PyObject_CallOneArg(__pyx_t_3, ((PyObject *)__pyx_v_X));
-        __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 255, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_2);
-        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-        if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 255, __pyx_L1_error)
-        __pyx_r = ((PyArrayObject *)__pyx_t_2);
-        __pyx_t_2 = 0;
-        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-        goto __pyx_L0;
-      }
-      #if CYTHON_USE_DICT_VERSIONS && CYTHON_USE_PYTYPE_LOOKUP && CYTHON_USE_TYPE_SLOTS
-      __pyx_tp_dict_version = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
-      __pyx_obj_dict_version = __Pyx_get_object_dict_version(((PyObject *)__pyx_v_self));
-      if (unlikely(__pyx_type_dict_guard != __pyx_tp_dict_version)) {
-        __pyx_tp_dict_version = __pyx_obj_dict_version = __PYX_DICT_VERSION_INIT;
-      }
-      #endif
-      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-      #if CYTHON_USE_DICT_VERSIONS && CYTHON_USE_PYTYPE_LOOKUP && CYTHON_USE_TYPE_SLOTS
-    }
-    #endif
-  }
-
-  /* "simforest/cluster/_cluster.pyx":273
- *             Possibly change it in the future.
- *         """
- *         cdef int n = X.shape[0]             # <<<<<<<<<<<<<<
- *         cdef float [:, :] X_view = X
- * 
- */
-  __pyx_v_n = (__pyx_v_X->dimensions[0]);
-
-  /* "simforest/cluster/_cluster.pyx":274
- *         """
- *         cdef int n = X.shape[0]
- *         cdef float [:, :] X_view = X             # <<<<<<<<<<<<<<
- * 
- *         cdef np.ndarray[np.float32_t, ndim=2] distance_matrix = np.zeros(shape=(n, n), dtype=np.float32)
- */
-  __pyx_t_5 = __Pyx_PyObject_to_MemoryviewSlice_dsds_float(((PyObject *)__pyx_v_X), PyBUF_WRITABLE); if (unlikely(!__pyx_t_5.memview)) __PYX_ERR(0, 274, __pyx_L1_error)
-  __pyx_v_X_view = __pyx_t_5;
-  __pyx_t_5.memview = NULL;
-  __pyx_t_5.data = NULL;
-
-  /* "simforest/cluster/_cluster.pyx":276
- *         cdef float [:, :] X_view = X
- * 
- *         cdef np.ndarray[np.float32_t, ndim=2] distance_matrix = np.zeros(shape=(n, n), dtype=np.float32)             # <<<<<<<<<<<<<<
- *         cdef float [:, :] distance_matrix_view = distance_matrix
- * 
- */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 276, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_zeros); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 276, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 276, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_n); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 276, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_n); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 276, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_6 = PyTuple_New(2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 276, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_6);
-  __Pyx_GIVEREF(__pyx_t_3);
-  PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_3);
-  __Pyx_GIVEREF(__pyx_t_4);
-  PyTuple_SET_ITEM(__pyx_t_6, 1, __pyx_t_4);
-  __pyx_t_3 = 0;
-  __pyx_t_4 = 0;
-  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_shape, __pyx_t_6) < 0) __PYX_ERR(0, 276, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 276, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_float32); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 276, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_dtype, __pyx_t_4) < 0) __PYX_ERR(0, 276, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_empty_tuple, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 276, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (!(likely(((__pyx_t_4) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_4, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 276, __pyx_L1_error)
-  __pyx_t_7 = ((PyArrayObject *)__pyx_t_4);
-  {
-    __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_distance_matrix.rcbuffer->pybuffer, (PyObject*)__pyx_t_7, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float32_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {
-      __pyx_v_distance_matrix = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_distance_matrix.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 276, __pyx_L1_error)
-    } else {__pyx_pybuffernd_distance_matrix.diminfo[0].strides = __pyx_pybuffernd_distance_matrix.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_distance_matrix.diminfo[0].shape = __pyx_pybuffernd_distance_matrix.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_distance_matrix.diminfo[1].strides = __pyx_pybuffernd_distance_matrix.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_distance_matrix.diminfo[1].shape = __pyx_pybuffernd_distance_matrix.rcbuffer->pybuffer.shape[1];
-    }
-  }
-  __pyx_t_7 = 0;
-  __pyx_v_distance_matrix = ((PyArrayObject *)__pyx_t_4);
-  __pyx_t_4 = 0;
-
-  /* "simforest/cluster/_cluster.pyx":277
- * 
- *         cdef np.ndarray[np.float32_t, ndim=2] distance_matrix = np.zeros(shape=(n, n), dtype=np.float32)
- *         cdef float [:, :] distance_matrix_view = distance_matrix             # <<<<<<<<<<<<<<
- * 
- *         cdef float similarity = 0.0
- */
-  __pyx_t_5 = __Pyx_PyObject_to_MemoryviewSlice_dsds_float(((PyObject *)__pyx_v_distance_matrix), PyBUF_WRITABLE); if (unlikely(!__pyx_t_5.memview)) __PYX_ERR(0, 277, __pyx_L1_error)
-  __pyx_v_distance_matrix_view = __pyx_t_5;
-  __pyx_t_5.memview = NULL;
-  __pyx_t_5.data = NULL;
-
-  /* "simforest/cluster/_cluster.pyx":279
- *         cdef float [:, :] distance_matrix_view = distance_matrix
- * 
- *         cdef float similarity = 0.0             # <<<<<<<<<<<<<<
- * 
- *         cdef int num_threads = 10
- */
-  __pyx_v_similarity = 0.0;
-
-  /* "simforest/cluster/_cluster.pyx":281
- *         cdef float similarity = 0.0
- * 
- *         cdef int num_threads = 10             # <<<<<<<<<<<<<<
- *         cdef int diagonal = 1
- *         cdef int i = 0
- */
-  __pyx_v_num_threads = 10;
-
-  /* "simforest/cluster/_cluster.pyx":282
- * 
- *         cdef int num_threads = 10
- *         cdef int diagonal = 1             # <<<<<<<<<<<<<<
- *         cdef int i = 0
- *         cdef int j = 0
- */
-  __pyx_v_diagonal = 1;
-
-  /* "simforest/cluster/_cluster.pyx":283
- *         cdef int num_threads = 10
- *         cdef int diagonal = 1
- *         cdef int i = 0             # <<<<<<<<<<<<<<
- *         cdef int j = 0
- *         cdef int e = 0
- */
-  __pyx_v_i = 0;
-
-  /* "simforest/cluster/_cluster.pyx":284
- *         cdef int diagonal = 1
- *         cdef int i = 0
- *         cdef int j = 0             # <<<<<<<<<<<<<<
- *         cdef int e = 0
- *         cdef CSimilarityTreeCluster current_tree
- */
-  __pyx_v_j = 0;
-
-  /* "simforest/cluster/_cluster.pyx":285
- *         cdef int i = 0
- *         cdef int j = 0
- *         cdef int e = 0             # <<<<<<<<<<<<<<
- *         cdef CSimilarityTreeCluster current_tree
- * 
- */
-  __pyx_v_e = 0;
-
-  /* "simforest/cluster/_cluster.pyx":288
- *         cdef CSimilarityTreeCluster current_tree
- * 
- *         for e in range(self.n_estimators):             # <<<<<<<<<<<<<<
- *             current_tree = self.estimators_[e]
- *             for i in range(n):
- */
-  __pyx_t_8 = __pyx_v_self->n_estimators;
-  __pyx_t_9 = __pyx_t_8;
-  for (__pyx_t_10 = 0; __pyx_t_10 < __pyx_t_9; __pyx_t_10+=1) {
-    __pyx_v_e = __pyx_t_10;
-
-    /* "simforest/cluster/_cluster.pyx":289
- * 
- *         for e in range(self.n_estimators):
- *             current_tree = self.estimators_[e]             # <<<<<<<<<<<<<<
- *             for i in range(n):
- *                 for j in prange(n, nogil=True, schedule='dynamic', num_threads=num_threads):
- */
-    if (unlikely(__pyx_v_self->estimators_ == Py_None)) {
-      PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-      __PYX_ERR(0, 289, __pyx_L1_error)
-    }
-    if (!(likely(((PyList_GET_ITEM(__pyx_v_self->estimators_, __pyx_v_e)) == Py_None) || likely(__Pyx_TypeTest(PyList_GET_ITEM(__pyx_v_self->estimators_, __pyx_v_e), __pyx_ptype_9simforest_7cluster_8_cluster_CSimilarityTreeCluster))))) __PYX_ERR(0, 289, __pyx_L1_error)
-    __pyx_t_4 = PyList_GET_ITEM(__pyx_v_self->estimators_, __pyx_v_e);
-    __Pyx_INCREF(__pyx_t_4);
-    __Pyx_XDECREF_SET(__pyx_v_current_tree, ((struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *)__pyx_t_4));
-    __pyx_t_4 = 0;
-
-    /* "simforest/cluster/_cluster.pyx":290
- *         for e in range(self.n_estimators):
- *             current_tree = self.estimators_[e]
- *             for i in range(n):             # <<<<<<<<<<<<<<
- *                 for j in prange(n, nogil=True, schedule='dynamic', num_threads=num_threads):
- *                     if i == j:
- */
-    __pyx_t_11 = __pyx_v_n;
-    __pyx_t_12 = __pyx_t_11;
-    for (__pyx_t_13 = 0; __pyx_t_13 < __pyx_t_12; __pyx_t_13+=1) {
-      __pyx_v_i = __pyx_t_13;
-
-      /* "simforest/cluster/_cluster.pyx":291
- *             current_tree = self.estimators_[e]
- *             for i in range(n):
- *                 for j in prange(n, nogil=True, schedule='dynamic', num_threads=num_threads):             # <<<<<<<<<<<<<<
- *                     if i == j:
- *                         continue
- */
-      {
-          #ifdef WITH_THREAD
-          PyThreadState *_save;
-          Py_UNBLOCK_THREADS
-          __Pyx_FastGIL_Remember();
-          #endif
-          /*try:*/ {
-            __pyx_t_14 = __pyx_v_n;
-            if ((1 == 0)) abort();
-            {
-                #if ((defined(__APPLE__) || defined(__OSX__)) && (defined(__GNUC__) && (__GNUC__ > 2 || (__GNUC__ == 2 && (__GNUC_MINOR__ > 95)))))
-                    #undef likely
-                    #undef unlikely
-                    #define likely(x)   (x)
-                    #define unlikely(x) (x)
-                #endif
-                __pyx_t_16 = (__pyx_t_14 - 0 + 1 - 1/abs(1)) / 1;
-                if (__pyx_t_16 > 0)
-                {
-                    #ifdef _OPENMP
-                    #pragma omp parallel num_threads(__pyx_v_num_threads) private(__pyx_t_17, __pyx_t_20, __pyx_t_21, __pyx_t_22, __pyx_t_23) firstprivate(__pyx_t_18, __pyx_t_19)
-                    #endif /* _OPENMP */
-                    {
-                        #ifdef _OPENMP
-                        #pragma omp for firstprivate(__pyx_v_j) lastprivate(__pyx_v_j) lastprivate(__pyx_v_similarity) schedule(dynamic)
-                        #endif /* _OPENMP */
-                        for (__pyx_t_15 = 0; __pyx_t_15 < __pyx_t_16; __pyx_t_15++){
-                            {
-                                __pyx_v_j = (int)(0 + 1 * __pyx_t_15);
-                                /* Initialize private variables to invalid values */
-                                __pyx_v_similarity = ((float)__PYX_NAN());
-
-                                /* "simforest/cluster/_cluster.pyx":292
- *             for i in range(n):
- *                 for j in prange(n, nogil=True, schedule='dynamic', num_threads=num_threads):
- *                     if i == j:             # <<<<<<<<<<<<<<
- *                         continue
- *                     similarity = current_tree.distance(X_view[i], X_view[j])
- */
-                                __pyx_t_17 = ((__pyx_v_i == __pyx_v_j) != 0);
-                                if (__pyx_t_17) {
-
-                                  /* "simforest/cluster/_cluster.pyx":293
- *                 for j in prange(n, nogil=True, schedule='dynamic', num_threads=num_threads):
- *                     if i == j:
- *                         continue             # <<<<<<<<<<<<<<
- *                     similarity = current_tree.distance(X_view[i], X_view[j])
- *                     distance_matrix_view[i, j] += <float>similarity#1 / <float>similarity
- */
-                                  goto __pyx_L12_continue;
-
-                                  /* "simforest/cluster/_cluster.pyx":292
- *             for i in range(n):
- *                 for j in prange(n, nogil=True, schedule='dynamic', num_threads=num_threads):
- *                     if i == j:             # <<<<<<<<<<<<<<
- *                         continue
- *                     similarity = current_tree.distance(X_view[i], X_view[j])
- */
-                                }
-
-                                /* "simforest/cluster/_cluster.pyx":294
- *                     if i == j:
- *                         continue
- *                     similarity = current_tree.distance(X_view[i], X_view[j])             # <<<<<<<<<<<<<<
- *                     distance_matrix_view[i, j] += <float>similarity#1 / <float>similarity
- *                     distance_matrix_view[j, i] = distance_matrix_view[i, j]
- */
-                                __pyx_t_18.data = __pyx_v_X_view.data;
-                                __pyx_t_18.memview = __pyx_v_X_view.memview;
-                                __PYX_INC_MEMVIEW(&__pyx_t_18, 0);
-                                {
-    Py_ssize_t __pyx_tmp_idx = __pyx_v_i;
-    Py_ssize_t __pyx_tmp_stride = __pyx_v_X_view.strides[0];
-        __pyx_t_18.data += __pyx_tmp_idx * __pyx_tmp_stride;
-}
-
-__pyx_t_18.shape[0] = __pyx_v_X_view.shape[1];
-__pyx_t_18.strides[0] = __pyx_v_X_view.strides[1];
-    __pyx_t_18.suboffsets[0] = -1;
-
-__pyx_t_19.data = __pyx_v_X_view.data;
-                                __pyx_t_19.memview = __pyx_v_X_view.memview;
-                                __PYX_INC_MEMVIEW(&__pyx_t_19, 0);
-                                {
-    Py_ssize_t __pyx_tmp_idx = __pyx_v_j;
-    Py_ssize_t __pyx_tmp_stride = __pyx_v_X_view.strides[0];
-        __pyx_t_19.data += __pyx_tmp_idx * __pyx_tmp_stride;
-}
-
-__pyx_t_19.shape[0] = __pyx_v_X_view.shape[1];
-__pyx_t_19.strides[0] = __pyx_v_X_view.strides[1];
-    __pyx_t_19.suboffsets[0] = -1;
-
-__pyx_v_similarity = ((struct __pyx_vtabstruct_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *)__pyx_v_current_tree->__pyx_vtab)->distance(__pyx_v_current_tree, __pyx_t_18, __pyx_t_19);
-                                __PYX_XDEC_MEMVIEW(&__pyx_t_18, 0);
-                                __pyx_t_18.memview = NULL;
-                                __pyx_t_18.data = NULL;
-                                __PYX_XDEC_MEMVIEW(&__pyx_t_19, 0);
-                                __pyx_t_19.memview = NULL;
-                                __pyx_t_19.data = NULL;
-
-                                /* "simforest/cluster/_cluster.pyx":295
- *                         continue
- *                     similarity = current_tree.distance(X_view[i], X_view[j])
- *                     distance_matrix_view[i, j] += <float>similarity#1 / <float>similarity             # <<<<<<<<<<<<<<
- *                     distance_matrix_view[j, i] = distance_matrix_view[i, j]
- * 
- */
-                                __pyx_t_20 = __pyx_v_i;
-                                __pyx_t_21 = __pyx_v_j;
-                                *((float *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_distance_matrix_view.data + __pyx_t_20 * __pyx_v_distance_matrix_view.strides[0]) ) + __pyx_t_21 * __pyx_v_distance_matrix_view.strides[1]) )) += ((float)__pyx_v_similarity);
-
-                                /* "simforest/cluster/_cluster.pyx":296
- *                     similarity = current_tree.distance(X_view[i], X_view[j])
- *                     distance_matrix_view[i, j] += <float>similarity#1 / <float>similarity
- *                     distance_matrix_view[j, i] = distance_matrix_view[i, j]             # <<<<<<<<<<<<<<
- * 
- * 
- */
-                                __pyx_t_21 = __pyx_v_i;
-                                __pyx_t_20 = __pyx_v_j;
-                                __pyx_t_22 = __pyx_v_j;
-                                __pyx_t_23 = __pyx_v_i;
-                                *((float *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_distance_matrix_view.data + __pyx_t_22 * __pyx_v_distance_matrix_view.strides[0]) ) + __pyx_t_23 * __pyx_v_distance_matrix_view.strides[1]) )) = (*((float *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_distance_matrix_view.data + __pyx_t_21 * __pyx_v_distance_matrix_view.strides[0]) ) + __pyx_t_20 * __pyx_v_distance_matrix_view.strides[1]) )));
-                                goto __pyx_L18;
-                                __pyx_L12_continue:;
-                                goto __pyx_L18;
-                                __pyx_L18:;
-                            }
-                        }
-                    }
-                }
-            }
-            #if ((defined(__APPLE__) || defined(__OSX__)) && (defined(__GNUC__) && (__GNUC__ > 2 || (__GNUC__ == 2 && (__GNUC_MINOR__ > 95)))))
-                #undef likely
-                #undef unlikely
-                #define likely(x)   __builtin_expect(!!(x), 1)
-                #define unlikely(x) __builtin_expect(!!(x), 0)
-            #endif
-          }
-
-          /* "simforest/cluster/_cluster.pyx":291
- *             current_tree = self.estimators_[e]
- *             for i in range(n):
- *                 for j in prange(n, nogil=True, schedule='dynamic', num_threads=num_threads):             # <<<<<<<<<<<<<<
- *                     if i == j:
- *                         continue
- */
-          /*finally:*/ {
-            /*normal exit:*/{
-              #ifdef WITH_THREAD
-              __Pyx_FastGIL_Forget();
-              Py_BLOCK_THREADS
-              #endif
-              goto __pyx_L11;
-            }
-            __pyx_L11:;
-          }
-      }
-    }
-  }
-
-  /* "simforest/cluster/_cluster.pyx":299
- * 
- * 
- *         return distance_matrix             # <<<<<<<<<<<<<<
- * 
- * 
- */
-  __Pyx_XDECREF(((PyObject *)__pyx_r));
-  __Pyx_INCREF(((PyObject *)__pyx_v_distance_matrix));
-  __pyx_r = ((PyArrayObject *)__pyx_v_distance_matrix);
-  goto __pyx_L0;
-
-  /* "simforest/cluster/_cluster.pyx":255
- *     @cython.boundscheck(False)
- *     @cython.wraparound(False)
- *     cpdef np.ndarray[np.float32_t, ndim=2] ppredict_(self, np.ndarray[np.float32_t, ndim=2] X):             # <<<<<<<<<<<<<<
- *         """Parallel implementation. Produce pairwise distance matrix.
- *             Parameters
- */
-
-  /* function exit code */
-  __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_XDECREF(__pyx_t_2);
-  __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_XDECREF(__pyx_t_4);
-  __PYX_XDEC_MEMVIEW(&__pyx_t_5, 1);
-  __Pyx_XDECREF(__pyx_t_6);
-  __PYX_XDEC_MEMVIEW(&__pyx_t_18, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_t_19, 1);
-  { PyObject *__pyx_type, *__pyx_value, *__pyx_tb;
-    __Pyx_PyThreadState_declare
-    __Pyx_PyThreadState_assign
-    __Pyx_ErrFetch(&__pyx_type, &__pyx_value, &__pyx_tb);
-    __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_X.rcbuffer->pybuffer);
-    __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_distance_matrix.rcbuffer->pybuffer);
-  __Pyx_ErrRestore(__pyx_type, __pyx_value, __pyx_tb);}
-  __Pyx_AddTraceback("simforest.cluster._cluster.CSimilarityForestClusterer.ppredict_", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __pyx_r = 0;
-  goto __pyx_L2;
-  __pyx_L0:;
-  __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_X.rcbuffer->pybuffer);
-  __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_distance_matrix.rcbuffer->pybuffer);
-  __pyx_L2:;
-  __PYX_XDEC_MEMVIEW(&__pyx_v_X_view, 1);
-  __Pyx_XDECREF((PyObject *)__pyx_v_distance_matrix);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_distance_matrix_view, 1);
-  __Pyx_XDECREF((PyObject *)__pyx_v_current_tree);
-  __Pyx_XGIVEREF((PyObject *)__pyx_r);
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-/* Python wrapper */
-static PyObject *__pyx_pw_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_7ppredict_(PyObject *__pyx_v_self, PyObject *__pyx_v_X); /*proto*/
-static char __pyx_doc_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_6ppredict_[] = "Parallel implementation. Produce pairwise distance matrix.\n            Parameters\n            ----------\n            X : array-like matrix of shape = [n_samples, n_features]\n                The training data samples.\n            Returns\n            -------\n            distance_matrix : ndarray of shape = [n_samples, n_samples] containing the distances\n\n        Notes\n        ------\n            In parallel implementation distance is calculated as a sum of 1/similarity across the trees,\n            instead of 1 / sum of similarities.\n            \n            Parallel implementation materializes the whole N*N distance matrix instead of comb(N, 2) flat array.\n            Possibly change it in the future.\n        ";
-static PyObject *__pyx_pw_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_7ppredict_(PyObject *__pyx_v_self, PyObject *__pyx_v_X) {
-  int __pyx_lineno = 0;
-  const char *__pyx_filename = NULL;
-  int __pyx_clineno = 0;
-  PyObject *__pyx_r = 0;
-  __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("ppredict_ (wrapper)", 0);
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_X), __pyx_ptype_5numpy_ndarray, 1, "X", 0))) __PYX_ERR(0, 255, __pyx_L1_error)
-  __pyx_r = __pyx_pf_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_6ppredict_(((struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityForestClusterer *)__pyx_v_self), ((PyArrayObject *)__pyx_v_X));
-
-  /* function exit code */
-  goto __pyx_L0;
-  __pyx_L1_error:;
-  __pyx_r = NULL;
-  __pyx_L0:;
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-static PyObject *__pyx_pf_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_6ppredict_(struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityForestClusterer *__pyx_v_self, PyArrayObject *__pyx_v_X) {
-  __Pyx_LocalBuf_ND __pyx_pybuffernd_X;
-  __Pyx_Buffer __pyx_pybuffer_X;
-  PyObject *__pyx_r = NULL;
-  __Pyx_RefNannyDeclarations
-  PyObject *__pyx_t_1 = NULL;
-  int __pyx_lineno = 0;
-  const char *__pyx_filename = NULL;
-  int __pyx_clineno = 0;
-  __Pyx_RefNannySetupContext("ppredict_", 0);
-  __pyx_pybuffer_X.pybuffer.buf = NULL;
-  __pyx_pybuffer_X.refcount = 0;
-  __pyx_pybuffernd_X.data = NULL;
-  __pyx_pybuffernd_X.rcbuffer = &__pyx_pybuffer_X;
-  {
-    __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_X.rcbuffer->pybuffer, (PyObject*)__pyx_v_X, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float32_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 255, __pyx_L1_error)
-  }
-  __pyx_pybuffernd_X.diminfo[0].strides = __pyx_pybuffernd_X.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_X.diminfo[0].shape = __pyx_pybuffernd_X.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_X.diminfo[1].strides = __pyx_pybuffernd_X.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_X.diminfo[1].shape = __pyx_pybuffernd_X.rcbuffer->pybuffer.shape[1];
-  __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = ((PyObject *)__pyx_f_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_ppredict_(__pyx_v_self, __pyx_v_X, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 255, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_r = __pyx_t_1;
-  __pyx_t_1 = 0;
-  goto __pyx_L0;
-
-  /* function exit code */
-  __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_1);
-  { PyObject *__pyx_type, *__pyx_value, *__pyx_tb;
-    __Pyx_PyThreadState_declare
-    __Pyx_PyThreadState_assign
-    __Pyx_ErrFetch(&__pyx_type, &__pyx_value, &__pyx_tb);
-    __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_X.rcbuffer->pybuffer);
-  __Pyx_ErrRestore(__pyx_type, __pyx_value, __pyx_tb);}
-  __Pyx_AddTraceback("simforest.cluster._cluster.CSimilarityForestClusterer.ppredict_", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   goto __pyx_L2;
   __pyx_L0:;
@@ -5323,19 +4728,19 @@ static int __pyx_pf_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_1
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_9__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_9__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_7__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_7__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__reduce_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_8__reduce_cython__(((struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityForestClusterer *)__pyx_v_self));
+  __pyx_r = __pyx_pf_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_6__reduce_cython__(((struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityForestClusterer *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_8__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityForestClusterer *__pyx_v_self) {
+static PyObject *__pyx_pf_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_6__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityForestClusterer *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -5380,19 +4785,19 @@ static PyObject *__pyx_pf_9simforest_7cluster_8_cluster_26CSimilarityForestClust
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_11__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
-static PyObject *__pyx_pw_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_11__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pw_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_9__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static PyObject *__pyx_pw_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_9__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__setstate_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_10__setstate_cython__(((struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityForestClusterer *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
+  __pyx_r = __pyx_pf_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_8__setstate_cython__(((struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityForestClusterer *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_10__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityForestClusterer *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_8__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityForestClusterer *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -5429,7 +4834,7 @@ static PyObject *__pyx_pf_9simforest_7cluster_8_cluster_26CSimilarityForestClust
   return __pyx_r;
 }
 
-/* "simforest/cluster/_cluster.pyx":320
+/* "simforest/cluster/_cluster.pyx":275
  *     cdef f_type projection
  * 
  *     def __cinit__(self,             # <<<<<<<<<<<<<<
@@ -5454,7 +4859,7 @@ static int __pyx_pw_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_1__ci
     static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_random_state,&__pyx_n_s_sim_function,&__pyx_n_s_max_depth,&__pyx_n_s_depth,0};
     PyObject* values[4] = {0,0,0,0};
 
-    /* "simforest/cluster/_cluster.pyx":321
+    /* "simforest/cluster/_cluster.pyx":276
  * 
  *     def __cinit__(self,
  *                   random_state=None,             # <<<<<<<<<<<<<<
@@ -5505,7 +4910,7 @@ static int __pyx_pw_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_1__ci
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(0, 320, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(0, 275, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -5524,28 +4929,28 @@ static int __pyx_pw_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_1__ci
     __pyx_v_random_state = values[0];
     __pyx_v_sim_function = ((PyObject*)values[1]);
     if (values[2]) {
-      __pyx_v_max_depth = __Pyx_PyInt_As_int(values[2]); if (unlikely((__pyx_v_max_depth == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 323, __pyx_L3_error)
+      __pyx_v_max_depth = __Pyx_PyInt_As_int(values[2]); if (unlikely((__pyx_v_max_depth == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 278, __pyx_L3_error)
     } else {
       __pyx_v_max_depth = ((int)-1);
     }
     if (values[3]) {
-      __pyx_v_depth = __Pyx_PyInt_As_int(values[3]); if (unlikely((__pyx_v_depth == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 324, __pyx_L3_error)
+      __pyx_v_depth = __Pyx_PyInt_As_int(values[3]); if (unlikely((__pyx_v_depth == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 279, __pyx_L3_error)
     } else {
       __pyx_v_depth = ((int)1);
     }
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__cinit__", 0, 0, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 320, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__cinit__", 0, 0, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 275, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("simforest.cluster._cluster.CSimilarityTreeCluster.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_sim_function), (&PyString_Type), 1, "sim_function", 1))) __PYX_ERR(0, 322, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_sim_function), (&PyString_Type), 1, "sim_function", 1))) __PYX_ERR(0, 277, __pyx_L1_error)
   __pyx_r = __pyx_pf_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster___cinit__(((struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *)__pyx_v_self), __pyx_v_random_state, __pyx_v_sim_function, __pyx_v_max_depth, __pyx_v_depth);
 
-  /* "simforest/cluster/_cluster.pyx":320
+  /* "simforest/cluster/_cluster.pyx":275
  *     cdef f_type projection
  * 
  *     def __cinit__(self,             # <<<<<<<<<<<<<<
@@ -5567,7 +4972,7 @@ static int __pyx_pf_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster___cin
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__cinit__", 0);
 
-  /* "simforest/cluster/_cluster.pyx":325
+  /* "simforest/cluster/_cluster.pyx":280
  *                   int max_depth=-1,
  *                   int depth=1):
  *         self.random_state = random_state             # <<<<<<<<<<<<<<
@@ -5580,7 +4985,7 @@ static int __pyx_pf_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster___cin
   __Pyx_DECREF(__pyx_v_self->random_state);
   __pyx_v_self->random_state = __pyx_v_random_state;
 
-  /* "simforest/cluster/_cluster.pyx":326
+  /* "simforest/cluster/_cluster.pyx":281
  *                   int depth=1):
  *         self.random_state = random_state
  *         self.sim_function= sim_function             # <<<<<<<<<<<<<<
@@ -5593,7 +4998,7 @@ static int __pyx_pf_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster___cin
   __Pyx_DECREF(__pyx_v_self->sim_function);
   __pyx_v_self->sim_function = __pyx_v_sim_function;
 
-  /* "simforest/cluster/_cluster.pyx":327
+  /* "simforest/cluster/_cluster.pyx":282
  *         self.random_state = random_state
  *         self.sim_function= sim_function
  *         self.max_depth = max_depth             # <<<<<<<<<<<<<<
@@ -5602,7 +5007,7 @@ static int __pyx_pf_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster___cin
  */
   __pyx_v_self->max_depth = __pyx_v_max_depth;
 
-  /* "simforest/cluster/_cluster.pyx":328
+  /* "simforest/cluster/_cluster.pyx":283
  *         self.sim_function= sim_function
  *         self.max_depth = max_depth
  *         self.depth = depth             # <<<<<<<<<<<<<<
@@ -5611,7 +5016,7 @@ static int __pyx_pf_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster___cin
  */
   __pyx_v_self->depth = __pyx_v_depth;
 
-  /* "simforest/cluster/_cluster.pyx":329
+  /* "simforest/cluster/_cluster.pyx":284
  *         self.max_depth = max_depth
  *         self.depth = depth
  *         self.is_leaf = 0             # <<<<<<<<<<<<<<
@@ -5620,7 +5025,7 @@ static int __pyx_pf_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster___cin
  */
   __pyx_v_self->is_leaf = 0;
 
-  /* "simforest/cluster/_cluster.pyx":320
+  /* "simforest/cluster/_cluster.pyx":275
  *     cdef f_type projection
  * 
  *     def __cinit__(self,             # <<<<<<<<<<<<<<
@@ -5634,7 +5039,7 @@ static int __pyx_pf_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster___cin
   return __pyx_r;
 }
 
-/* "simforest/cluster/_cluster.pyx":334
+/* "simforest/cluster/_cluster.pyx":289
  *     @cython.boundscheck(False)
  *     @cython.wraparound(False)
  *     cdef int is_pure(self, float [:, :] X) nogil:             # <<<<<<<<<<<<<<
@@ -5661,7 +5066,7 @@ static int __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_is_pur
   Py_ssize_t __pyx_t_10;
   int __pyx_t_11;
 
-  /* "simforest/cluster/_cluster.pyx":345
+  /* "simforest/cluster/_cluster.pyx":300
  * 
  *         """
  *         cdef int n = X.shape[0]             # <<<<<<<<<<<<<<
@@ -5670,7 +5075,7 @@ static int __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_is_pur
  */
   __pyx_v_n = (__pyx_v_X.shape[0]);
 
-  /* "simforest/cluster/_cluster.pyx":346
+  /* "simforest/cluster/_cluster.pyx":301
  *         """
  *         cdef int n = X.shape[0]
  *         cdef int m = X.shape[1]             # <<<<<<<<<<<<<<
@@ -5679,7 +5084,7 @@ static int __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_is_pur
  */
   __pyx_v_m = (__pyx_v_X.shape[1]);
 
-  /* "simforest/cluster/_cluster.pyx":347
+  /* "simforest/cluster/_cluster.pyx":302
  *         cdef int n = X.shape[0]
  *         cdef int m = X.shape[1]
  *         cdef int pure = 1             # <<<<<<<<<<<<<<
@@ -5688,7 +5093,7 @@ static int __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_is_pur
  */
   __pyx_v_pure = 1;
 
-  /* "simforest/cluster/_cluster.pyx":348
+  /* "simforest/cluster/_cluster.pyx":303
  *         cdef int m = X.shape[1]
  *         cdef int pure = 1
  *         cdef int i = 0             # <<<<<<<<<<<<<<
@@ -5697,7 +5102,7 @@ static int __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_is_pur
  */
   __pyx_v_i = 0;
 
-  /* "simforest/cluster/_cluster.pyx":349
+  /* "simforest/cluster/_cluster.pyx":304
  *         cdef int pure = 1
  *         cdef int i = 0
  *         cdef int j = 0             # <<<<<<<<<<<<<<
@@ -5706,7 +5111,7 @@ static int __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_is_pur
  */
   __pyx_v_j = 0;
 
-  /* "simforest/cluster/_cluster.pyx":351
+  /* "simforest/cluster/_cluster.pyx":306
  *         cdef int j = 0
  * 
  *         for i in range(n-1):             # <<<<<<<<<<<<<<
@@ -5718,7 +5123,7 @@ static int __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_is_pur
   for (__pyx_t_3 = 0; __pyx_t_3 < __pyx_t_2; __pyx_t_3+=1) {
     __pyx_v_i = __pyx_t_3;
 
-    /* "simforest/cluster/_cluster.pyx":352
+    /* "simforest/cluster/_cluster.pyx":307
  * 
  *         for i in range(n-1):
  *             for j in range(m):             # <<<<<<<<<<<<<<
@@ -5730,7 +5135,7 @@ static int __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_is_pur
     for (__pyx_t_6 = 0; __pyx_t_6 < __pyx_t_5; __pyx_t_6+=1) {
       __pyx_v_j = __pyx_t_6;
 
-      /* "simforest/cluster/_cluster.pyx":354
+      /* "simforest/cluster/_cluster.pyx":309
  *             for j in range(m):
  *                 # found different row! Not pure
  *                 if X[i, j] != X[i+1, j]:             # <<<<<<<<<<<<<<
@@ -5744,7 +5149,7 @@ static int __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_is_pur
       __pyx_t_11 = (((*((float *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_X.data + __pyx_t_7 * __pyx_v_X.strides[0]) ) + __pyx_t_8 * __pyx_v_X.strides[1]) ))) != (*((float *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_X.data + __pyx_t_9 * __pyx_v_X.strides[0]) ) + __pyx_t_10 * __pyx_v_X.strides[1]) )))) != 0);
       if (__pyx_t_11) {
 
-        /* "simforest/cluster/_cluster.pyx":355
+        /* "simforest/cluster/_cluster.pyx":310
  *                 # found different row! Not pure
  *                 if X[i, j] != X[i+1, j]:
  *                     pure = 0             # <<<<<<<<<<<<<<
@@ -5753,7 +5158,7 @@ static int __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_is_pur
  */
         __pyx_v_pure = 0;
 
-        /* "simforest/cluster/_cluster.pyx":356
+        /* "simforest/cluster/_cluster.pyx":311
  *                 if X[i, j] != X[i+1, j]:
  *                     pure = 0
  *                     break             # <<<<<<<<<<<<<<
@@ -5762,7 +5167,7 @@ static int __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_is_pur
  */
         goto __pyx_L6_break;
 
-        /* "simforest/cluster/_cluster.pyx":354
+        /* "simforest/cluster/_cluster.pyx":309
  *             for j in range(m):
  *                 # found different row! Not pure
  *                 if X[i, j] != X[i+1, j]:             # <<<<<<<<<<<<<<
@@ -5774,7 +5179,7 @@ static int __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_is_pur
     __pyx_L6_break:;
   }
 
-  /* "simforest/cluster/_cluster.pyx":358
+  /* "simforest/cluster/_cluster.pyx":313
  *                     break
  * 
  *         return pure             # <<<<<<<<<<<<<<
@@ -5784,7 +5189,7 @@ static int __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_is_pur
   __pyx_r = __pyx_v_pure;
   goto __pyx_L0;
 
-  /* "simforest/cluster/_cluster.pyx":334
+  /* "simforest/cluster/_cluster.pyx":289
  *     @cython.boundscheck(False)
  *     @cython.wraparound(False)
  *     cdef int is_pure(self, float [:, :] X) nogil:             # <<<<<<<<<<<<<<
@@ -5797,7 +5202,7 @@ static int __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_is_pur
   return __pyx_r;
 }
 
-/* "simforest/cluster/_cluster.pyx":362
+/* "simforest/cluster/_cluster.pyx":317
  *     @cython.boundscheck(False)
  *     @cython.wraparound(False)
  *     cpdef int sample_split_direction(self, np.ndarray[np.float32_t, ndim=2] X, int first):             # <<<<<<<<<<<<<<
@@ -5841,7 +5246,7 @@ static int __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_sample
   __pyx_pybuffernd_X.rcbuffer = &__pyx_pybuffer_X;
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_X.rcbuffer->pybuffer, (PyObject*)__pyx_v_X, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float32_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 362, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_X.rcbuffer->pybuffer, (PyObject*)__pyx_v_X, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float32_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 317, __pyx_L1_error)
   }
   __pyx_pybuffernd_X.diminfo[0].strides = __pyx_pybuffernd_X.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_X.diminfo[0].shape = __pyx_pybuffernd_X.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_X.diminfo[1].strides = __pyx_pybuffernd_X.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_X.diminfo[1].shape = __pyx_pybuffernd_X.rcbuffer->pybuffer.shape[1];
   /* Check if called by wrapper */
@@ -5853,10 +5258,10 @@ static int __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_sample
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_type_dict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_sample_split_direction); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 362, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_sample_split_direction); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 317, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_3sample_split_direction)) {
-        __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_first); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 362, __pyx_L1_error)
+        __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_first); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 317, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_4 = __pyx_t_1; __pyx_t_5 = NULL;
@@ -5874,7 +5279,7 @@ static int __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_sample
         #if CYTHON_FAST_PYCALL
         if (PyFunction_Check(__pyx_t_4)) {
           PyObject *__pyx_temp[3] = {__pyx_t_5, ((PyObject *)__pyx_v_X), __pyx_t_3};
-          __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 362, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 317, __pyx_L1_error)
           __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -5883,14 +5288,14 @@ static int __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_sample
         #if CYTHON_FAST_PYCCALL
         if (__Pyx_PyFastCFunction_Check(__pyx_t_4)) {
           PyObject *__pyx_temp[3] = {__pyx_t_5, ((PyObject *)__pyx_v_X), __pyx_t_3};
-          __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 362, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 317, __pyx_L1_error)
           __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
         } else
         #endif
         {
-          __pyx_t_7 = PyTuple_New(2+__pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 362, __pyx_L1_error)
+          __pyx_t_7 = PyTuple_New(2+__pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 317, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_7);
           if (__pyx_t_5) {
             __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_t_5); __pyx_t_5 = NULL;
@@ -5901,12 +5306,12 @@ static int __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_sample
           __Pyx_GIVEREF(__pyx_t_3);
           PyTuple_SET_ITEM(__pyx_t_7, 1+__pyx_t_6, __pyx_t_3);
           __pyx_t_3 = 0;
-          __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_7, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 362, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_7, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 317, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
         }
         __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-        __pyx_t_6 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 362, __pyx_L1_error)
+        __pyx_t_6 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 317, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
         __pyx_r = __pyx_t_6;
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -5925,7 +5330,7 @@ static int __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_sample
     #endif
   }
 
-  /* "simforest/cluster/_cluster.pyx":375
+  /* "simforest/cluster/_cluster.pyx":330
  * 
  *         """
  *         cdef int n = X.shape[0]             # <<<<<<<<<<<<<<
@@ -5934,7 +5339,7 @@ static int __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_sample
  */
   __pyx_v_n = (__pyx_v_X->dimensions[0]);
 
-  /* "simforest/cluster/_cluster.pyx":376
+  /* "simforest/cluster/_cluster.pyx":331
  *         """
  *         cdef int n = X.shape[0]
  *         cdef int m = X.shape[1]             # <<<<<<<<<<<<<<
@@ -5943,41 +5348,41 @@ static int __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_sample
  */
   __pyx_v_m = (__pyx_v_X->dimensions[1]);
 
-  /* "simforest/cluster/_cluster.pyx":377
+  /* "simforest/cluster/_cluster.pyx":332
  *         cdef int n = X.shape[0]
  *         cdef int m = X.shape[1]
  *         cdef float [:] first_row = X[first]             # <<<<<<<<<<<<<<
  * 
  *         cdef np.ndarray[np.int32_t, ndim=1] others = np.where(np.abs(X - X[first]) > 0)[0].astype(np.int32)
  */
-  __pyx_t_1 = __Pyx_GetItemInt(((PyObject *)__pyx_v_X), __pyx_v_first, int, 1, __Pyx_PyInt_From_int, 0, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 377, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(((PyObject *)__pyx_v_X), __pyx_v_first, int, 1, __Pyx_PyInt_From_int, 0, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 332, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_ds_float(__pyx_t_1, PyBUF_WRITABLE); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 377, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_ds_float(__pyx_t_1, PyBUF_WRITABLE); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 332, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_first_row = __pyx_t_8;
   __pyx_t_8.memview = NULL;
   __pyx_t_8.data = NULL;
 
-  /* "simforest/cluster/_cluster.pyx":379
+  /* "simforest/cluster/_cluster.pyx":334
  *         cdef float [:] first_row = X[first]
  * 
  *         cdef np.ndarray[np.int32_t, ndim=1] others = np.where(np.abs(X - X[first]) > 0)[0].astype(np.int32)             # <<<<<<<<<<<<<<
  *         #assert len(others) > 0, 'All points are the same'
  *         return self._rng.choice(others, replace=False)
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 379, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 334, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_where); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 379, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_where); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 334, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 379, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 334, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_abs); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 379, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_abs); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 334, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_GetItemInt(((PyObject *)__pyx_v_X), __pyx_v_first, int, 1, __Pyx_PyInt_From_int, 0, 0, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 379, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_GetItemInt(((PyObject *)__pyx_v_X), __pyx_v_first, int, 1, __Pyx_PyInt_From_int, 0, 0, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 334, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_9 = PyNumber_Subtract(((PyObject *)__pyx_v_X), __pyx_t_3); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 379, __pyx_L1_error)
+  __pyx_t_9 = PyNumber_Subtract(((PyObject *)__pyx_v_X), __pyx_t_3); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 334, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_t_3 = NULL;
@@ -5993,10 +5398,10 @@ static int __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_sample
   __pyx_t_4 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_5, __pyx_t_3, __pyx_t_9) : __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_9);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-  if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 379, __pyx_L1_error)
+  if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 334, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_5 = PyObject_RichCompare(__pyx_t_4, __pyx_int_0, Py_GT); __Pyx_XGOTREF(__pyx_t_5); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 379, __pyx_L1_error)
+  __pyx_t_5 = PyObject_RichCompare(__pyx_t_4, __pyx_int_0, Py_GT); __Pyx_XGOTREF(__pyx_t_5); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 334, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_7))) {
@@ -6011,18 +5416,18 @@ static int __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_sample
   __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_7, __pyx_t_4, __pyx_t_5) : __Pyx_PyObject_CallOneArg(__pyx_t_7, __pyx_t_5);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 379, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 334, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = __Pyx_GetItemInt(__pyx_t_2, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 379, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_GetItemInt(__pyx_t_2, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 334, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_astype); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 379, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_astype); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 334, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_np); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 379, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_np); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 334, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_int32); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 379, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_int32); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 334, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   __pyx_t_7 = NULL;
@@ -6038,16 +5443,16 @@ static int __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_sample
   __pyx_t_1 = (__pyx_t_7) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_7, __pyx_t_5) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_5);
   __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 379, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 334, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 379, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 334, __pyx_L1_error)
   __pyx_t_10 = ((PyArrayObject *)__pyx_t_1);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_others.rcbuffer->pybuffer, (PyObject*)__pyx_t_10, &__Pyx_TypeInfo_nn___pyx_t_5numpy_int32_t, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
       __pyx_v_others = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_others.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 379, __pyx_L1_error)
+      __PYX_ERR(0, 334, __pyx_L1_error)
     } else {__pyx_pybuffernd_others.diminfo[0].strides = __pyx_pybuffernd_others.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_others.diminfo[0].shape = __pyx_pybuffernd_others.rcbuffer->pybuffer.shape[0];
     }
   }
@@ -6055,34 +5460,34 @@ static int __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_sample
   __pyx_v_others = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "simforest/cluster/_cluster.pyx":381
+  /* "simforest/cluster/_cluster.pyx":336
  *         cdef np.ndarray[np.int32_t, ndim=1] others = np.where(np.abs(X - X[first]) > 0)[0].astype(np.int32)
  *         #assert len(others) > 0, 'All points are the same'
  *         return self._rng.choice(others, replace=False)             # <<<<<<<<<<<<<<
  * 
  *     @cython.boundscheck(False)
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->_rng, __pyx_n_s_choice); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 381, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->_rng, __pyx_n_s_choice); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 336, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 381, __pyx_L1_error)
+  __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 336, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_INCREF(((PyObject *)__pyx_v_others));
   __Pyx_GIVEREF(((PyObject *)__pyx_v_others));
   PyTuple_SET_ITEM(__pyx_t_2, 0, ((PyObject *)__pyx_v_others));
-  __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 381, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 336, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_replace, Py_False) < 0) __PYX_ERR(0, 381, __pyx_L1_error)
-  __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_2, __pyx_t_5); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 381, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_replace, Py_False) < 0) __PYX_ERR(0, 336, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_2, __pyx_t_5); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 336, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_6 = __Pyx_PyInt_As_int(__pyx_t_7); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 381, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyInt_As_int(__pyx_t_7); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 336, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   __pyx_r = __pyx_t_6;
   goto __pyx_L0;
 
-  /* "simforest/cluster/_cluster.pyx":362
+  /* "simforest/cluster/_cluster.pyx":317
  *     @cython.boundscheck(False)
  *     @cython.wraparound(False)
  *     cpdef int sample_split_direction(self, np.ndarray[np.float32_t, ndim=2] X, int first):             # <<<<<<<<<<<<<<
@@ -6155,11 +5560,11 @@ static PyObject *__pyx_pw_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_first)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("sample_split_direction", 1, 2, 2, 1); __PYX_ERR(0, 362, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("sample_split_direction", 1, 2, 2, 1); __PYX_ERR(0, 317, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "sample_split_direction") < 0)) __PYX_ERR(0, 362, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "sample_split_direction") < 0)) __PYX_ERR(0, 317, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -6168,17 +5573,17 @@ static PyObject *__pyx_pw_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster
       values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
     }
     __pyx_v_X = ((PyArrayObject *)values[0]);
-    __pyx_v_first = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_first == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 362, __pyx_L3_error)
+    __pyx_v_first = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_first == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 317, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("sample_split_direction", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 362, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("sample_split_direction", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 317, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("simforest.cluster._cluster.CSimilarityTreeCluster.sample_split_direction", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_X), __pyx_ptype_5numpy_ndarray, 1, "X", 0))) __PYX_ERR(0, 362, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_X), __pyx_ptype_5numpy_ndarray, 1, "X", 0))) __PYX_ERR(0, 317, __pyx_L1_error)
   __pyx_r = __pyx_pf_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_2sample_split_direction(((struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *)__pyx_v_self), __pyx_v_X, __pyx_v_first);
 
   /* function exit code */
@@ -6206,11 +5611,11 @@ static PyObject *__pyx_pf_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster
   __pyx_pybuffernd_X.rcbuffer = &__pyx_pybuffer_X;
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_X.rcbuffer->pybuffer, (PyObject*)__pyx_v_X, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float32_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 362, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_X.rcbuffer->pybuffer, (PyObject*)__pyx_v_X, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float32_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 317, __pyx_L1_error)
   }
   __pyx_pybuffernd_X.diminfo[0].strides = __pyx_pybuffernd_X.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_X.diminfo[0].shape = __pyx_pybuffernd_X.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_X.diminfo[1].strides = __pyx_pybuffernd_X.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_X.diminfo[1].shape = __pyx_pybuffernd_X.rcbuffer->pybuffer.shape[1];
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_sample_split_direction(__pyx_v_self, __pyx_v_X, __pyx_v_first, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 362, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_sample_split_direction(__pyx_v_self, __pyx_v_X, __pyx_v_first, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 317, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -6236,7 +5641,7 @@ static PyObject *__pyx_pf_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster
   return __pyx_r;
 }
 
-/* "simforest/cluster/_cluster.pyx":385
+/* "simforest/cluster/_cluster.pyx":340
  *     @cython.boundscheck(False)
  *     @cython.wraparound(False)
  *     cdef void _find_split(self, float [:, :] X, f_type projection):             # <<<<<<<<<<<<<<
@@ -6281,7 +5686,7 @@ static void __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster__find
   __pyx_pybuffernd_array.data = NULL;
   __pyx_pybuffernd_array.rcbuffer = &__pyx_pybuffer_array;
 
-  /* "simforest/cluster/_cluster.pyx":399
+  /* "simforest/cluster/_cluster.pyx":354
  * 
  *         # Calculate similarities
  *         cdef int n = X.shape[0]             # <<<<<<<<<<<<<<
@@ -6290,47 +5695,47 @@ static void __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster__find
  */
   __pyx_v_n = (__pyx_v_X.shape[0]);
 
-  /* "simforest/cluster/_cluster.pyx":400
+  /* "simforest/cluster/_cluster.pyx":355
  *         # Calculate similarities
  *         cdef int n = X.shape[0]
  *         cdef np.ndarray[np.float32_t, ndim=1] array = np.zeros(n, dtype=np.float32, order='c')             # <<<<<<<<<<<<<<
  *         cdef float [:] similarities = array
  *         cdef float [:] p = self._p
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 400, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 355, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_zeros); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 400, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_zeros); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 355, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_n); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 400, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_n); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 355, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 400, __pyx_L1_error)
+  __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 355, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GIVEREF(__pyx_t_1);
   PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_1);
   __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 400, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 355, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 400, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 355, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_float32); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 400, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_float32); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 355, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_dtype, __pyx_t_5) < 0) __PYX_ERR(0, 400, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_dtype, __pyx_t_5) < 0) __PYX_ERR(0, 355, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_order, __pyx_n_s_c) < 0) __PYX_ERR(0, 400, __pyx_L1_error)
-  __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, __pyx_t_1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 400, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_order, __pyx_n_s_c) < 0) __PYX_ERR(0, 355, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, __pyx_t_1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 355, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (!(likely(((__pyx_t_5) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_5, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 400, __pyx_L1_error)
+  if (!(likely(((__pyx_t_5) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_5, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 355, __pyx_L1_error)
   __pyx_t_6 = ((PyArrayObject *)__pyx_t_5);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_array.rcbuffer->pybuffer, (PyObject*)__pyx_t_6, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float32_t, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
       __pyx_v_array = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_array.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 400, __pyx_L1_error)
+      __PYX_ERR(0, 355, __pyx_L1_error)
     } else {__pyx_pybuffernd_array.diminfo[0].strides = __pyx_pybuffernd_array.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_array.diminfo[0].shape = __pyx_pybuffernd_array.rcbuffer->pybuffer.shape[0];
     }
   }
@@ -6338,47 +5743,47 @@ static void __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster__find
   __pyx_v_array = ((PyArrayObject *)__pyx_t_5);
   __pyx_t_5 = 0;
 
-  /* "simforest/cluster/_cluster.pyx":401
+  /* "simforest/cluster/_cluster.pyx":356
  *         cdef int n = X.shape[0]
  *         cdef np.ndarray[np.float32_t, ndim=1] array = np.zeros(n, dtype=np.float32, order='c')
  *         cdef float [:] similarities = array             # <<<<<<<<<<<<<<
  *         cdef float [:] p = self._p
  *         cdef float [:] q = self._q
  */
-  __pyx_t_7 = __Pyx_PyObject_to_MemoryviewSlice_ds_float(((PyObject *)__pyx_v_array), PyBUF_WRITABLE); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 401, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_to_MemoryviewSlice_ds_float(((PyObject *)__pyx_v_array), PyBUF_WRITABLE); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 356, __pyx_L1_error)
   __pyx_v_similarities = __pyx_t_7;
   __pyx_t_7.memview = NULL;
   __pyx_t_7.data = NULL;
 
-  /* "simforest/cluster/_cluster.pyx":402
+  /* "simforest/cluster/_cluster.pyx":357
  *         cdef np.ndarray[np.float32_t, ndim=1] array = np.zeros(n, dtype=np.float32, order='c')
  *         cdef float [:] similarities = array
  *         cdef float [:] p = self._p             # <<<<<<<<<<<<<<
  *         cdef float [:] q = self._q
  * 
  */
-  if (unlikely(!__pyx_v_self->_p.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 402, __pyx_L1_error)}
+  if (unlikely(!__pyx_v_self->_p.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 357, __pyx_L1_error)}
   __pyx_t_7 = __pyx_v_self->_p;
   __PYX_INC_MEMVIEW(&__pyx_t_7, 1);
   __pyx_v_p = __pyx_t_7;
   __pyx_t_7.memview = NULL;
   __pyx_t_7.data = NULL;
 
-  /* "simforest/cluster/_cluster.pyx":403
+  /* "simforest/cluster/_cluster.pyx":358
  *         cdef float [:] similarities = array
  *         cdef float [:] p = self._p
  *         cdef float [:] q = self._q             # <<<<<<<<<<<<<<
  * 
  *         cdef int num_threads = 4
  */
-  if (unlikely(!__pyx_v_self->_q.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 403, __pyx_L1_error)}
+  if (unlikely(!__pyx_v_self->_q.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 358, __pyx_L1_error)}
   __pyx_t_7 = __pyx_v_self->_q;
   __PYX_INC_MEMVIEW(&__pyx_t_7, 1);
   __pyx_v_q = __pyx_t_7;
   __pyx_t_7.memview = NULL;
   __pyx_t_7.data = NULL;
 
-  /* "simforest/cluster/_cluster.pyx":405
+  /* "simforest/cluster/_cluster.pyx":360
  *         cdef float [:] q = self._q
  * 
  *         cdef int num_threads = 4             # <<<<<<<<<<<<<<
@@ -6387,7 +5792,7 @@ static void __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster__find
  */
   __pyx_v_num_threads = 4;
 
-  /* "simforest/cluster/_cluster.pyx":406
+  /* "simforest/cluster/_cluster.pyx":361
  * 
  *         cdef int num_threads = 4
  *         if n < 12:             # <<<<<<<<<<<<<<
@@ -6397,7 +5802,7 @@ static void __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster__find
   __pyx_t_8 = ((__pyx_v_n < 12) != 0);
   if (__pyx_t_8) {
 
-    /* "simforest/cluster/_cluster.pyx":407
+    /* "simforest/cluster/_cluster.pyx":362
  *         cdef int num_threads = 4
  *         if n < 12:
  *             num_threads = 1             # <<<<<<<<<<<<<<
@@ -6406,7 +5811,7 @@ static void __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster__find
  */
     __pyx_v_num_threads = 1;
 
-    /* "simforest/cluster/_cluster.pyx":406
+    /* "simforest/cluster/_cluster.pyx":361
  * 
  *         cdef int num_threads = 4
  *         if n < 12:             # <<<<<<<<<<<<<<
@@ -6415,7 +5820,7 @@ static void __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster__find
  */
   }
 
-  /* "simforest/cluster/_cluster.pyx":408
+  /* "simforest/cluster/_cluster.pyx":363
  *         if n < 12:
  *             num_threads = 1
  *         cdef int i = 0             # <<<<<<<<<<<<<<
@@ -6424,7 +5829,7 @@ static void __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster__find
  */
   __pyx_v_i = 0;
 
-  /* "simforest/cluster/_cluster.pyx":410
+  /* "simforest/cluster/_cluster.pyx":365
  *         cdef int i = 0
  *         # Read about different schedules https://cython.readthedocs.io/en/latest/src/userguide/parallelism.html
  *         for i in prange(n, schedule='dynamic', nogil=True, num_threads=num_threads):             # <<<<<<<<<<<<<<
@@ -6461,7 +5866,7 @@ static void __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster__find
                         {
                             __pyx_v_i = (int)(0 + 1 * __pyx_t_10);
 
-                            /* "simforest/cluster/_cluster.pyx":411
+                            /* "simforest/cluster/_cluster.pyx":366
  *         # Read about different schedules https://cython.readthedocs.io/en/latest/src/userguide/parallelism.html
  *         for i in prange(n, schedule='dynamic', nogil=True, num_threads=num_threads):
  *             similarities[i] = projection(X[i], p, q)             # <<<<<<<<<<<<<<
@@ -6499,7 +5904,7 @@ __pyx_t_12 = __pyx_v_i;
         #endif
       }
 
-      /* "simforest/cluster/_cluster.pyx":410
+      /* "simforest/cluster/_cluster.pyx":365
  *         cdef int i = 0
  *         # Read about different schedules https://cython.readthedocs.io/en/latest/src/userguide/parallelism.html
  *         for i in prange(n, schedule='dynamic', nogil=True, num_threads=num_threads):             # <<<<<<<<<<<<<<
@@ -6518,16 +5923,16 @@ __pyx_t_12 = __pyx_v_i;
       }
   }
 
-  /* "simforest/cluster/_cluster.pyx":413
+  /* "simforest/cluster/_cluster.pyx":368
  *             similarities[i] = projection(X[i], p, q)
  * 
  *         cdef float similarities_min = np.min(array)             # <<<<<<<<<<<<<<
  *         cdef float similarities_max = np.max(array)
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 413, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 368, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_min); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 413, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_min); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 368, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_1 = NULL;
@@ -6542,23 +5947,23 @@ __pyx_t_12 = __pyx_v_i;
   }
   __pyx_t_5 = (__pyx_t_1) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_1, ((PyObject *)__pyx_v_array)) : __Pyx_PyObject_CallOneArg(__pyx_t_3, ((PyObject *)__pyx_v_array));
   __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 413, __pyx_L1_error)
+  if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 368, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_13 = __pyx_PyFloat_AsFloat(__pyx_t_5); if (unlikely((__pyx_t_13 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 413, __pyx_L1_error)
+  __pyx_t_13 = __pyx_PyFloat_AsFloat(__pyx_t_5); if (unlikely((__pyx_t_13 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 368, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __pyx_v_similarities_min = __pyx_t_13;
 
-  /* "simforest/cluster/_cluster.pyx":414
+  /* "simforest/cluster/_cluster.pyx":369
  * 
  *         cdef float similarities_min = np.min(array)
  *         cdef float similarities_max = np.max(array)             # <<<<<<<<<<<<<<
  * 
  *         # Find random split point
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 414, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 369, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_max); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 414, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_max); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 369, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_t_3 = NULL;
@@ -6573,25 +5978,25 @@ __pyx_t_12 = __pyx_v_i;
   }
   __pyx_t_5 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_1, __pyx_t_3, ((PyObject *)__pyx_v_array)) : __Pyx_PyObject_CallOneArg(__pyx_t_1, ((PyObject *)__pyx_v_array));
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 414, __pyx_L1_error)
+  if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 369, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_13 = __pyx_PyFloat_AsFloat(__pyx_t_5); if (unlikely((__pyx_t_13 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 414, __pyx_L1_error)
+  __pyx_t_13 = __pyx_PyFloat_AsFloat(__pyx_t_5); if (unlikely((__pyx_t_13 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 369, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __pyx_v_similarities_max = __pyx_t_13;
 
-  /* "simforest/cluster/_cluster.pyx":417
+  /* "simforest/cluster/_cluster.pyx":372
  * 
  *         # Find random split point
  *         self._split_point = self._rng.uniform(similarities_min, similarities_max, 1)             # <<<<<<<<<<<<<<
  * 
  *         # Find indexes of points going left
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->_rng, __pyx_n_s_uniform); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 417, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->_rng, __pyx_n_s_uniform); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 372, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = PyFloat_FromDouble(__pyx_v_similarities_min); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 417, __pyx_L1_error)
+  __pyx_t_3 = PyFloat_FromDouble(__pyx_v_similarities_min); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 372, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_2 = PyFloat_FromDouble(__pyx_v_similarities_max); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 417, __pyx_L1_error)
+  __pyx_t_2 = PyFloat_FromDouble(__pyx_v_similarities_max); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 372, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   __pyx_t_11 = 0;
@@ -6608,7 +6013,7 @@ __pyx_t_12 = __pyx_v_i;
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_1)) {
     PyObject *__pyx_temp[4] = {__pyx_t_4, __pyx_t_3, __pyx_t_2, __pyx_int_1};
-    __pyx_t_5 = __Pyx_PyFunction_FastCall(__pyx_t_1, __pyx_temp+1-__pyx_t_11, 3+__pyx_t_11); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 417, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyFunction_FastCall(__pyx_t_1, __pyx_temp+1-__pyx_t_11, 3+__pyx_t_11); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 372, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -6618,7 +6023,7 @@ __pyx_t_12 = __pyx_v_i;
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_1)) {
     PyObject *__pyx_temp[4] = {__pyx_t_4, __pyx_t_3, __pyx_t_2, __pyx_int_1};
-    __pyx_t_5 = __Pyx_PyCFunction_FastCall(__pyx_t_1, __pyx_temp+1-__pyx_t_11, 3+__pyx_t_11); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 417, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyCFunction_FastCall(__pyx_t_1, __pyx_temp+1-__pyx_t_11, 3+__pyx_t_11); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 372, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -6626,7 +6031,7 @@ __pyx_t_12 = __pyx_v_i;
   } else
   #endif
   {
-    __pyx_t_14 = PyTuple_New(3+__pyx_t_11); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 417, __pyx_L1_error)
+    __pyx_t_14 = PyTuple_New(3+__pyx_t_11); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 372, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_14);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_14, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -6640,30 +6045,30 @@ __pyx_t_12 = __pyx_v_i;
     PyTuple_SET_ITEM(__pyx_t_14, 2+__pyx_t_11, __pyx_int_1);
     __pyx_t_3 = 0;
     __pyx_t_2 = 0;
-    __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_14, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 417, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_14, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 372, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_13 = __pyx_PyFloat_AsFloat(__pyx_t_5); if (unlikely((__pyx_t_13 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 417, __pyx_L1_error)
+  __pyx_t_13 = __pyx_PyFloat_AsFloat(__pyx_t_5); if (unlikely((__pyx_t_13 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 372, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __pyx_v_self->_split_point = __pyx_t_13;
 
-  /* "simforest/cluster/_cluster.pyx":420
+  /* "simforest/cluster/_cluster.pyx":375
  * 
  *         # Find indexes of points going left
  *         self.lhs_idxs = np.nonzero(array <= self._split_point)[0].astype(np.int32)             # <<<<<<<<<<<<<<
  *         self.rhs_idxs = np.nonzero(array > self._split_point)[0].astype(np.int32)
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_14, __pyx_n_s_np); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 420, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_14, __pyx_n_s_np); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 375, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_14);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_14, __pyx_n_s_nonzero); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 420, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_14, __pyx_n_s_nonzero); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 375, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
-  __pyx_t_14 = PyFloat_FromDouble(__pyx_v_self->_split_point); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 420, __pyx_L1_error)
+  __pyx_t_14 = PyFloat_FromDouble(__pyx_v_self->_split_point); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 375, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_14);
-  __pyx_t_3 = PyObject_RichCompare(((PyObject *)__pyx_v_array), __pyx_t_14, Py_LE); __Pyx_XGOTREF(__pyx_t_3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 420, __pyx_L1_error)
+  __pyx_t_3 = PyObject_RichCompare(((PyObject *)__pyx_v_array), __pyx_t_14, Py_LE); __Pyx_XGOTREF(__pyx_t_3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 375, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
   __pyx_t_14 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -6678,18 +6083,18 @@ __pyx_t_12 = __pyx_v_i;
   __pyx_t_1 = (__pyx_t_14) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_14, __pyx_t_3) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3);
   __Pyx_XDECREF(__pyx_t_14); __pyx_t_14 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 420, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 375, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 420, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 375, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_astype); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 420, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_astype); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 375, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 420, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 375, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_int32); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 420, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_int32); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 375, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_t_2 = NULL;
@@ -6705,31 +6110,31 @@ __pyx_t_12 = __pyx_v_i;
   __pyx_t_5 = (__pyx_t_2) ? __Pyx_PyObject_Call2Args(__pyx_t_1, __pyx_t_2, __pyx_t_3) : __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_t_3);
   __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 420, __pyx_L1_error)
+  if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 375, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_15 = __Pyx_PyObject_to_MemoryviewSlice_ds_int(__pyx_t_5, PyBUF_WRITABLE); if (unlikely(!__pyx_t_15.memview)) __PYX_ERR(0, 420, __pyx_L1_error)
+  __pyx_t_15 = __Pyx_PyObject_to_MemoryviewSlice_ds_int(__pyx_t_5, PyBUF_WRITABLE); if (unlikely(!__pyx_t_15.memview)) __PYX_ERR(0, 375, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __PYX_XDEC_MEMVIEW(&__pyx_v_self->lhs_idxs, 0);
   __pyx_v_self->lhs_idxs = __pyx_t_15;
   __pyx_t_15.memview = NULL;
   __pyx_t_15.data = NULL;
 
-  /* "simforest/cluster/_cluster.pyx":421
+  /* "simforest/cluster/_cluster.pyx":376
  *         # Find indexes of points going left
  *         self.lhs_idxs = np.nonzero(array <= self._split_point)[0].astype(np.int32)
  *         self.rhs_idxs = np.nonzero(array > self._split_point)[0].astype(np.int32)             # <<<<<<<<<<<<<<
  * 
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 421, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 376, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_nonzero); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 421, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_nonzero); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 376, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = PyFloat_FromDouble(__pyx_v_self->_split_point); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 421, __pyx_L1_error)
+  __pyx_t_3 = PyFloat_FromDouble(__pyx_v_self->_split_point); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 376, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_14 = PyObject_RichCompare(((PyObject *)__pyx_v_array), __pyx_t_3, Py_GT); __Pyx_XGOTREF(__pyx_t_14); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 421, __pyx_L1_error)
+  __pyx_t_14 = PyObject_RichCompare(((PyObject *)__pyx_v_array), __pyx_t_3, Py_GT); __Pyx_XGOTREF(__pyx_t_14); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 376, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -6744,18 +6149,18 @@ __pyx_t_12 = __pyx_v_i;
   __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_3, __pyx_t_14) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_14);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 421, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 376, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 421, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 376, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_astype); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 421, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_astype); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 376, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 421, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 376, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_14 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_int32); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 421, __pyx_L1_error)
+  __pyx_t_14 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_int32); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 376, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_14);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_t_2 = NULL;
@@ -6771,17 +6176,17 @@ __pyx_t_12 = __pyx_v_i;
   __pyx_t_5 = (__pyx_t_2) ? __Pyx_PyObject_Call2Args(__pyx_t_1, __pyx_t_2, __pyx_t_14) : __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_t_14);
   __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
-  if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 421, __pyx_L1_error)
+  if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 376, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_15 = __Pyx_PyObject_to_MemoryviewSlice_ds_int(__pyx_t_5, PyBUF_WRITABLE); if (unlikely(!__pyx_t_15.memview)) __PYX_ERR(0, 421, __pyx_L1_error)
+  __pyx_t_15 = __Pyx_PyObject_to_MemoryviewSlice_ds_int(__pyx_t_5, PyBUF_WRITABLE); if (unlikely(!__pyx_t_15.memview)) __PYX_ERR(0, 376, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __PYX_XDEC_MEMVIEW(&__pyx_v_self->rhs_idxs, 0);
   __pyx_v_self->rhs_idxs = __pyx_t_15;
   __pyx_t_15.memview = NULL;
   __pyx_t_15.data = NULL;
 
-  /* "simforest/cluster/_cluster.pyx":385
+  /* "simforest/cluster/_cluster.pyx":340
  *     @cython.boundscheck(False)
  *     @cython.wraparound(False)
  *     cdef void _find_split(self, float [:, :] X, f_type projection):             # <<<<<<<<<<<<<<
@@ -6818,7 +6223,7 @@ __pyx_t_12 = __pyx_v_i;
   __Pyx_RefNannyFinishContext();
 }
 
-/* "simforest/cluster/_cluster.pyx":424
+/* "simforest/cluster/_cluster.pyx":379
  * 
  * 
  *     cpdef CSimilarityTreeCluster fit(self, np.ndarray[np.float32_t, ndim=2] X):             # <<<<<<<<<<<<<<
@@ -6855,7 +6260,7 @@ static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__
   __pyx_pybuffernd_X.rcbuffer = &__pyx_pybuffer_X;
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_X.rcbuffer->pybuffer, (PyObject*)__pyx_v_X, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float32_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 424, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_X.rcbuffer->pybuffer, (PyObject*)__pyx_v_X, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float32_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 379, __pyx_L1_error)
   }
   __pyx_pybuffernd_X.diminfo[0].strides = __pyx_pybuffernd_X.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_X.diminfo[0].shape = __pyx_pybuffernd_X.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_X.diminfo[1].strides = __pyx_pybuffernd_X.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_X.diminfo[1].shape = __pyx_pybuffernd_X.rcbuffer->pybuffer.shape[1];
   /* Check if called by wrapper */
@@ -6867,7 +6272,7 @@ static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_type_dict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_fit); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 424, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_fit); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 379, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_5fit)) {
         __Pyx_XDECREF(((PyObject *)__pyx_r));
@@ -6884,10 +6289,10 @@ static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__
         }
         __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, ((PyObject *)__pyx_v_X)) : __Pyx_PyObject_CallOneArg(__pyx_t_3, ((PyObject *)__pyx_v_X));
         __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 424, __pyx_L1_error)
+        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 379, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-        if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_9simforest_7cluster_8_cluster_CSimilarityTreeCluster))))) __PYX_ERR(0, 424, __pyx_L1_error)
+        if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_9simforest_7cluster_8_cluster_CSimilarityTreeCluster))))) __PYX_ERR(0, 379, __pyx_L1_error)
         __pyx_r = ((struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *)__pyx_t_2);
         __pyx_t_2 = 0;
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -6906,7 +6311,7 @@ static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__
     #endif
   }
 
-  /* "simforest/cluster/_cluster.pyx":434
+  /* "simforest/cluster/_cluster.pyx":389
  *             self : CSimilarityTreeCluster
  *         """
  *         cdef int n = X.shape[0]             # <<<<<<<<<<<<<<
@@ -6915,7 +6320,7 @@ static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__
  */
   __pyx_v_n = (__pyx_v_X->dimensions[0]);
 
-  /* "simforest/cluster/_cluster.pyx":435
+  /* "simforest/cluster/_cluster.pyx":390
  *         """
  *         cdef int n = X.shape[0]
  *         if n <= 1:             # <<<<<<<<<<<<<<
@@ -6925,7 +6330,7 @@ static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__
   __pyx_t_5 = ((__pyx_v_n <= 1) != 0);
   if (__pyx_t_5) {
 
-    /* "simforest/cluster/_cluster.pyx":436
+    /* "simforest/cluster/_cluster.pyx":391
  *         cdef int n = X.shape[0]
  *         if n <= 1:
  *             self.is_leaf = 1             # <<<<<<<<<<<<<<
@@ -6934,7 +6339,7 @@ static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__
  */
     __pyx_v_self->is_leaf = 1;
 
-    /* "simforest/cluster/_cluster.pyx":437
+    /* "simforest/cluster/_cluster.pyx":392
  *         if n <= 1:
  *             self.is_leaf = 1
  *             return self             # <<<<<<<<<<<<<<
@@ -6946,7 +6351,7 @@ static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__
     __pyx_r = __pyx_v_self;
     goto __pyx_L0;
 
-    /* "simforest/cluster/_cluster.pyx":435
+    /* "simforest/cluster/_cluster.pyx":390
  *         """
  *         cdef int n = X.shape[0]
  *         if n <= 1:             # <<<<<<<<<<<<<<
@@ -6955,21 +6360,21 @@ static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__
  */
   }
 
-  /* "simforest/cluster/_cluster.pyx":439
+  /* "simforest/cluster/_cluster.pyx":394
  *             return self
  * 
  *         if self.is_pure(X) == 1:             # <<<<<<<<<<<<<<
  *             self.is_leaf = 1
  *             return self
  */
-  __pyx_t_6 = __Pyx_PyObject_to_MemoryviewSlice_dsds_float(((PyObject *)__pyx_v_X), PyBUF_WRITABLE); if (unlikely(!__pyx_t_6.memview)) __PYX_ERR(0, 439, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_to_MemoryviewSlice_dsds_float(((PyObject *)__pyx_v_X), PyBUF_WRITABLE); if (unlikely(!__pyx_t_6.memview)) __PYX_ERR(0, 394, __pyx_L1_error)
   __pyx_t_5 = ((((struct __pyx_vtabstruct_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *)__pyx_v_self->__pyx_vtab)->is_pure(__pyx_v_self, __pyx_t_6) == 1) != 0);
   __PYX_XDEC_MEMVIEW(&__pyx_t_6, 1);
   __pyx_t_6.memview = NULL;
   __pyx_t_6.data = NULL;
   if (__pyx_t_5) {
 
-    /* "simforest/cluster/_cluster.pyx":440
+    /* "simforest/cluster/_cluster.pyx":395
  * 
  *         if self.is_pure(X) == 1:
  *             self.is_leaf = 1             # <<<<<<<<<<<<<<
@@ -6978,7 +6383,7 @@ static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__
  */
     __pyx_v_self->is_leaf = 1;
 
-    /* "simforest/cluster/_cluster.pyx":441
+    /* "simforest/cluster/_cluster.pyx":396
  *         if self.is_pure(X) == 1:
  *             self.is_leaf = 1
  *             return self             # <<<<<<<<<<<<<<
@@ -6990,7 +6395,7 @@ static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__
     __pyx_r = __pyx_v_self;
     goto __pyx_L0;
 
-    /* "simforest/cluster/_cluster.pyx":439
+    /* "simforest/cluster/_cluster.pyx":394
  *             return self
  * 
  *         if self.is_pure(X) == 1:             # <<<<<<<<<<<<<<
@@ -6999,7 +6404,7 @@ static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__
  */
   }
 
-  /* "simforest/cluster/_cluster.pyx":443
+  /* "simforest/cluster/_cluster.pyx":398
  *             return self
  * 
  *         if self.max_depth > -1:             # <<<<<<<<<<<<<<
@@ -7009,7 +6414,7 @@ static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__
   __pyx_t_5 = ((__pyx_v_self->max_depth > -1L) != 0);
   if (__pyx_t_5) {
 
-    /* "simforest/cluster/_cluster.pyx":444
+    /* "simforest/cluster/_cluster.pyx":399
  * 
  *         if self.max_depth > -1:
  *             if self.depth == self.max_depth:             # <<<<<<<<<<<<<<
@@ -7019,7 +6424,7 @@ static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__
     __pyx_t_5 = ((__pyx_v_self->depth == __pyx_v_self->max_depth) != 0);
     if (__pyx_t_5) {
 
-      /* "simforest/cluster/_cluster.pyx":445
+      /* "simforest/cluster/_cluster.pyx":400
  *         if self.max_depth > -1:
  *             if self.depth == self.max_depth:
  *                 self.is_leaf = 1             # <<<<<<<<<<<<<<
@@ -7028,7 +6433,7 @@ static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__
  */
       __pyx_v_self->is_leaf = 1;
 
-      /* "simforest/cluster/_cluster.pyx":446
+      /* "simforest/cluster/_cluster.pyx":401
  *             if self.depth == self.max_depth:
  *                 self.is_leaf = 1
  *                 return self             # <<<<<<<<<<<<<<
@@ -7040,7 +6445,7 @@ static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__
       __pyx_r = __pyx_v_self;
       goto __pyx_L0;
 
-      /* "simforest/cluster/_cluster.pyx":444
+      /* "simforest/cluster/_cluster.pyx":399
  * 
  *         if self.max_depth > -1:
  *             if self.depth == self.max_depth:             # <<<<<<<<<<<<<<
@@ -7049,7 +6454,7 @@ static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__
  */
     }
 
-    /* "simforest/cluster/_cluster.pyx":443
+    /* "simforest/cluster/_cluster.pyx":398
  *             return self
  * 
  *         if self.max_depth > -1:             # <<<<<<<<<<<<<<
@@ -7058,14 +6463,14 @@ static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__
  */
   }
 
-  /* "simforest/cluster/_cluster.pyx":448
+  /* "simforest/cluster/_cluster.pyx":403
  *                 return self
  * 
  *         self._rng = check_random_state(self.random_state)             # <<<<<<<<<<<<<<
  * 
  *         cdef int p = 0
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_check_random_state); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 448, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_check_random_state); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 403, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -7079,7 +6484,7 @@ static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__
   }
   __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_3, __pyx_v_self->random_state) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_self->random_state);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 448, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 403, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_GIVEREF(__pyx_t_1);
@@ -7088,7 +6493,7 @@ static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__
   __pyx_v_self->_rng = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "simforest/cluster/_cluster.pyx":450
+  /* "simforest/cluster/_cluster.pyx":405
  *         self._rng = check_random_state(self.random_state)
  * 
  *         cdef int p = 0             # <<<<<<<<<<<<<<
@@ -7097,7 +6502,7 @@ static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__
  */
   __pyx_v_p = 0;
 
-  /* "simforest/cluster/_cluster.pyx":451
+  /* "simforest/cluster/_cluster.pyx":406
  * 
  *         cdef int p = 0
  *         cdef int q = 1             # <<<<<<<<<<<<<<
@@ -7106,7 +6511,7 @@ static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__
  */
   __pyx_v_q = 1;
 
-  /* "simforest/cluster/_cluster.pyx":453
+  /* "simforest/cluster/_cluster.pyx":408
  *         cdef int q = 1
  *         # if more that two points, find a split
  *         if n > 2:             # <<<<<<<<<<<<<<
@@ -7116,16 +6521,16 @@ static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__
   __pyx_t_5 = ((__pyx_v_n > 2) != 0);
   if (__pyx_t_5) {
 
-    /* "simforest/cluster/_cluster.pyx":455
+    /* "simforest/cluster/_cluster.pyx":410
  *         if n > 2:
  *             # sample p randomly
  *             p = self._rng.randint(0, n)             # <<<<<<<<<<<<<<
  * 
  *             # sample q so that it's not a copy the same point
  */
-    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->_rng, __pyx_n_s_randint); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 455, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->_rng, __pyx_n_s_randint); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 410, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_n); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 455, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_n); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 410, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_t_4 = NULL;
     __pyx_t_7 = 0;
@@ -7142,7 +6547,7 @@ static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_int_0, __pyx_t_3};
-      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 455, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 410, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -7151,14 +6556,14 @@ static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_int_0, __pyx_t_3};
-      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 455, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 410, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     } else
     #endif
     {
-      __pyx_t_8 = PyTuple_New(2+__pyx_t_7); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 455, __pyx_L1_error)
+      __pyx_t_8 = PyTuple_New(2+__pyx_t_7); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 410, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_8);
       if (__pyx_t_4) {
         __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_8, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -7169,16 +6574,16 @@ static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__
       __Pyx_GIVEREF(__pyx_t_3);
       PyTuple_SET_ITEM(__pyx_t_8, 1+__pyx_t_7, __pyx_t_3);
       __pyx_t_3 = 0;
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_8, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 455, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_8, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 410, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
     }
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_7 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_7 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 455, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_7 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 410, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __pyx_v_p = __pyx_t_7;
 
-    /* "simforest/cluster/_cluster.pyx":458
+    /* "simforest/cluster/_cluster.pyx":413
  * 
  *             # sample q so that it's not a copy the same point
  *             q = self.sample_split_direction(X, p)             # <<<<<<<<<<<<<<
@@ -7187,7 +6592,7 @@ static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__
  */
     __pyx_v_q = ((struct __pyx_vtabstruct_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *)__pyx_v_self->__pyx_vtab)->sample_split_direction(__pyx_v_self, ((PyArrayObject *)__pyx_v_X), __pyx_v_p, 0);
 
-    /* "simforest/cluster/_cluster.pyx":459
+    /* "simforest/cluster/_cluster.pyx":414
  *             # sample q so that it's not a copy the same point
  *             q = self.sample_split_direction(X, p)
  *             if q == -1:             # <<<<<<<<<<<<<<
@@ -7197,16 +6602,16 @@ static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__
     __pyx_t_5 = ((__pyx_v_q == -1L) != 0);
     if (unlikely(__pyx_t_5)) {
 
-      /* "simforest/cluster/_cluster.pyx":460
+      /* "simforest/cluster/_cluster.pyx":415
  *             q = self.sample_split_direction(X, p)
  *             if q == -1:
  *                 raise ValueError(f'Could not find second split point; is_pure should handle that! {np.asarray(X)}')             # <<<<<<<<<<<<<<
  * 
  *         self._p = X[p]
  */
-      __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 460, __pyx_L1_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 415, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
-      __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 460, __pyx_L1_error)
+      __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 415, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_8);
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       __pyx_t_2 = NULL;
@@ -7221,23 +6626,23 @@ static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__
       }
       __pyx_t_1 = (__pyx_t_2) ? __Pyx_PyObject_Call2Args(__pyx_t_8, __pyx_t_2, ((PyObject *)__pyx_v_X)) : __Pyx_PyObject_CallOneArg(__pyx_t_8, ((PyObject *)__pyx_v_X));
       __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 460, __pyx_L1_error)
+      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 415, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-      __pyx_t_8 = __Pyx_PyObject_FormatSimple(__pyx_t_1, __pyx_empty_unicode); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 460, __pyx_L1_error)
+      __pyx_t_8 = __Pyx_PyObject_FormatSimple(__pyx_t_1, __pyx_empty_unicode); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 415, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_8);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-      __pyx_t_1 = __Pyx_PyUnicode_Concat(__pyx_kp_u_Could_not_find_second_split_poin, __pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 460, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyUnicode_Concat(__pyx_kp_u_Could_not_find_second_split_poin, __pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 415, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-      __pyx_t_8 = __Pyx_PyObject_CallOneArg(__pyx_builtin_ValueError, __pyx_t_1); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 460, __pyx_L1_error)
+      __pyx_t_8 = __Pyx_PyObject_CallOneArg(__pyx_builtin_ValueError, __pyx_t_1); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 415, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_8);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       __Pyx_Raise(__pyx_t_8, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-      __PYX_ERR(0, 460, __pyx_L1_error)
+      __PYX_ERR(0, 415, __pyx_L1_error)
 
-      /* "simforest/cluster/_cluster.pyx":459
+      /* "simforest/cluster/_cluster.pyx":414
  *             # sample q so that it's not a copy the same point
  *             q = self.sample_split_direction(X, p)
  *             if q == -1:             # <<<<<<<<<<<<<<
@@ -7246,7 +6651,7 @@ static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__
  */
     }
 
-    /* "simforest/cluster/_cluster.pyx":453
+    /* "simforest/cluster/_cluster.pyx":408
  *         cdef int q = 1
  *         # if more that two points, find a split
  *         if n > 2:             # <<<<<<<<<<<<<<
@@ -7255,50 +6660,50 @@ static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__
  */
   }
 
-  /* "simforest/cluster/_cluster.pyx":462
+  /* "simforest/cluster/_cluster.pyx":417
  *                 raise ValueError(f'Could not find second split point; is_pure should handle that! {np.asarray(X)}')
  * 
  *         self._p = X[p]             # <<<<<<<<<<<<<<
  *         self._q = X[q]
  * 
  */
-  __pyx_t_8 = __Pyx_GetItemInt(((PyObject *)__pyx_v_X), __pyx_v_p, int, 1, __Pyx_PyInt_From_int, 0, 1, 1); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 462, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_GetItemInt(((PyObject *)__pyx_v_X), __pyx_v_p, int, 1, __Pyx_PyInt_From_int, 0, 1, 1); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 417, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
-  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_ds_float(__pyx_t_8, PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 462, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_ds_float(__pyx_t_8, PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 417, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
   __PYX_XDEC_MEMVIEW(&__pyx_v_self->_p, 0);
   __pyx_v_self->_p = __pyx_t_9;
   __pyx_t_9.memview = NULL;
   __pyx_t_9.data = NULL;
 
-  /* "simforest/cluster/_cluster.pyx":463
+  /* "simforest/cluster/_cluster.pyx":418
  * 
  *         self._p = X[p]
  *         self._q = X[q]             # <<<<<<<<<<<<<<
  * 
  *         if self.sim_function == 'dot':
  */
-  __pyx_t_8 = __Pyx_GetItemInt(((PyObject *)__pyx_v_X), __pyx_v_q, int, 1, __Pyx_PyInt_From_int, 0, 1, 1); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 463, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_GetItemInt(((PyObject *)__pyx_v_X), __pyx_v_q, int, 1, __Pyx_PyInt_From_int, 0, 1, 1); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 418, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
-  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_ds_float(__pyx_t_8, PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 463, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_ds_float(__pyx_t_8, PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 418, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
   __PYX_XDEC_MEMVIEW(&__pyx_v_self->_q, 0);
   __pyx_v_self->_q = __pyx_t_9;
   __pyx_t_9.memview = NULL;
   __pyx_t_9.data = NULL;
 
-  /* "simforest/cluster/_cluster.pyx":465
+  /* "simforest/cluster/_cluster.pyx":420
  *         self._q = X[q]
  * 
  *         if self.sim_function == 'dot':             # <<<<<<<<<<<<<<
  *             self.projection = dot_projection
  *         elif self.sim_function == 'euclidean':
  */
-  __pyx_t_5 = (__Pyx_PyString_Equals(__pyx_v_self->sim_function, __pyx_n_s_dot, Py_EQ)); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 465, __pyx_L1_error)
+  __pyx_t_5 = (__Pyx_PyString_Equals(__pyx_v_self->sim_function, __pyx_n_s_dot, Py_EQ)); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 420, __pyx_L1_error)
   __pyx_t_10 = (__pyx_t_5 != 0);
   if (__pyx_t_10) {
 
-    /* "simforest/cluster/_cluster.pyx":466
+    /* "simforest/cluster/_cluster.pyx":421
  * 
  *         if self.sim_function == 'dot':
  *             self.projection = dot_projection             # <<<<<<<<<<<<<<
@@ -7307,7 +6712,7 @@ static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__
  */
     __pyx_v_self->projection = __pyx_f_9simforest_7cluster_8_cluster_dot_projection;
 
-    /* "simforest/cluster/_cluster.pyx":465
+    /* "simforest/cluster/_cluster.pyx":420
  *         self._q = X[q]
  * 
  *         if self.sim_function == 'dot':             # <<<<<<<<<<<<<<
@@ -7317,18 +6722,18 @@ static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__
     goto __pyx_L9;
   }
 
-  /* "simforest/cluster/_cluster.pyx":467
+  /* "simforest/cluster/_cluster.pyx":422
  *         if self.sim_function == 'dot':
  *             self.projection = dot_projection
  *         elif self.sim_function == 'euclidean':             # <<<<<<<<<<<<<<
  *             self.projection = sqeuclidean_projection
  *         elif self.sim_function == 'rbf':
  */
-  __pyx_t_10 = (__Pyx_PyString_Equals(__pyx_v_self->sim_function, __pyx_n_s_euclidean, Py_EQ)); if (unlikely(__pyx_t_10 < 0)) __PYX_ERR(0, 467, __pyx_L1_error)
+  __pyx_t_10 = (__Pyx_PyString_Equals(__pyx_v_self->sim_function, __pyx_n_s_euclidean, Py_EQ)); if (unlikely(__pyx_t_10 < 0)) __PYX_ERR(0, 422, __pyx_L1_error)
   __pyx_t_5 = (__pyx_t_10 != 0);
   if (__pyx_t_5) {
 
-    /* "simforest/cluster/_cluster.pyx":468
+    /* "simforest/cluster/_cluster.pyx":423
  *             self.projection = dot_projection
  *         elif self.sim_function == 'euclidean':
  *             self.projection = sqeuclidean_projection             # <<<<<<<<<<<<<<
@@ -7337,7 +6742,7 @@ static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__
  */
     __pyx_v_self->projection = __pyx_f_9simforest_7cluster_8_cluster_sqeuclidean_projection;
 
-    /* "simforest/cluster/_cluster.pyx":467
+    /* "simforest/cluster/_cluster.pyx":422
  *         if self.sim_function == 'dot':
  *             self.projection = dot_projection
  *         elif self.sim_function == 'euclidean':             # <<<<<<<<<<<<<<
@@ -7347,18 +6752,18 @@ static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__
     goto __pyx_L9;
   }
 
-  /* "simforest/cluster/_cluster.pyx":469
+  /* "simforest/cluster/_cluster.pyx":424
  *         elif self.sim_function == 'euclidean':
  *             self.projection = sqeuclidean_projection
  *         elif self.sim_function == 'rbf':             # <<<<<<<<<<<<<<
  *             self.projection = rbf_projection
  *         else:
  */
-  __pyx_t_5 = (__Pyx_PyString_Equals(__pyx_v_self->sim_function, __pyx_n_s_rbf, Py_EQ)); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 469, __pyx_L1_error)
+  __pyx_t_5 = (__Pyx_PyString_Equals(__pyx_v_self->sim_function, __pyx_n_s_rbf, Py_EQ)); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 424, __pyx_L1_error)
   __pyx_t_10 = (__pyx_t_5 != 0);
   if (likely(__pyx_t_10)) {
 
-    /* "simforest/cluster/_cluster.pyx":470
+    /* "simforest/cluster/_cluster.pyx":425
  *             self.projection = sqeuclidean_projection
  *         elif self.sim_function == 'rbf':
  *             self.projection = rbf_projection             # <<<<<<<<<<<<<<
@@ -7367,7 +6772,7 @@ static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__
  */
     __pyx_v_self->projection = __pyx_f_9simforest_7cluster_8_cluster_rbf_projection;
 
-    /* "simforest/cluster/_cluster.pyx":469
+    /* "simforest/cluster/_cluster.pyx":424
  *         elif self.sim_function == 'euclidean':
  *             self.projection = sqeuclidean_projection
  *         elif self.sim_function == 'rbf':             # <<<<<<<<<<<<<<
@@ -7377,7 +6782,7 @@ static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__
     goto __pyx_L9;
   }
 
-  /* "simforest/cluster/_cluster.pyx":472
+  /* "simforest/cluster/_cluster.pyx":427
  *             self.projection = rbf_projection
  *         else:
  *             raise ValueError('Unknown similarity function')             # <<<<<<<<<<<<<<
@@ -7385,150 +6790,150 @@ static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__
  *         self._find_split(X, self.projection)
  */
   /*else*/ {
-    __pyx_t_8 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__3, NULL); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 472, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__3, NULL); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 427, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
     __Pyx_Raise(__pyx_t_8, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-    __PYX_ERR(0, 472, __pyx_L1_error)
+    __PYX_ERR(0, 427, __pyx_L1_error)
   }
   __pyx_L9:;
 
-  /* "simforest/cluster/_cluster.pyx":474
+  /* "simforest/cluster/_cluster.pyx":429
  *             raise ValueError('Unknown similarity function')
  * 
  *         self._find_split(X, self.projection)             # <<<<<<<<<<<<<<
  * 
  *         # if split has been found
  */
-  __pyx_t_6 = __Pyx_PyObject_to_MemoryviewSlice_dsds_float(((PyObject *)__pyx_v_X), PyBUF_WRITABLE); if (unlikely(!__pyx_t_6.memview)) __PYX_ERR(0, 474, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_to_MemoryviewSlice_dsds_float(((PyObject *)__pyx_v_X), PyBUF_WRITABLE); if (unlikely(!__pyx_t_6.memview)) __PYX_ERR(0, 429, __pyx_L1_error)
   ((struct __pyx_vtabstruct_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *)__pyx_v_self->__pyx_vtab)->_find_split(__pyx_v_self, __pyx_t_6, __pyx_v_self->projection);
   __PYX_XDEC_MEMVIEW(&__pyx_t_6, 1);
   __pyx_t_6.memview = NULL;
   __pyx_t_6.data = NULL;
 
-  /* "simforest/cluster/_cluster.pyx":477
+  /* "simforest/cluster/_cluster.pyx":432
  * 
  *         # if split has been found
  *         if X[self.lhs_idxs].shape[0] > 0 and X[self.rhs_idxs].shape[0] > 0:             # <<<<<<<<<<<<<<
  *             self._lhs = CSimilarityTreeCluster(random_state=self.random_state,
  *                                                sim_function=self.sim_function,
  */
-  if (unlikely(!__pyx_v_self->lhs_idxs.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 477, __pyx_L1_error)}
-  __pyx_t_8 = __pyx_memoryview_fromslice(__pyx_v_self->lhs_idxs, 1, (PyObject *(*)(char *)) __pyx_memview_get_int, (int (*)(char *, PyObject *)) __pyx_memview_set_int, 0);; if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 477, __pyx_L1_error)
+  if (unlikely(!__pyx_v_self->lhs_idxs.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 432, __pyx_L1_error)}
+  __pyx_t_8 = __pyx_memoryview_fromslice(__pyx_v_self->lhs_idxs, 1, (PyObject *(*)(char *)) __pyx_memview_get_int, (int (*)(char *, PyObject *)) __pyx_memview_set_int, 0);; if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 432, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
-  __pyx_t_1 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_X), __pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 477, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_X), __pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 432, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_shape); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 477, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_shape); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 432, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_t_8, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 477, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_t_8, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 432, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-  __pyx_t_8 = PyObject_RichCompare(__pyx_t_1, __pyx_int_0, Py_GT); __Pyx_XGOTREF(__pyx_t_8); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 477, __pyx_L1_error)
+  __pyx_t_8 = PyObject_RichCompare(__pyx_t_1, __pyx_int_0, Py_GT); __Pyx_XGOTREF(__pyx_t_8); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 432, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_8); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 477, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_8); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 432, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
   if (__pyx_t_5) {
   } else {
     __pyx_t_10 = __pyx_t_5;
     goto __pyx_L11_bool_binop_done;
   }
-  if (unlikely(!__pyx_v_self->rhs_idxs.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 477, __pyx_L1_error)}
-  __pyx_t_8 = __pyx_memoryview_fromslice(__pyx_v_self->rhs_idxs, 1, (PyObject *(*)(char *)) __pyx_memview_get_int, (int (*)(char *, PyObject *)) __pyx_memview_set_int, 0);; if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 477, __pyx_L1_error)
+  if (unlikely(!__pyx_v_self->rhs_idxs.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 432, __pyx_L1_error)}
+  __pyx_t_8 = __pyx_memoryview_fromslice(__pyx_v_self->rhs_idxs, 1, (PyObject *(*)(char *)) __pyx_memview_get_int, (int (*)(char *, PyObject *)) __pyx_memview_set_int, 0);; if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 432, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
-  __pyx_t_1 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_X), __pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 477, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_X), __pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 432, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_shape); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 477, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_shape); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 432, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_t_8, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 477, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_t_8, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 432, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-  __pyx_t_8 = PyObject_RichCompare(__pyx_t_1, __pyx_int_0, Py_GT); __Pyx_XGOTREF(__pyx_t_8); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 477, __pyx_L1_error)
+  __pyx_t_8 = PyObject_RichCompare(__pyx_t_1, __pyx_int_0, Py_GT); __Pyx_XGOTREF(__pyx_t_8); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 432, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_8); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 477, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_8); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 432, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
   __pyx_t_10 = __pyx_t_5;
   __pyx_L11_bool_binop_done:;
   if (__pyx_t_10) {
 
-    /* "simforest/cluster/_cluster.pyx":478
+    /* "simforest/cluster/_cluster.pyx":433
  *         # if split has been found
  *         if X[self.lhs_idxs].shape[0] > 0 and X[self.rhs_idxs].shape[0] > 0:
  *             self._lhs = CSimilarityTreeCluster(random_state=self.random_state,             # <<<<<<<<<<<<<<
  *                                                sim_function=self.sim_function,
  *                                                max_depth=self.max_depth,
  */
-    __pyx_t_8 = __Pyx_PyDict_NewPresized(4); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 478, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_PyDict_NewPresized(4); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 433, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
-    if (PyDict_SetItem(__pyx_t_8, __pyx_n_s_random_state, __pyx_v_self->random_state) < 0) __PYX_ERR(0, 478, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_8, __pyx_n_s_random_state, __pyx_v_self->random_state) < 0) __PYX_ERR(0, 433, __pyx_L1_error)
 
-    /* "simforest/cluster/_cluster.pyx":479
+    /* "simforest/cluster/_cluster.pyx":434
  *         if X[self.lhs_idxs].shape[0] > 0 and X[self.rhs_idxs].shape[0] > 0:
  *             self._lhs = CSimilarityTreeCluster(random_state=self.random_state,
  *                                                sim_function=self.sim_function,             # <<<<<<<<<<<<<<
  *                                                max_depth=self.max_depth,
  *                                                depth=self.depth+1).fit(X[self.lhs_idxs])
  */
-    if (PyDict_SetItem(__pyx_t_8, __pyx_n_s_sim_function, __pyx_v_self->sim_function) < 0) __PYX_ERR(0, 478, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_8, __pyx_n_s_sim_function, __pyx_v_self->sim_function) < 0) __PYX_ERR(0, 433, __pyx_L1_error)
 
-    /* "simforest/cluster/_cluster.pyx":480
+    /* "simforest/cluster/_cluster.pyx":435
  *             self._lhs = CSimilarityTreeCluster(random_state=self.random_state,
  *                                                sim_function=self.sim_function,
  *                                                max_depth=self.max_depth,             # <<<<<<<<<<<<<<
  *                                                depth=self.depth+1).fit(X[self.lhs_idxs])
  * 
  */
-    __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->max_depth); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 480, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->max_depth); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 435, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    if (PyDict_SetItem(__pyx_t_8, __pyx_n_s_max_depth, __pyx_t_1) < 0) __PYX_ERR(0, 478, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_8, __pyx_n_s_max_depth, __pyx_t_1) < 0) __PYX_ERR(0, 433, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-    /* "simforest/cluster/_cluster.pyx":481
+    /* "simforest/cluster/_cluster.pyx":436
  *                                                sim_function=self.sim_function,
  *                                                max_depth=self.max_depth,
  *                                                depth=self.depth+1).fit(X[self.lhs_idxs])             # <<<<<<<<<<<<<<
  * 
  *             self._rhs = CSimilarityTreeCluster(random_state=self.random_state,
  */
-    __pyx_t_1 = __Pyx_PyInt_From_long((__pyx_v_self->depth + 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 481, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyInt_From_long((__pyx_v_self->depth + 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 436, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    if (PyDict_SetItem(__pyx_t_8, __pyx_n_s_depth, __pyx_t_1) < 0) __PYX_ERR(0, 478, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_8, __pyx_n_s_depth, __pyx_t_1) < 0) __PYX_ERR(0, 433, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-    /* "simforest/cluster/_cluster.pyx":478
+    /* "simforest/cluster/_cluster.pyx":433
  *         # if split has been found
  *         if X[self.lhs_idxs].shape[0] > 0 and X[self.rhs_idxs].shape[0] > 0:
  *             self._lhs = CSimilarityTreeCluster(random_state=self.random_state,             # <<<<<<<<<<<<<<
  *                                                sim_function=self.sim_function,
  *                                                max_depth=self.max_depth,
  */
-    __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_9simforest_7cluster_8_cluster_CSimilarityTreeCluster), __pyx_empty_tuple, __pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 478, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_9simforest_7cluster_8_cluster_CSimilarityTreeCluster), __pyx_empty_tuple, __pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 433, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
 
-    /* "simforest/cluster/_cluster.pyx":481
+    /* "simforest/cluster/_cluster.pyx":436
  *                                                sim_function=self.sim_function,
  *                                                max_depth=self.max_depth,
  *                                                depth=self.depth+1).fit(X[self.lhs_idxs])             # <<<<<<<<<<<<<<
  * 
  *             self._rhs = CSimilarityTreeCluster(random_state=self.random_state,
  */
-    if (unlikely(!__pyx_v_self->lhs_idxs.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 481, __pyx_L1_error)}
-    __pyx_t_8 = __pyx_memoryview_fromslice(__pyx_v_self->lhs_idxs, 1, (PyObject *(*)(char *)) __pyx_memview_get_int, (int (*)(char *, PyObject *)) __pyx_memview_set_int, 0);; if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 481, __pyx_L1_error)
+    if (unlikely(!__pyx_v_self->lhs_idxs.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 436, __pyx_L1_error)}
+    __pyx_t_8 = __pyx_memoryview_fromslice(__pyx_v_self->lhs_idxs, 1, (PyObject *(*)(char *)) __pyx_memview_get_int, (int (*)(char *, PyObject *)) __pyx_memview_set_int, 0);; if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 436, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
-    __pyx_t_2 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_X), __pyx_t_8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 481, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_X), __pyx_t_8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 436, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-    if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 481, __pyx_L1_error)
-    __pyx_t_8 = ((PyObject *)((struct __pyx_vtabstruct_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *)((struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *)__pyx_t_1)->__pyx_vtab)->fit(((struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *)__pyx_t_1), ((PyArrayObject *)__pyx_t_2), 0)); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 481, __pyx_L1_error)
+    if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 436, __pyx_L1_error)
+    __pyx_t_8 = ((PyObject *)((struct __pyx_vtabstruct_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *)((struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *)__pyx_t_1)->__pyx_vtab)->fit(((struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *)__pyx_t_1), ((PyArrayObject *)__pyx_t_2), 0)); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 436, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-    /* "simforest/cluster/_cluster.pyx":478
+    /* "simforest/cluster/_cluster.pyx":433
  *         # if split has been found
  *         if X[self.lhs_idxs].shape[0] > 0 and X[self.rhs_idxs].shape[0] > 0:
  *             self._lhs = CSimilarityTreeCluster(random_state=self.random_state,             # <<<<<<<<<<<<<<
@@ -7541,81 +6946,81 @@ static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__
     __pyx_v_self->_lhs = ((struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *)__pyx_t_8);
     __pyx_t_8 = 0;
 
-    /* "simforest/cluster/_cluster.pyx":483
+    /* "simforest/cluster/_cluster.pyx":438
  *                                                depth=self.depth+1).fit(X[self.lhs_idxs])
  * 
  *             self._rhs = CSimilarityTreeCluster(random_state=self.random_state,             # <<<<<<<<<<<<<<
  *                                                sim_function=self.sim_function,
  *                                                max_depth=self.max_depth,
  */
-    __pyx_t_8 = __Pyx_PyDict_NewPresized(4); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 483, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_PyDict_NewPresized(4); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 438, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
-    if (PyDict_SetItem(__pyx_t_8, __pyx_n_s_random_state, __pyx_v_self->random_state) < 0) __PYX_ERR(0, 483, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_8, __pyx_n_s_random_state, __pyx_v_self->random_state) < 0) __PYX_ERR(0, 438, __pyx_L1_error)
 
-    /* "simforest/cluster/_cluster.pyx":484
+    /* "simforest/cluster/_cluster.pyx":439
  * 
  *             self._rhs = CSimilarityTreeCluster(random_state=self.random_state,
  *                                                sim_function=self.sim_function,             # <<<<<<<<<<<<<<
  *                                                max_depth=self.max_depth,
  *                                                depth=self.depth+1).fit(X[self.rhs_idxs])
  */
-    if (PyDict_SetItem(__pyx_t_8, __pyx_n_s_sim_function, __pyx_v_self->sim_function) < 0) __PYX_ERR(0, 483, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_8, __pyx_n_s_sim_function, __pyx_v_self->sim_function) < 0) __PYX_ERR(0, 438, __pyx_L1_error)
 
-    /* "simforest/cluster/_cluster.pyx":485
+    /* "simforest/cluster/_cluster.pyx":440
  *             self._rhs = CSimilarityTreeCluster(random_state=self.random_state,
  *                                                sim_function=self.sim_function,
  *                                                max_depth=self.max_depth,             # <<<<<<<<<<<<<<
  *                                                depth=self.depth+1).fit(X[self.rhs_idxs])
  *         else:
  */
-    __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_self->max_depth); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 485, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_self->max_depth); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 440, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    if (PyDict_SetItem(__pyx_t_8, __pyx_n_s_max_depth, __pyx_t_2) < 0) __PYX_ERR(0, 483, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_8, __pyx_n_s_max_depth, __pyx_t_2) < 0) __PYX_ERR(0, 438, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-    /* "simforest/cluster/_cluster.pyx":486
+    /* "simforest/cluster/_cluster.pyx":441
  *                                                sim_function=self.sim_function,
  *                                                max_depth=self.max_depth,
  *                                                depth=self.depth+1).fit(X[self.rhs_idxs])             # <<<<<<<<<<<<<<
  *         else:
  *             self.is_leaf = 1
  */
-    __pyx_t_2 = __Pyx_PyInt_From_long((__pyx_v_self->depth + 1)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 486, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyInt_From_long((__pyx_v_self->depth + 1)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 441, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    if (PyDict_SetItem(__pyx_t_8, __pyx_n_s_depth, __pyx_t_2) < 0) __PYX_ERR(0, 483, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_8, __pyx_n_s_depth, __pyx_t_2) < 0) __PYX_ERR(0, 438, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-    /* "simforest/cluster/_cluster.pyx":483
+    /* "simforest/cluster/_cluster.pyx":438
  *                                                depth=self.depth+1).fit(X[self.lhs_idxs])
  * 
  *             self._rhs = CSimilarityTreeCluster(random_state=self.random_state,             # <<<<<<<<<<<<<<
  *                                                sim_function=self.sim_function,
  *                                                max_depth=self.max_depth,
  */
-    __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_9simforest_7cluster_8_cluster_CSimilarityTreeCluster), __pyx_empty_tuple, __pyx_t_8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 483, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_9simforest_7cluster_8_cluster_CSimilarityTreeCluster), __pyx_empty_tuple, __pyx_t_8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 438, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
 
-    /* "simforest/cluster/_cluster.pyx":486
+    /* "simforest/cluster/_cluster.pyx":441
  *                                                sim_function=self.sim_function,
  *                                                max_depth=self.max_depth,
  *                                                depth=self.depth+1).fit(X[self.rhs_idxs])             # <<<<<<<<<<<<<<
  *         else:
  *             self.is_leaf = 1
  */
-    if (unlikely(!__pyx_v_self->rhs_idxs.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 486, __pyx_L1_error)}
-    __pyx_t_8 = __pyx_memoryview_fromslice(__pyx_v_self->rhs_idxs, 1, (PyObject *(*)(char *)) __pyx_memview_get_int, (int (*)(char *, PyObject *)) __pyx_memview_set_int, 0);; if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 486, __pyx_L1_error)
+    if (unlikely(!__pyx_v_self->rhs_idxs.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 441, __pyx_L1_error)}
+    __pyx_t_8 = __pyx_memoryview_fromslice(__pyx_v_self->rhs_idxs, 1, (PyObject *(*)(char *)) __pyx_memview_get_int, (int (*)(char *, PyObject *)) __pyx_memview_set_int, 0);; if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 441, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
-    __pyx_t_1 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_X), __pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 486, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_X), __pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 441, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-    if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 486, __pyx_L1_error)
-    __pyx_t_8 = ((PyObject *)((struct __pyx_vtabstruct_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *)((struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *)__pyx_t_2)->__pyx_vtab)->fit(((struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *)__pyx_t_2), ((PyArrayObject *)__pyx_t_1), 0)); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 486, __pyx_L1_error)
+    if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 441, __pyx_L1_error)
+    __pyx_t_8 = ((PyObject *)((struct __pyx_vtabstruct_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *)((struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *)__pyx_t_2)->__pyx_vtab)->fit(((struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *)__pyx_t_2), ((PyArrayObject *)__pyx_t_1), 0)); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 441, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-    /* "simforest/cluster/_cluster.pyx":483
+    /* "simforest/cluster/_cluster.pyx":438
  *                                                depth=self.depth+1).fit(X[self.lhs_idxs])
  * 
  *             self._rhs = CSimilarityTreeCluster(random_state=self.random_state,             # <<<<<<<<<<<<<<
@@ -7628,7 +7033,7 @@ static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__
     __pyx_v_self->_rhs = ((struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *)__pyx_t_8);
     __pyx_t_8 = 0;
 
-    /* "simforest/cluster/_cluster.pyx":477
+    /* "simforest/cluster/_cluster.pyx":432
  * 
  *         # if split has been found
  *         if X[self.lhs_idxs].shape[0] > 0 and X[self.rhs_idxs].shape[0] > 0:             # <<<<<<<<<<<<<<
@@ -7638,7 +7043,7 @@ static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__
     goto __pyx_L10;
   }
 
-  /* "simforest/cluster/_cluster.pyx":488
+  /* "simforest/cluster/_cluster.pyx":443
  *                                                depth=self.depth+1).fit(X[self.rhs_idxs])
  *         else:
  *             self.is_leaf = 1             # <<<<<<<<<<<<<<
@@ -7648,7 +7053,7 @@ static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__
   /*else*/ {
     __pyx_v_self->is_leaf = 1;
 
-    /* "simforest/cluster/_cluster.pyx":489
+    /* "simforest/cluster/_cluster.pyx":444
  *         else:
  *             self.is_leaf = 1
  *             return self             # <<<<<<<<<<<<<<
@@ -7662,19 +7067,19 @@ static struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__
   }
   __pyx_L10:;
 
-  /* "simforest/cluster/_cluster.pyx":491
+  /* "simforest/cluster/_cluster.pyx":446
  *             return self
  * 
  *         return self             # <<<<<<<<<<<<<<
  * 
- *     cdef int distance(self, float [:] xi, float [:] xj) nogil:
+ *     cdef int similarity(self, float [:] xi, float [:] xj) nogil:
  */
   __Pyx_XDECREF(((PyObject *)__pyx_r));
   __Pyx_INCREF(((PyObject *)__pyx_v_self));
   __pyx_r = __pyx_v_self;
   goto __pyx_L0;
 
-  /* "simforest/cluster/_cluster.pyx":424
+  /* "simforest/cluster/_cluster.pyx":379
  * 
  * 
  *     cpdef CSimilarityTreeCluster fit(self, np.ndarray[np.float32_t, ndim=2] X):             # <<<<<<<<<<<<<<
@@ -7718,7 +7123,7 @@ static PyObject *__pyx_pw_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("fit (wrapper)", 0);
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_X), __pyx_ptype_5numpy_ndarray, 1, "X", 0))) __PYX_ERR(0, 424, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_X), __pyx_ptype_5numpy_ndarray, 1, "X", 0))) __PYX_ERR(0, 379, __pyx_L1_error)
   __pyx_r = __pyx_pf_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_4fit(((struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *)__pyx_v_self), ((PyArrayObject *)__pyx_v_X));
 
   /* function exit code */
@@ -7746,11 +7151,11 @@ static PyObject *__pyx_pf_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster
   __pyx_pybuffernd_X.rcbuffer = &__pyx_pybuffer_X;
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_X.rcbuffer->pybuffer, (PyObject*)__pyx_v_X, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float32_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 424, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_X.rcbuffer->pybuffer, (PyObject*)__pyx_v_X, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float32_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 379, __pyx_L1_error)
   }
   __pyx_pybuffernd_X.diminfo[0].strides = __pyx_pybuffernd_X.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_X.diminfo[0].shape = __pyx_pybuffernd_X.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_X.diminfo[1].strides = __pyx_pybuffernd_X.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_X.diminfo[1].shape = __pyx_pybuffernd_X.rcbuffer->pybuffer.shape[1];
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = ((PyObject *)__pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_fit(__pyx_v_self, __pyx_v_X, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 424, __pyx_L1_error)
+  __pyx_t_1 = ((PyObject *)__pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_fit(__pyx_v_self, __pyx_v_X, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 379, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -7776,15 +7181,15 @@ static PyObject *__pyx_pf_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster
   return __pyx_r;
 }
 
-/* "simforest/cluster/_cluster.pyx":493
+/* "simforest/cluster/_cluster.pyx":448
  *         return self
  * 
- *     cdef int distance(self, float [:] xi, float [:] xj) nogil:             # <<<<<<<<<<<<<<
- *         """Calculate distance of a pair of data-points in tree-space.
+ *     cdef int similarity(self, float [:] xi, float [:] xj) nogil:             # <<<<<<<<<<<<<<
+ *         """Calculate similarity of a pair of data-points in tree-space.
  *             The pair of traverses down the tree, and the depth on which the pair splits is recorded.
  */
 
-static int __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_distance(struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__pyx_v_self, __Pyx_memviewslice __pyx_v_xi, __Pyx_memviewslice __pyx_v_xj) {
+static int __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_similarity(struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *__pyx_v_self, __Pyx_memviewslice __pyx_v_xi, __Pyx_memviewslice __pyx_v_xj) {
   int __pyx_v_path_i;
   int __pyx_v_path_j;
   int __pyx_r;
@@ -7793,7 +7198,7 @@ static int __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_distan
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
 
-  /* "simforest/cluster/_cluster.pyx":505
+  /* "simforest/cluster/_cluster.pyx":460
  *             int : the depth on which the pair splits.
  *         """
  *         if self.is_leaf:             # <<<<<<<<<<<<<<
@@ -7803,7 +7208,7 @@ static int __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_distan
   __pyx_t_1 = (__pyx_v_self->is_leaf != 0);
   if (__pyx_t_1) {
 
-    /* "simforest/cluster/_cluster.pyx":506
+    /* "simforest/cluster/_cluster.pyx":461
  *         """
  *         if self.is_leaf:
  *             return self.depth             # <<<<<<<<<<<<<<
@@ -7813,7 +7218,7 @@ static int __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_distan
     __pyx_r = __pyx_v_self->depth;
     goto __pyx_L0;
 
-    /* "simforest/cluster/_cluster.pyx":505
+    /* "simforest/cluster/_cluster.pyx":460
  *             int : the depth on which the pair splits.
  *         """
  *         if self.is_leaf:             # <<<<<<<<<<<<<<
@@ -7822,29 +7227,29 @@ static int __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_distan
  */
   }
 
-  /* "simforest/cluster/_cluster.pyx":508
+  /* "simforest/cluster/_cluster.pyx":463
  *             return self.depth
  * 
  *         cdef bint path_i = self.projection(xi, self._p, self._q) <= self._split_point             # <<<<<<<<<<<<<<
  *         cdef bint path_j = self.projection(xj, self._p, self._q) <= self._split_point
  * 
  */
-  if (unlikely(!__pyx_v_self->_p.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 508, __pyx_L1_error)}
-  if (unlikely(!__pyx_v_self->_q.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 508, __pyx_L1_error)}
+  if (unlikely(!__pyx_v_self->_p.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 463, __pyx_L1_error)}
+  if (unlikely(!__pyx_v_self->_q.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 463, __pyx_L1_error)}
   __pyx_v_path_i = (__pyx_v_self->projection(__pyx_v_xi, __pyx_v_self->_p, __pyx_v_self->_q) <= __pyx_v_self->_split_point);
 
-  /* "simforest/cluster/_cluster.pyx":509
+  /* "simforest/cluster/_cluster.pyx":464
  * 
  *         cdef bint path_i = self.projection(xi, self._p, self._q) <= self._split_point
  *         cdef bint path_j = self.projection(xj, self._p, self._q) <= self._split_point             # <<<<<<<<<<<<<<
  * 
  *         if path_i == path_j:
  */
-  if (unlikely(!__pyx_v_self->_p.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 509, __pyx_L1_error)}
-  if (unlikely(!__pyx_v_self->_q.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 509, __pyx_L1_error)}
+  if (unlikely(!__pyx_v_self->_p.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 464, __pyx_L1_error)}
+  if (unlikely(!__pyx_v_self->_q.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 464, __pyx_L1_error)}
   __pyx_v_path_j = (__pyx_v_self->projection(__pyx_v_xj, __pyx_v_self->_p, __pyx_v_self->_q) <= __pyx_v_self->_split_point);
 
-  /* "simforest/cluster/_cluster.pyx":511
+  /* "simforest/cluster/_cluster.pyx":466
  *         cdef bint path_j = self.projection(xj, self._p, self._q) <= self._split_point
  * 
  *         if path_i == path_j:             # <<<<<<<<<<<<<<
@@ -7854,48 +7259,48 @@ static int __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_distan
   __pyx_t_1 = ((__pyx_v_path_i == __pyx_v_path_j) != 0);
   if (__pyx_t_1) {
 
-    /* "simforest/cluster/_cluster.pyx":513
+    /* "simforest/cluster/_cluster.pyx":468
  *         if path_i == path_j:
  *             # the same path, check if the pair goes left or right
  *             if path_i:             # <<<<<<<<<<<<<<
- *                 return self._lhs.distance(xi, xj)
+ *                 return self._lhs.similarity(xi, xj)
  *             else:
  */
     __pyx_t_1 = (__pyx_v_path_i != 0);
     if (__pyx_t_1) {
 
-      /* "simforest/cluster/_cluster.pyx":514
+      /* "simforest/cluster/_cluster.pyx":469
  *             # the same path, check if the pair goes left or right
  *             if path_i:
- *                 return self._lhs.distance(xi, xj)             # <<<<<<<<<<<<<<
+ *                 return self._lhs.similarity(xi, xj)             # <<<<<<<<<<<<<<
  *             else:
- *                 return self._rhs.distance(xi, xj)
+ *                 return self._rhs.similarity(xi, xj)
  */
-      __pyx_r = ((struct __pyx_vtabstruct_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *)__pyx_v_self->_lhs->__pyx_vtab)->distance(__pyx_v_self->_lhs, __pyx_v_xi, __pyx_v_xj);
+      __pyx_r = ((struct __pyx_vtabstruct_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *)__pyx_v_self->_lhs->__pyx_vtab)->similarity(__pyx_v_self->_lhs, __pyx_v_xi, __pyx_v_xj);
       goto __pyx_L0;
 
-      /* "simforest/cluster/_cluster.pyx":513
+      /* "simforest/cluster/_cluster.pyx":468
  *         if path_i == path_j:
  *             # the same path, check if the pair goes left or right
  *             if path_i:             # <<<<<<<<<<<<<<
- *                 return self._lhs.distance(xi, xj)
+ *                 return self._lhs.similarity(xi, xj)
  *             else:
  */
     }
 
-    /* "simforest/cluster/_cluster.pyx":516
- *                 return self._lhs.distance(xi, xj)
+    /* "simforest/cluster/_cluster.pyx":471
+ *                 return self._lhs.similarity(xi, xj)
  *             else:
- *                 return self._rhs.distance(xi, xj)             # <<<<<<<<<<<<<<
+ *                 return self._rhs.similarity(xi, xj)             # <<<<<<<<<<<<<<
  *         else:
  *             # different path, return current depth
  */
     /*else*/ {
-      __pyx_r = ((struct __pyx_vtabstruct_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *)__pyx_v_self->_rhs->__pyx_vtab)->distance(__pyx_v_self->_rhs, __pyx_v_xi, __pyx_v_xj);
+      __pyx_r = ((struct __pyx_vtabstruct_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *)__pyx_v_self->_rhs->__pyx_vtab)->similarity(__pyx_v_self->_rhs, __pyx_v_xi, __pyx_v_xj);
       goto __pyx_L0;
     }
 
-    /* "simforest/cluster/_cluster.pyx":511
+    /* "simforest/cluster/_cluster.pyx":466
  *         cdef bint path_j = self.projection(xj, self._p, self._q) <= self._split_point
  * 
  *         if path_i == path_j:             # <<<<<<<<<<<<<<
@@ -7904,7 +7309,7 @@ static int __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_distan
  */
   }
 
-  /* "simforest/cluster/_cluster.pyx":519
+  /* "simforest/cluster/_cluster.pyx":474
  *         else:
  *             # different path, return current depth
  *             return self.depth             # <<<<<<<<<<<<<<
@@ -7916,23 +7321,23 @@ static int __pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_distan
     goto __pyx_L0;
   }
 
-  /* "simforest/cluster/_cluster.pyx":493
+  /* "simforest/cluster/_cluster.pyx":448
  *         return self
  * 
- *     cdef int distance(self, float [:] xi, float [:] xj) nogil:             # <<<<<<<<<<<<<<
- *         """Calculate distance of a pair of data-points in tree-space.
+ *     cdef int similarity(self, float [:] xi, float [:] xj) nogil:             # <<<<<<<<<<<<<<
+ *         """Calculate similarity of a pair of data-points in tree-space.
  *             The pair of traverses down the tree, and the depth on which the pair splits is recorded.
  */
 
   /* function exit code */
   __pyx_L1_error:;
-  __Pyx_WriteUnraisable("simforest.cluster._cluster.CSimilarityTreeCluster.distance", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 1);
+  __Pyx_WriteUnraisable("simforest.cluster._cluster.CSimilarityTreeCluster.similarity", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 1);
   __pyx_r = 0;
   __pyx_L0:;
   return __pyx_r;
 }
 
-/* "simforest/cluster/_cluster.pyx":522
+/* "simforest/cluster/_cluster.pyx":477
  * 
  * 
  *     cpdef np.ndarray[np.float32_t, ndim=1] predict_(self, np.ndarray[np.float32_t, ndim=2] X):             # <<<<<<<<<<<<<<
@@ -7987,7 +7392,7 @@ static PyArrayObject *__pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeClu
   __pyx_pybuffernd_X.rcbuffer = &__pyx_pybuffer_X;
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_X.rcbuffer->pybuffer, (PyObject*)__pyx_v_X, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float32_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 522, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_X.rcbuffer->pybuffer, (PyObject*)__pyx_v_X, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float32_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 477, __pyx_L1_error)
   }
   __pyx_pybuffernd_X.diminfo[0].strides = __pyx_pybuffernd_X.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_X.diminfo[0].shape = __pyx_pybuffernd_X.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_X.diminfo[1].strides = __pyx_pybuffernd_X.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_X.diminfo[1].shape = __pyx_pybuffernd_X.rcbuffer->pybuffer.shape[1];
   /* Check if called by wrapper */
@@ -7999,7 +7404,7 @@ static PyArrayObject *__pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeClu
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_type_dict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_predict); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 522, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_predict); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 477, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_7predict_)) {
         __Pyx_XDECREF(((PyObject *)__pyx_r));
@@ -8016,10 +7421,10 @@ static PyArrayObject *__pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeClu
         }
         __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, ((PyObject *)__pyx_v_X)) : __Pyx_PyObject_CallOneArg(__pyx_t_3, ((PyObject *)__pyx_v_X));
         __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 522, __pyx_L1_error)
+        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 477, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-        if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 522, __pyx_L1_error)
+        if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 477, __pyx_L1_error)
         __pyx_r = ((PyArrayObject *)__pyx_t_2);
         __pyx_t_2 = 0;
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -8038,7 +7443,7 @@ static PyArrayObject *__pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeClu
     #endif
   }
 
-  /* "simforest/cluster/_cluster.pyx":532
+  /* "simforest/cluster/_cluster.pyx":487
  *             distance_matrix : ndarray of shape = comb(n_samples, 2) containing the distances
  *         """
  *         cdef int n = X.shape[0]             # <<<<<<<<<<<<<<
@@ -8047,21 +7452,21 @@ static PyArrayObject *__pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeClu
  */
   __pyx_v_n = (__pyx_v_X->dimensions[0]);
 
-  /* "simforest/cluster/_cluster.pyx":533
+  /* "simforest/cluster/_cluster.pyx":488
  *         """
  *         cdef int n = X.shape[0]
  *         cdef np.ndarray[np.float32_t, ndim=1] distance_matrix = np.ones(<int>comb(n, 2), dtype=np.float32, order='c')             # <<<<<<<<<<<<<<
  *         cdef float [:] view = distance_matrix
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 533, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 488, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_ones); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 533, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_ones); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 488, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_comb); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 533, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_comb); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 488, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_n); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 533, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_n); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 488, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_5 = NULL;
   __pyx_t_6 = 0;
@@ -8078,7 +7483,7 @@ static PyArrayObject *__pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeClu
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_5, __pyx_t_4, __pyx_int_2};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 533, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 488, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -8087,14 +7492,14 @@ static PyArrayObject *__pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeClu
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_5, __pyx_t_4, __pyx_int_2};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 533, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 488, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   } else
   #endif
   {
-    __pyx_t_7 = PyTuple_New(2+__pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 533, __pyx_L1_error)
+    __pyx_t_7 = PyTuple_New(2+__pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 488, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     if (__pyx_t_5) {
       __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_t_5); __pyx_t_5 = NULL;
@@ -8105,42 +7510,42 @@ static PyArrayObject *__pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeClu
     __Pyx_GIVEREF(__pyx_int_2);
     PyTuple_SET_ITEM(__pyx_t_7, 1+__pyx_t_6, __pyx_int_2);
     __pyx_t_4 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_7, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 533, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_7, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 488, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_6 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 533, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 488, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyInt_From_int(((int)__pyx_t_6)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 533, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int(((int)__pyx_t_6)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 488, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 533, __pyx_L1_error)
+  __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 488, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GIVEREF(__pyx_t_1);
   PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_1);
   __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 533, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 488, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_np); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 533, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_np); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 488, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_float32); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 533, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_float32); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 488, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_dtype, __pyx_t_4) < 0) __PYX_ERR(0, 533, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_dtype, __pyx_t_4) < 0) __PYX_ERR(0, 488, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_order, __pyx_n_s_c) < 0) __PYX_ERR(0, 533, __pyx_L1_error)
-  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 533, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_order, __pyx_n_s_c) < 0) __PYX_ERR(0, 488, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 488, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (!(likely(((__pyx_t_4) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_4, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 533, __pyx_L1_error)
+  if (!(likely(((__pyx_t_4) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_4, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 488, __pyx_L1_error)
   __pyx_t_8 = ((PyArrayObject *)__pyx_t_4);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_distance_matrix.rcbuffer->pybuffer, (PyObject*)__pyx_t_8, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float32_t, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
       __pyx_v_distance_matrix = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_distance_matrix.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 533, __pyx_L1_error)
+      __PYX_ERR(0, 488, __pyx_L1_error)
     } else {__pyx_pybuffernd_distance_matrix.diminfo[0].strides = __pyx_pybuffernd_distance_matrix.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_distance_matrix.diminfo[0].shape = __pyx_pybuffernd_distance_matrix.rcbuffer->pybuffer.shape[0];
     }
   }
@@ -8148,19 +7553,19 @@ static PyArrayObject *__pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeClu
   __pyx_v_distance_matrix = ((PyArrayObject *)__pyx_t_4);
   __pyx_t_4 = 0;
 
-  /* "simforest/cluster/_cluster.pyx":534
+  /* "simforest/cluster/_cluster.pyx":489
  *         cdef int n = X.shape[0]
  *         cdef np.ndarray[np.float32_t, ndim=1] distance_matrix = np.ones(<int>comb(n, 2), dtype=np.float32, order='c')
  *         cdef float [:] view = distance_matrix             # <<<<<<<<<<<<<<
  * 
  *         cdef int diagonal = 1
  */
-  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_ds_float(((PyObject *)__pyx_v_distance_matrix), PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 534, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_ds_float(((PyObject *)__pyx_v_distance_matrix), PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 489, __pyx_L1_error)
   __pyx_v_view = __pyx_t_9;
   __pyx_t_9.memview = NULL;
   __pyx_t_9.data = NULL;
 
-  /* "simforest/cluster/_cluster.pyx":536
+  /* "simforest/cluster/_cluster.pyx":491
  *         cdef float [:] view = distance_matrix
  * 
  *         cdef int diagonal = 1             # <<<<<<<<<<<<<<
@@ -8169,7 +7574,7 @@ static PyArrayObject *__pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeClu
  */
   __pyx_v_diagonal = 1;
 
-  /* "simforest/cluster/_cluster.pyx":537
+  /* "simforest/cluster/_cluster.pyx":492
  * 
  *         cdef int diagonal = 1
  *         cdef int idx = 0             # <<<<<<<<<<<<<<
@@ -8178,23 +7583,23 @@ static PyArrayObject *__pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeClu
  */
   __pyx_v_idx = 0;
 
-  /* "simforest/cluster/_cluster.pyx":538
+  /* "simforest/cluster/_cluster.pyx":493
  *         cdef int diagonal = 1
  *         cdef int idx = 0
  *         for c in range(n):             # <<<<<<<<<<<<<<
  *             for r in range(diagonal, n):
- *                 view[idx] = 1 / <float>self.distance(X[c], X[r])
+ *                 view[idx] = 1 / <float>self.similarity(X[c], X[r])
  */
   __pyx_t_6 = __pyx_v_n;
   __pyx_t_10 = __pyx_t_6;
   for (__pyx_t_11 = 0; __pyx_t_11 < __pyx_t_10; __pyx_t_11+=1) {
     __pyx_v_c = __pyx_t_11;
 
-    /* "simforest/cluster/_cluster.pyx":539
+    /* "simforest/cluster/_cluster.pyx":494
  *         cdef int idx = 0
  *         for c in range(n):
  *             for r in range(diagonal, n):             # <<<<<<<<<<<<<<
- *                 view[idx] = 1 / <float>self.distance(X[c], X[r])
+ *                 view[idx] = 1 / <float>self.similarity(X[c], X[r])
  *                 idx += 1
  */
     __pyx_t_12 = __pyx_v_n;
@@ -8202,22 +7607,22 @@ static PyArrayObject *__pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeClu
     for (__pyx_t_14 = __pyx_v_diagonal; __pyx_t_14 < __pyx_t_13; __pyx_t_14+=1) {
       __pyx_v_r = __pyx_t_14;
 
-      /* "simforest/cluster/_cluster.pyx":540
+      /* "simforest/cluster/_cluster.pyx":495
  *         for c in range(n):
  *             for r in range(diagonal, n):
- *                 view[idx] = 1 / <float>self.distance(X[c], X[r])             # <<<<<<<<<<<<<<
+ *                 view[idx] = 1 / <float>self.similarity(X[c], X[r])             # <<<<<<<<<<<<<<
  *                 idx += 1
  *             diagonal += 1
  */
-      __pyx_t_4 = __Pyx_GetItemInt(((PyObject *)__pyx_v_X), __pyx_v_c, int, 1, __Pyx_PyInt_From_int, 0, 1, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 540, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_GetItemInt(((PyObject *)__pyx_v_X), __pyx_v_c, int, 1, __Pyx_PyInt_From_int, 0, 1, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 495, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_ds_float(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 540, __pyx_L1_error)
+      __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_ds_float(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 495, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      __pyx_t_4 = __Pyx_GetItemInt(((PyObject *)__pyx_v_X), __pyx_v_r, int, 1, __Pyx_PyInt_From_int, 0, 1, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 540, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_GetItemInt(((PyObject *)__pyx_v_X), __pyx_v_r, int, 1, __Pyx_PyInt_From_int, 0, 1, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 495, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_15 = __Pyx_PyObject_to_MemoryviewSlice_ds_float(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_15.memview)) __PYX_ERR(0, 540, __pyx_L1_error)
+      __pyx_t_15 = __Pyx_PyObject_to_MemoryviewSlice_ds_float(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_15.memview)) __PYX_ERR(0, 495, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      __pyx_t_16 = ((float)((struct __pyx_vtabstruct_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *)__pyx_v_self->__pyx_vtab)->distance(__pyx_v_self, __pyx_t_9, __pyx_t_15));
+      __pyx_t_16 = ((float)((struct __pyx_vtabstruct_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *)__pyx_v_self->__pyx_vtab)->similarity(__pyx_v_self, __pyx_t_9, __pyx_t_15));
       __PYX_XDEC_MEMVIEW(&__pyx_t_9, 1);
       __pyx_t_9.memview = NULL;
       __pyx_t_9.data = NULL;
@@ -8226,7 +7631,7 @@ static PyArrayObject *__pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeClu
       __pyx_t_15.data = NULL;
       if (unlikely(__pyx_t_16 == 0)) {
         PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-        __PYX_ERR(0, 540, __pyx_L1_error)
+        __PYX_ERR(0, 495, __pyx_L1_error)
       }
       __pyx_t_17 = __pyx_v_idx;
       __pyx_t_18 = -1;
@@ -8236,13 +7641,13 @@ static PyArrayObject *__pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeClu
       } else if (unlikely(__pyx_t_17 >= __pyx_v_view.shape[0])) __pyx_t_18 = 0;
       if (unlikely(__pyx_t_18 != -1)) {
         __Pyx_RaiseBufferIndexError(__pyx_t_18);
-        __PYX_ERR(0, 540, __pyx_L1_error)
+        __PYX_ERR(0, 495, __pyx_L1_error)
       }
       *((float *) ( /* dim=0 */ (__pyx_v_view.data + __pyx_t_17 * __pyx_v_view.strides[0]) )) = (1.0 / __pyx_t_16);
 
-      /* "simforest/cluster/_cluster.pyx":541
+      /* "simforest/cluster/_cluster.pyx":496
  *             for r in range(diagonal, n):
- *                 view[idx] = 1 / <float>self.distance(X[c], X[r])
+ *                 view[idx] = 1 / <float>self.similarity(X[c], X[r])
  *                 idx += 1             # <<<<<<<<<<<<<<
  *             diagonal += 1
  * 
@@ -8250,8 +7655,8 @@ static PyArrayObject *__pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeClu
       __pyx_v_idx = (__pyx_v_idx + 1);
     }
 
-    /* "simforest/cluster/_cluster.pyx":542
- *                 view[idx] = 1 / <float>self.distance(X[c], X[r])
+    /* "simforest/cluster/_cluster.pyx":497
+ *                 view[idx] = 1 / <float>self.similarity(X[c], X[r])
  *                 idx += 1
  *             diagonal += 1             # <<<<<<<<<<<<<<
  * 
@@ -8260,7 +7665,7 @@ static PyArrayObject *__pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeClu
     __pyx_v_diagonal = (__pyx_v_diagonal + 1);
   }
 
-  /* "simforest/cluster/_cluster.pyx":544
+  /* "simforest/cluster/_cluster.pyx":499
  *             diagonal += 1
  * 
  *         return distance_matrix             # <<<<<<<<<<<<<<
@@ -8270,7 +7675,7 @@ static PyArrayObject *__pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeClu
   __pyx_r = ((PyArrayObject *)__pyx_v_distance_matrix);
   goto __pyx_L0;
 
-  /* "simforest/cluster/_cluster.pyx":522
+  /* "simforest/cluster/_cluster.pyx":477
  * 
  * 
  *     cpdef np.ndarray[np.float32_t, ndim=1] predict_(self, np.ndarray[np.float32_t, ndim=2] X):             # <<<<<<<<<<<<<<
@@ -8319,7 +7724,7 @@ static PyObject *__pyx_pw_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("predict_ (wrapper)", 0);
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_X), __pyx_ptype_5numpy_ndarray, 1, "X", 0))) __PYX_ERR(0, 522, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_X), __pyx_ptype_5numpy_ndarray, 1, "X", 0))) __PYX_ERR(0, 477, __pyx_L1_error)
   __pyx_r = __pyx_pf_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_6predict_(((struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *)__pyx_v_self), ((PyArrayObject *)__pyx_v_X));
 
   /* function exit code */
@@ -8347,11 +7752,11 @@ static PyObject *__pyx_pf_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster
   __pyx_pybuffernd_X.rcbuffer = &__pyx_pybuffer_X;
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_X.rcbuffer->pybuffer, (PyObject*)__pyx_v_X, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float32_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 522, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_X.rcbuffer->pybuffer, (PyObject*)__pyx_v_X, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float32_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 477, __pyx_L1_error)
   }
   __pyx_pybuffernd_X.diminfo[0].strides = __pyx_pybuffernd_X.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_X.diminfo[0].shape = __pyx_pybuffernd_X.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_X.diminfo[1].strides = __pyx_pybuffernd_X.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_X.diminfo[1].shape = __pyx_pybuffernd_X.rcbuffer->pybuffer.shape[1];
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = ((PyObject *)__pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_predict_(__pyx_v_self, __pyx_v_X, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 522, __pyx_L1_error)
+  __pyx_t_1 = ((PyObject *)__pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_predict_(__pyx_v_self, __pyx_v_X, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 477, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -23176,9 +22581,8 @@ static int __pyx_setprop_9simforest_7cluster_8_cluster_26CSimilarityForestCluste
 static PyMethodDef __pyx_methods_9simforest_7cluster_8_cluster_CSimilarityForestClusterer[] = {
   {"fit", (PyCFunction)__pyx_pw_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_3fit, METH_O, __pyx_doc_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_2fit},
   {"predict_", (PyCFunction)__pyx_pw_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_5predict_, METH_O, __pyx_doc_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_4predict_},
-  {"ppredict_", (PyCFunction)__pyx_pw_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_7ppredict_, METH_O, __pyx_doc_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_6ppredict_},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_9__reduce_cython__, METH_NOARGS, 0},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_11__setstate_cython__, METH_O, 0},
+  {"__reduce_cython__", (PyCFunction)__pyx_pw_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_7__reduce_cython__, METH_NOARGS, 0},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_9__setstate_cython__, METH_O, 0},
   {0, 0, 0, 0}
 };
 
@@ -24233,7 +23637,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_kp_s_contiguous_and_indirect, __pyx_k_contiguous_and_indirect, sizeof(__pyx_k_contiguous_and_indirect), 0, 0, 1, 0},
   {&__pyx_n_s_depth, __pyx_k_depth, sizeof(__pyx_k_depth), 0, 0, 1, 1},
   {&__pyx_n_s_dict, __pyx_k_dict, sizeof(__pyx_k_dict), 0, 0, 1, 1},
-  {&__pyx_n_s_distance, __pyx_k_distance, sizeof(__pyx_k_distance), 0, 0, 1, 1},
   {&__pyx_n_s_dot, __pyx_k_dot, sizeof(__pyx_k_dot), 0, 0, 1, 1},
   {&__pyx_n_s_dtype, __pyx_k_dtype, sizeof(__pyx_k_dtype), 0, 0, 1, 1},
   {&__pyx_n_s_dtype_is_object, __pyx_k_dtype_is_object, sizeof(__pyx_k_dtype_is_object), 0, 0, 1, 1},
@@ -24277,7 +23680,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_order, __pyx_k_order, sizeof(__pyx_k_order), 0, 0, 1, 1},
   {&__pyx_n_s_pack, __pyx_k_pack, sizeof(__pyx_k_pack), 0, 0, 1, 1},
   {&__pyx_n_s_pickle, __pyx_k_pickle, sizeof(__pyx_k_pickle), 0, 0, 1, 1},
-  {&__pyx_n_s_ppredict, __pyx_k_ppredict, sizeof(__pyx_k_ppredict), 0, 0, 1, 1},
   {&__pyx_n_s_predict, __pyx_k_predict, sizeof(__pyx_k_predict), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_PickleError, __pyx_k_pyx_PickleError, sizeof(__pyx_k_pyx_PickleError), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_checksum, __pyx_k_pyx_checksum, sizeof(__pyx_k_pyx_checksum), 0, 0, 1, 1},
@@ -24325,7 +23727,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
 static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
   __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 42, __pyx_L1_error)
   __pyx_builtin_TypeError = __Pyx_GetBuiltinName(__pyx_n_s_TypeError); if (!__pyx_builtin_TypeError) __PYX_ERR(1, 2, __pyx_L1_error)
-  __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(0, 460, __pyx_L1_error)
+  __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(0, 415, __pyx_L1_error)
   __pyx_builtin_RuntimeError = __Pyx_GetBuiltinName(__pyx_n_s_RuntimeError); if (!__pyx_builtin_RuntimeError) __PYX_ERR(2, 777, __pyx_L1_error)
   __pyx_builtin_ImportError = __Pyx_GetBuiltinName(__pyx_n_s_ImportError); if (!__pyx_builtin_ImportError) __PYX_ERR(2, 959, __pyx_L1_error)
   __pyx_builtin_MemoryError = __Pyx_GetBuiltinName(__pyx_n_s_MemoryError); if (!__pyx_builtin_MemoryError) __PYX_ERR(1, 148, __pyx_L1_error)
@@ -24361,14 +23763,14 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__2);
   __Pyx_GIVEREF(__pyx_tuple__2);
 
-  /* "simforest/cluster/_cluster.pyx":472
+  /* "simforest/cluster/_cluster.pyx":427
  *             self.projection = rbf_projection
  *         else:
  *             raise ValueError('Unknown similarity function')             # <<<<<<<<<<<<<<
  * 
  *         self._find_split(X, self.projection)
  */
-  __pyx_tuple__3 = PyTuple_Pack(1, __pyx_kp_s_Unknown_similarity_function); if (unlikely(!__pyx_tuple__3)) __PYX_ERR(0, 472, __pyx_L1_error)
+  __pyx_tuple__3 = PyTuple_Pack(1, __pyx_kp_s_Unknown_similarity_function); if (unlikely(!__pyx_tuple__3)) __PYX_ERR(0, 427, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__3);
   __Pyx_GIVEREF(__pyx_tuple__3);
 
@@ -24775,7 +24177,6 @@ static int __Pyx_modinit_type_init_code(void) {
   __pyx_vtabptr_9simforest_7cluster_8_cluster_CSimilarityForestClusterer = &__pyx_vtable_9simforest_7cluster_8_cluster_CSimilarityForestClusterer;
   __pyx_vtable_9simforest_7cluster_8_cluster_CSimilarityForestClusterer.fit = (struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityForestClusterer *(*)(struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityForestClusterer *, PyArrayObject *, int __pyx_skip_dispatch))__pyx_f_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_fit;
   __pyx_vtable_9simforest_7cluster_8_cluster_CSimilarityForestClusterer.predict_ = (PyArrayObject *(*)(struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityForestClusterer *, PyArrayObject *, int __pyx_skip_dispatch))__pyx_f_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_predict_;
-  __pyx_vtable_9simforest_7cluster_8_cluster_CSimilarityForestClusterer.ppredict_ = (PyArrayObject *(*)(struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityForestClusterer *, PyArrayObject *, int __pyx_skip_dispatch))__pyx_f_9simforest_7cluster_8_cluster_26CSimilarityForestClusterer_ppredict_;
   if (PyType_Ready(&__pyx_type_9simforest_7cluster_8_cluster_CSimilarityForestClusterer) < 0) __PYX_ERR(0, 157, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
   __pyx_type_9simforest_7cluster_8_cluster_CSimilarityForestClusterer.tp_print = 0;
@@ -24792,18 +24193,18 @@ static int __Pyx_modinit_type_init_code(void) {
   __pyx_vtable_9simforest_7cluster_8_cluster_CSimilarityTreeCluster.sample_split_direction = (int (*)(struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *, PyArrayObject *, int, int __pyx_skip_dispatch))__pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_sample_split_direction;
   __pyx_vtable_9simforest_7cluster_8_cluster_CSimilarityTreeCluster._find_split = (void (*)(struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *, __Pyx_memviewslice, __pyx_t_9simforest_7cluster_8_cluster_f_type))__pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster__find_split;
   __pyx_vtable_9simforest_7cluster_8_cluster_CSimilarityTreeCluster.fit = (struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *(*)(struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *, PyArrayObject *, int __pyx_skip_dispatch))__pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_fit;
-  __pyx_vtable_9simforest_7cluster_8_cluster_CSimilarityTreeCluster.distance = (int (*)(struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *, __Pyx_memviewslice, __Pyx_memviewslice))__pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_distance;
+  __pyx_vtable_9simforest_7cluster_8_cluster_CSimilarityTreeCluster.similarity = (int (*)(struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *, __Pyx_memviewslice, __Pyx_memviewslice))__pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_similarity;
   __pyx_vtable_9simforest_7cluster_8_cluster_CSimilarityTreeCluster.predict_ = (PyArrayObject *(*)(struct __pyx_obj_9simforest_7cluster_8_cluster_CSimilarityTreeCluster *, PyArrayObject *, int __pyx_skip_dispatch))__pyx_f_9simforest_7cluster_8_cluster_22CSimilarityTreeCluster_predict_;
-  if (PyType_Ready(&__pyx_type_9simforest_7cluster_8_cluster_CSimilarityTreeCluster) < 0) __PYX_ERR(0, 302, __pyx_L1_error)
+  if (PyType_Ready(&__pyx_type_9simforest_7cluster_8_cluster_CSimilarityTreeCluster) < 0) __PYX_ERR(0, 257, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
   __pyx_type_9simforest_7cluster_8_cluster_CSimilarityTreeCluster.tp_print = 0;
   #endif
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_9simforest_7cluster_8_cluster_CSimilarityTreeCluster.tp_dictoffset && __pyx_type_9simforest_7cluster_8_cluster_CSimilarityTreeCluster.tp_getattro == PyObject_GenericGetAttr)) {
     __pyx_type_9simforest_7cluster_8_cluster_CSimilarityTreeCluster.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (__Pyx_SetVtable(__pyx_type_9simforest_7cluster_8_cluster_CSimilarityTreeCluster.tp_dict, __pyx_vtabptr_9simforest_7cluster_8_cluster_CSimilarityTreeCluster) < 0) __PYX_ERR(0, 302, __pyx_L1_error)
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_CSimilarityTreeCluster, (PyObject *)&__pyx_type_9simforest_7cluster_8_cluster_CSimilarityTreeCluster) < 0) __PYX_ERR(0, 302, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_9simforest_7cluster_8_cluster_CSimilarityTreeCluster) < 0) __PYX_ERR(0, 302, __pyx_L1_error)
+  if (__Pyx_SetVtable(__pyx_type_9simforest_7cluster_8_cluster_CSimilarityTreeCluster.tp_dict, __pyx_vtabptr_9simforest_7cluster_8_cluster_CSimilarityTreeCluster) < 0) __PYX_ERR(0, 257, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_CSimilarityTreeCluster, (PyObject *)&__pyx_type_9simforest_7cluster_8_cluster_CSimilarityTreeCluster) < 0) __PYX_ERR(0, 257, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_9simforest_7cluster_8_cluster_CSimilarityTreeCluster) < 0) __PYX_ERR(0, 257, __pyx_L1_error)
   __pyx_ptype_9simforest_7cluster_8_cluster_CSimilarityTreeCluster = &__pyx_type_9simforest_7cluster_8_cluster_CSimilarityTreeCluster;
   __pyx_vtabptr_array = &__pyx_vtable_array;
   __pyx_vtable_array.get_memview = (PyObject *(*)(struct __pyx_array_obj *))__pyx_array_get_memview;
@@ -29584,17 +28985,17 @@ __pyx_fail:
 }
 
 /* ObjectToMemviewSlice */
-  static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_ds_float(PyObject *obj, int writable_flag) {
+  static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_dsds_float(PyObject *obj, int writable_flag) {
     __Pyx_memviewslice result = { 0, 0, { 0 }, { 0 }, { 0 } };
     __Pyx_BufFmt_StackElem stack[1];
-    int axes_specs[] = { (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_STRIDED) };
+    int axes_specs[] = { (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_STRIDED), (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_STRIDED) };
     int retcode;
     if (obj == Py_None) {
         result.memview = (struct __pyx_memoryview_obj *) Py_None;
         return result;
     }
     retcode = __Pyx_ValidateAndInit_memviewslice(axes_specs, 0,
-                                                 PyBUF_RECORDS_RO | writable_flag, 1,
+                                                 PyBUF_RECORDS_RO | writable_flag, 2,
                                                  &__Pyx_TypeInfo_float, stack,
                                                  &result, obj);
     if (unlikely(retcode == -1))
@@ -29607,17 +29008,17 @@ __pyx_fail:
 }
 
 /* ObjectToMemviewSlice */
-  static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_dsds_float(PyObject *obj, int writable_flag) {
+  static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_ds_float(PyObject *obj, int writable_flag) {
     __Pyx_memviewslice result = { 0, 0, { 0 }, { 0 }, { 0 } };
     __Pyx_BufFmt_StackElem stack[1];
-    int axes_specs[] = { (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_STRIDED), (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_STRIDED) };
+    int axes_specs[] = { (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_STRIDED) };
     int retcode;
     if (obj == Py_None) {
         result.memview = (struct __pyx_memoryview_obj *) Py_None;
         return result;
     }
     retcode = __Pyx_ValidateAndInit_memviewslice(axes_specs, 0,
-                                                 PyBUF_RECORDS_RO | writable_flag, 2,
+                                                 PyBUF_RECORDS_RO | writable_flag, 1,
                                                  &__Pyx_TypeInfo_float, stack,
                                                  &result, obj);
     if (unlikely(retcode == -1))

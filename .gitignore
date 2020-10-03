@@ -74,6 +74,9 @@ target/
 /simforest/_distance.html
 /simforest/criterion.html
 
+# C files resulting from Cython compilation
+*.c
+
 # Jupyter notebook checkpoints
 .ipynb_checkpoints
 

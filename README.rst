@@ -22,9 +22,8 @@ Similarity Forest : A similarity-based decision tree ensemble
 
 This is my MS thesis project conducted at Poznan University of Technology under the supervision of
 prof. Mikołaj Morzy
-
 It aims to extend the work described in Similarity Forest by Sathe and Aggarwal and provide ease to use,
 Scikit-Learn compatible implementation.
-
 It can be used in Scikit-Learn pipelines and (hyper)parameter search, it includes testing (API compliance) and more.
 I will include necessary documentation.
+
