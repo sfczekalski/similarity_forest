@@ -225,6 +225,7 @@ cdef class CSimilarityForestClusterer:
             distance_matrix : ndarray of shape = comb(n_samples, 2) containing the distances
         """
         cdef int n = X.shape[0]
+        cdef float [:, :] X_view = X
         cdef np.ndarray[np.float32_t, ndim=1] distance_matrix = np.ones(<int>comb(n, 2), np.float32, order='c')
         cdef float [:] view = distance_matrix
 
@@ -235,66 +236,20 @@ cdef class CSimilarityForestClusterer:
         cdef int i = 0
         cdef int j = 0
         cdef int e = 0
+        cdef CSimilarityTreeCluster current_tree
+
         for i in range(n):
             for j in range(diagonal, n):
                 for e in range(self.n_estimators,):
-                    similarity += self.estimators_[e].distance(X[i], X[j])
+                    current_tree = self.estimators_[e]
+                    similarity += current_tree.similarity(X_view[i], X_view[j])
 
                 # similarity is an average depth at which points split across all trees
-                #similarity = similarity/<float>self.n_estimators
-                # distance = 1 / similarity
+                # but we don't need to divide the accumulated similarities as this only rescales the distance
                 view[idx] = 1 / <float>similarity
                 similarity = 0.0
                 idx += 1
             diagonal += 1
-
-        return distance_matrix
-
-    @cython.boundscheck(False)
-    @cython.wraparound(False)
-    cpdef np.ndarray[np.float32_t, ndim=2] ppredict_(self, np.ndarray[np.float32_t, ndim=2] X):
-        """Parallel implementation. Produce pairwise distance matrix.
-            Parameters
-            ----------
-            X : array-like matrix of shape = [n_samples, n_features]
-                The training data samples.
-            Returns
-            -------
-            distance_matrix : ndarray of shape = [n_samples, n_samples] containing the distances
-
-        Notes
-        ------
-            In parallel implementation distance is calculated as a sum of 1/similarity across the trees,
-            instead of 1 / sum of similarities.
-            
-            Parallel implementation materializes the whole N*N distance matrix instead of comb(N, 2) flat array.
-            Possibly change it in the future.
-        """
-        cdef int n = X.shape[0]
-        cdef float [:, :] X_view = X
-
-        cdef np.ndarray[np.float32_t, ndim=2] distance_matrix = np.zeros(shape=(n, n), dtype=np.float32)
-        cdef float [:, :] distance_matrix_view = distance_matrix
-
-        cdef float similarity = 0.0
-
-        cdef int num_threads = 10
-        cdef int diagonal = 1
-        cdef int i = 0
-        cdef int j = 0
-        cdef int e = 0
-        cdef CSimilarityTreeCluster current_tree
-
-        for e in range(self.n_estimators):
-            current_tree = self.estimators_[e]
-            for i in range(n):
-                for j in prange(n, nogil=True, schedule='dynamic', num_threads=num_threads):
-                    if i == j:
-                        continue
-                    similarity = current_tree.distance(X_view[i], X_view[j])
-                    distance_matrix_view[i, j] += <float>similarity#1 / <float>similarity
-                    distance_matrix_view[j, i] = distance_matrix_view[i, j]
-
 
         return distance_matrix
 
@@ -490,8 +445,8 @@ cdef class CSimilarityTreeCluster:
 
         return self
 
-    cdef int distance(self, float [:] xi, float [:] xj) nogil:
-        """Calculate distance of a pair of data-points in tree-space.
+    cdef int similarity(self, float [:] xi, float [:] xj) nogil:
+        """Calculate similarity of a pair of data-points in tree-space.
             The pair of traverses down the tree, and the depth on which the pair splits is recorded.
             This values serves as a similarity measure between the pair.
             Parameters
@@ -511,9 +466,9 @@ cdef class CSimilarityTreeCluster:
         if path_i == path_j:
             # the same path, check if the pair goes left or right
             if path_i:
-                return self._lhs.distance(xi, xj)
+                return self._lhs.similarity(xi, xj)
             else:
-                return self._rhs.distance(xi, xj)
+                return self._rhs.similarity(xi, xj)
         else:
             # different path, return current depth
             return self.depth
@@ -537,7 +492,7 @@ cdef class CSimilarityTreeCluster:
         cdef int idx = 0
         for c in range(n):
             for r in range(diagonal, n):
-                view[idx] = 1 / <float>self.distance(X[c], X[r])
+                view[idx] = 1 / <float>self.similarity(X[c], X[r])
                 idx += 1
             diagonal += 1
 
