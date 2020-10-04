@@ -373,7 +373,7 @@ cdef class CSimilarityTreeCluster:
 
         # Find indexes of points going left
         self.lhs_idxs = np.nonzero(array <= self._split_point)[0].astype(np.int32)
-        self.rhs_idxs = np.nonzero(array > self._split_point)[0].astype(np.int32)
+        self.rhs_idxs = np.invert(self.lhs_idxs)
 
 
     cpdef CSimilarityTreeCluster fit(self, np.ndarray[np.float32_t, ndim=2] X):
