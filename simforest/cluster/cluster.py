@@ -130,7 +130,6 @@ class SimilarityForestCluster(BaseEstimator, ClusterMixin):
                 hdb = hdbscan.HDBSCAN(metric='precomputed')
                 square_distance_matrix = squareform(
                     self.distance_matrix_.astype(float))
-                print(square_distance_matrix)
                 hdb.fit(square_distance_matrix)
                 clusters = hdb.labels_
 
