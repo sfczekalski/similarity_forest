@@ -7,7 +7,7 @@ cimport numpy as np
 
 cdef np.ndarray[dtype=np.float32_t, ndim=1] subtract_vectors(float [:] u, float [:] v):
     cdef int n = u.shape[0]
-    cdef np.ndarray[dtype=np.float32_t, ndim=1] result = np.zeros(shape=n, dtype=np.float32)
+    cdef np.ndarray[dtype=np.float32_t, ndim=1] result = np.empty(shape=n, dtype=np.float32)
     
     cdef int i
     for i in range(n):
@@ -31,7 +31,7 @@ cdef np.ndarray[dtype=np.float32_t, ndim=1] dot_projection(float [:, :] X, float
             result : float value
     """
     cdef int n = X.shape[0]
-    cdef np.ndarray[dtype=np.float32_t, ndim=1] result = np.zeros(shape=n, dtype=np.float32)
+    cdef np.ndarray[dtype=np.float32_t, ndim=1] result = np.empty(shape=n, dtype=np.float32)
     cdef np.ndarray[dtype=np.float32_t, ndim=1] q_p = subtract_vectors(q, p)
 
     result = np.dot(X, q_p)
