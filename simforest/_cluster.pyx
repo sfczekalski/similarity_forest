@@ -9,6 +9,9 @@ from cython.parallel import prange, parallel
 cimport openmp
 from libc.math cimport exp
 
+# import distance as distance
+# cimport _distance as distance
+
 
 # projection function type definition
 ctypedef float (*f_type)(float [:] xi, float [:] p, float [:] q) nogil
@@ -26,27 +29,7 @@ ctypedef float (*f_type)(float [:] xi, float [:] p, float [:] q) nogil
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef float dot(float [:] u, float [:] v) nogil:
-    """Calcuate dot product of two vectors.
-        Parameters
-        ----------
-            u : memoryview of ndarray, first vector
-            v : memoryview of ndarray, second vector
-        Returns 
-        ----------
-            result : float value
-    """
-    cdef float result = 0.0
-    cdef int n = u.shape[0]
-    cdef int i = 0
-    for i in range(n):
-        result += u[i] * v[i]
-
-    return result
-
-@cython.boundscheck(False)
-@cython.wraparound(False)
-cdef inline float dot_projection(float [:] xi, float [:] p, float [:] q) nogil:
+cdef float dot_projection(float [:] xi, float [:] p, float [:] q) nogil:
     """Projection of data-point on split direction using dot product.
         Parameters
         ----------
@@ -70,29 +53,7 @@ cdef inline float dot_projection(float [:] xi, float [:] p, float [:] q) nogil:
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef float sqeuclidean(self, float [:] u, float [:] v) nogil:
-    """Calcuate squared euclidean distance of two vectors. 
-        It serves as an approximation of euclidean distance, when sorted using both methods, 
-        the order of data-points remains the same. 
-        Parameters
-        ----------
-            u : memoryview of ndarray, first vector
-            v : memoryview of ndarray, second vector
-        Returns 
-        ----------
-            result : float value
-    """
-    cdef float result = 0.0
-    cdef int n = u.shape[0]
-    cdef int i = 0
-    for i in range(n):
-        result += (u[i] - v[i]) ** 2
-
-    return result
-
-@cython.boundscheck(False)
-@cython.wraparound(False)
-cdef inline float sqeuclidean_projection(float [:] xi, float [:] p, float [:] q) nogil:
+cdef float sqeuclidean_projection(float [:] xi, float [:] p, float [:] q) nogil:
     """Projection of data-point on split direction using squared euclidean distance.
         It serves as an approximation of euclidean distance, when sorted using both methods, 
         the order of data-points remains the same. 
@@ -118,7 +79,7 @@ cdef inline float sqeuclidean_projection(float [:] xi, float [:] p, float [:] q)
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef inline float rbf_projection(float [:] xi, float [:] p, float [:] q) nogil:
+cdef float rbf_projection(float [:] xi, float [:] p, float [:] q) nogil:
     """Projection of data-point on split direction using squared euclidean distance.
         It serves as an approximation of euclidean distance, when sorted using both methods, 
         the order of data-points remains the same. 
@@ -153,6 +114,7 @@ cdef inline float rbf_projection(float [:] xi, float [:] p, float [:] q) nogil:
     result = xq - xp
 
     return result
+
 
 cdef class CSimilarityForestClusterer:
     """Similarity forest clusterer."""
