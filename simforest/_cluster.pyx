@@ -10,7 +10,7 @@ cimport openmp
 from libc.math cimport exp
 
 # import distance as distance
-from _distance cimport dot_projection, rbf_projection, sqeuclidean_projection
+from projection cimport dot_projection, rbf_projection, sqeuclidean_projection
 
 
 # projection function type definition
