@@ -9,16 +9,15 @@ from cython.parallel import prange, parallel
 cimport openmp
 from libc.math cimport exp
 
-# import distance as distance
-from projection cimport dot_projection, rbf_projection, sqeuclidean_projection
+from projection cimport dot_projection
 
 
 # projection function type definition
-ctypedef float (*f_type)(float [:] xi, float [:] p, float [:] q) nogil
+ctypedef np.ndarray[dtype=np.float32_t, ndim=1] (*f_type)(float [:, :] X, float [:] p, float [:] q)
 """This type represents a function type for a function that calculates projection of data-points on split direction.
     Parameters
     ----------
-        xi : memoryview of ndarray, a data-point to be projected
+        X : memoryview of ndarray, data-points to be projected
         p : memoryview of ndarray, first data-point used for drawing split direction
         q : memoryview of ndarray, second data-point used for drawing split direction
     Returns 
@@ -39,8 +38,8 @@ cdef class CSimilarityForestClusterer:
 
     def __cinit__(self,
                   random_state=None,
-                  str sim_function='euclidean',
-                  int max_depth=-1,
+                  str sim_function='dot',
+                  int max_depth=5,
                   int n_estimators = 20,
                   int bootstrap = 0):
         self.random_state = random_state
@@ -98,11 +97,12 @@ cdef class CSimilarityForestClusterer:
             distance_matrix : ndarray of shape = comb(n_samples, 2) containing the distances
         """
         cdef int n = X.shape[0]
-        cdef float [:, :] X_view = X
+        cdef float [:, :] X_i_view
+        cdef float [:, :] X_j_view
+
         cdef np.ndarray[np.float32_t, ndim=1] distance_matrix = np.ones(<int>comb(n, 2), np.float32, order='c')
         cdef float [:] view = distance_matrix
 
-        cdef int num_threads = 4
         cdef int diagonal = 1
         cdef int idx = 0
         cdef float similarity = 0.0
@@ -115,7 +115,9 @@ cdef class CSimilarityForestClusterer:
             for j in range(diagonal, n):
                 for e in range(self.n_estimators,):
                     current_tree = self.estimators_[e]
-                    similarity += current_tree.similarity(X_view[i], X_view[j])
+                    X_i_view = X[np.newaxis, i]
+                    X_j_view = X[np.newaxis, j]
+                    similarity += current_tree.similarity(X_i_view, X_j_view)
 
                 # similarity is an average depth at which points split across all trees
                 # but we don't need to divide the accumulated similarities as this only rescales the distance
@@ -147,7 +149,7 @@ cdef class CSimilarityTreeCluster:
 
     def __cinit__(self,
                   random_state=None,
-                  str sim_function='euclidean',
+                  str sim_function='dot',
                   int max_depth=-1,
                   int depth=1):
         self.random_state = random_state
@@ -230,13 +232,7 @@ cdef class CSimilarityTreeCluster:
         cdef float [:] p = self._p
         cdef float [:] q = self._q
 
-        cdef int num_threads = 4
-        if n < 12:
-            num_threads = 1
-        cdef int i = 0
-        # Read about different schedules https://cython.readthedocs.io/en/latest/src/userguide/parallelism.html
-        for i in prange(n, schedule='dynamic', nogil=True, num_threads=num_threads):
-            similarities[i] = projection(X[i], p, q)
+        similarities = projection(X, p, q)
 
         cdef float similarities_min = np.min(array)
         cdef float similarities_max = np.max(array)
@@ -292,10 +288,6 @@ cdef class CSimilarityTreeCluster:
 
         if self.sim_function == 'dot':
             self.projection = dot_projection
-        elif self.sim_function == 'euclidean':
-            self.projection = sqeuclidean_projection
-        elif self.sim_function == 'rbf':
-            self.projection = rbf_projection
         else:
             raise ValueError('Unknown similarity function')
 
@@ -318,7 +310,7 @@ cdef class CSimilarityTreeCluster:
 
         return self
 
-    cdef int similarity(self, float [:] xi, float [:] xj) nogil:
+    cdef int similarity(self, float [:, :] xi, float [:, :] xj):
         """Calculate similarity of a pair of data-points in tree-space.
             The pair of traverses down the tree, and the depth on which the pair splits is recorded.
             This values serves as a similarity measure between the pair.
