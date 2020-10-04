@@ -227,21 +227,20 @@ cdef class CSimilarityTreeCluster:
 
         # Calculate similarities
         cdef int n = X.shape[0]
-        cdef np.ndarray[np.float32_t, ndim=1] array = np.zeros(n, dtype=np.float32, order='c')
-        cdef float [:] similarities = array
+        cdef np.ndarray[np.float32_t, ndim=1] similarities = np.empty(n, dtype=np.float32, order='c')
         cdef float [:] p = self._p
         cdef float [:] q = self._q
 
         similarities = projection(X, p, q)
 
-        cdef float similarities_min = np.min(array)
-        cdef float similarities_max = np.max(array)
+        cdef float similarities_min = np.min(similarities)
+        cdef float similarities_max = np.max(similarities)
 
         # Find random split point
         self._split_point = self._rng.uniform(similarities_min, similarities_max, 1)
 
         # Find indexes of points going left
-        self.lhs_idxs = np.nonzero(array <= self._split_point)[0].astype(np.int32)
+        self.lhs_idxs = np.nonzero(similarities <= self._split_point)[0].astype(np.int32)
         self.rhs_idxs = np.invert(self.lhs_idxs)
 
 
