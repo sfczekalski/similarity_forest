@@ -13,6 +13,7 @@ dependencies:
   - cython
   - numexpr
   - notebook
+  - pytest
   - pip
   - pip:
       - git+https://github.com/mmngreco/IneqPy.git
