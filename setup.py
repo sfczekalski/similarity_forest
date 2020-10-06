@@ -71,6 +71,6 @@ setup(name=DISTNAME,
       extras_require=EXTRAS_REQUIRE,
       cmdclass={'build_ext': build_ext},  # Cython compiling
       ext_modules=cythonize(
-          ["simforest/*.pyx"]),
+          ["simforest/*.pyx", "simforest/*.pxd"]),
       include_dirs=[numpy.get_include()]
       )

@@ -5,21 +5,9 @@ import numpy as np
 cimport numpy as np
 
 
-cdef np.ndarray[dtype=np.float32_t, ndim=1] subtract_vectors(float [:] u, float [:] v):
-    cdef int n = u.shape[0]
-    cdef np.ndarray[dtype=np.float32_t, ndim=1] result = np.empty(shape=n, dtype=np.float32)
-    
-    cdef int i
-    for i in range(n):
-        result[i] = u[i] - v[i]
-
-    return result
-
-
-
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef np.ndarray[dtype=np.float32_t, ndim=1] dot_projection(float [:, :] X, float [:] p, float [:] q):
+cdef inline np.ndarray[dtype=np.float32_t, ndim=1] dot_projection(float [:, :] X, float [:] p, float [:] q):
     """Projection of data-point on split direction using dot product.
         Parameters
         ----------
@@ -30,11 +18,24 @@ cdef np.ndarray[dtype=np.float32_t, ndim=1] dot_projection(float [:, :] X, float
         ----------
             result : float value
     """
+    cdef float s = 0.0
+    cdef float d = 0.0
     cdef int n = X.shape[0]
-    cdef np.ndarray[dtype=np.float32_t, ndim=1] result = np.empty(shape=n, dtype=np.float32)
-    cdef np.ndarray[dtype=np.float32_t, ndim=1] q_p = subtract_vectors(q, p)
+    cdef int m = X.shape[1]
+    cdef int i = 0
+    cdef int j = 0
 
-    result = np.dot(X, q_p)
+    cdef np.ndarray[dtype=np.float32_t, ndim=1] result = np.zeros(shape=n, dtype=np.float32)
+
+    with nogil:
+        for i in range(n):
+            s = 0.0
+            for j in range(m):
+                d = q[j] - p[j]
+                s += X[i, j] * d
+
+            result[i] = s
+
     return result
 
 @cython.boundscheck(False)

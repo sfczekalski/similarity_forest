@@ -227,7 +227,7 @@ cdef class CSimilarityTreeCluster:
 
         # Calculate similarities
         cdef int n = X.shape[0]
-        cdef np.ndarray[np.float32_t, ndim=1] similarities = np.empty(n, dtype=np.float32, order='c')
+        cdef np.ndarray[np.float32_t, ndim=1] similarities = np.zeros(shape=n, dtype=np.float32, order='c')
         cdef float [:] p = self._p
         cdef float [:] q = self._q
 
