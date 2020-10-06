@@ -13,7 +13,7 @@ from projection cimport dot_projection
 
 
 # projection function type definition
-ctypedef np.ndarray[dtype=np.float32_t, ndim=1] (*f_type)(float [:, :] X, float [:] p, float [:] q)
+ctypedef float [:] (*f_type)(float [:, :] X, float [:] p, float [:] q, float [:] result) nogil
 """This type represents a function type for a function that calculates projection of data-points on split direction.
     Parameters
     ----------
@@ -228,10 +228,11 @@ cdef class CSimilarityTreeCluster:
         # Calculate similarities
         cdef int n = X.shape[0]
         cdef np.ndarray[np.float32_t, ndim=1] similarities = np.zeros(shape=n, dtype=np.float32, order='c')
+        cdef float [:] similarities_view = similarities
         cdef float [:] p = self._p
         cdef float [:] q = self._q
 
-        similarities = projection(X, p, q)
+        similarities_view = projection(X, p, q, similarities_view)
 
         cdef float similarities_min = np.min(similarities)
         cdef float similarities_max = np.max(similarities)
@@ -324,8 +325,14 @@ cdef class CSimilarityTreeCluster:
         if self.is_leaf:
             return self.depth
 
-        cdef bint path_i = self.projection(xi, self._p, self._q) <= self._split_point
-        cdef bint path_j = self.projection(xj, self._p, self._q) <= self._split_point
+        cdef float point[1]
+        cdef float [:] point_view = point
+
+        point_view = self.projection(xi, self._p, self._q, point_view)
+        cdef bint path_i = point_view[0] <= self._split_point
+
+        point_view = self.projection(xj, self._p, self._q, point_view)
+        cdef bint path_j = point_view[0] <= self._split_point
 
         if path_i == path_j:
             # the same path, check if the pair goes left or right

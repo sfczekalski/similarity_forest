@@ -7,7 +7,7 @@ cimport numpy as np
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef inline np.ndarray[dtype=np.float32_t, ndim=1] dot_projection(float [:, :] X, float [:] p, float [:] q):
+cdef inline float [:] dot_projection(float [:, :] X, float [:] p, float [:] q, float [:] result) nogil:
     """Projection of data-point on split direction using dot product.
         Parameters
         ----------
@@ -25,16 +25,13 @@ cdef inline np.ndarray[dtype=np.float32_t, ndim=1] dot_projection(float [:, :] X
     cdef int i = 0
     cdef int j = 0
 
-    cdef np.ndarray[dtype=np.float32_t, ndim=1] result = np.zeros(shape=n, dtype=np.float32)
+    for i in range(n):
+        s = 0.0
+        for j in range(m):
+            d = q[j] - p[j]
+            s += X[i, j] * d
 
-    with nogil:
-        for i in range(n):
-            s = 0.0
-            for j in range(m):
-                d = q[j] - p[j]
-                s += X[i, j] * d
-
-            result[i] = s
+        result[i] = s
 
     return result
 
