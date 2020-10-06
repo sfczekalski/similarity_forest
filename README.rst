@@ -27,3 +27,25 @@ Scikit-Learn compatible implementation.
 It can be used in Scikit-Learn pipelines and (hyper)parameter search, it includes testing (API compliance) and more.
 I will include necessary documentation.
 
+To recreate the environment and install the package, follow these steps:
+1. If you have Anaconda (or Miniconda) installed, make sure it's up to date
+```bash
+conda update conda
+```
+If not, install it by following the instruction in the documentation: https://docs.conda.io/projects/conda/en/latest/user-guide/install/
+2. Clone this repository
+```bash
+git clone https://github.com/sfczekalski/similarity_forest
+```
+3. Create conda environment
+```bash
+conda create --name similarity-forest --file environment.yml
+```
+4. Activate conda environment
+```bash
+conda activate similarity-forest
+```
+5. Install simforest package
+```bash
+pip install .
+```
