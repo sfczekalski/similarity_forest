@@ -3,6 +3,7 @@ import pandas as pd
 from sklearn.datasets import load_svmlight_file, load_boston, make_friedman1
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder, StandardScaler
 from sklearn.model_selection import train_test_split
+from simforest.distance import dot_product, rbf
 
 
 def fix_dtypes(df):
@@ -17,7 +18,7 @@ def fix_dtypes(df):
     return df
 
 
-def get_hardware_dataset():
+def get_hardware():
     df = pd.read_csv('../data/machine.data', header=None)
     df.loc[:, 0] = LabelEncoder().fit_transform(df.loc[:, 0])
     df.loc[:, 1] = LabelEncoder().fit_transform(df.loc[:, 1])
@@ -28,7 +29,13 @@ def get_hardware_dataset():
     y = y + np.abs(np.min(y))
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.3, random_state=42)
+        X, y, test_size=0.2, random_state=42)
+
+    # shuffle training data - greed search does not do it automatically
+    random_state = np.random.RandomState(42)
+    shuffled_indices = random_state.permutation(len(y_train))
+
+    X_train, y_train = X_train.values[shuffled_indices], y_train.values[shuffled_indices]
 
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
@@ -37,7 +44,7 @@ def get_hardware_dataset():
     return X_train, X_test, y_train, y_test, 'computer_hardware'
 
 
-def get_concrete_slump_dataset():
+def get_concrete_slump():
     """
     Attribute Information:
         Input variables (7)(component kg in one M^3 concrete):
@@ -62,7 +69,7 @@ def get_concrete_slump_dataset():
     y = y + np.abs(np.min(y))
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.3, random_state=42)
+        X, y, test_size=0.2, random_state=42)
 
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
@@ -71,7 +78,7 @@ def get_concrete_slump_dataset():
     return X_train, X_test, y_train, y_test, 'concrete_slump'
 
 
-def get_concrete_flow_dataset():
+def get_concrete_flow():
     """
     Attribute Information:
         Input variables (7)(component kg in one M^3 concrete):
@@ -96,7 +103,13 @@ def get_concrete_flow_dataset():
     y = y + np.abs(np.min(y))
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.3, random_state=42)
+        X, y, test_size=0.2, random_state=42)
+
+    # shuffle training data - greed search does not do it automatically
+    random_state = np.random.RandomState(42)
+    shuffled_indices = random_state.permutation(len(y_train))
+
+    X_train, y_train = X_train.values[shuffled_indices], y_train.values[shuffled_indices]
 
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
@@ -114,7 +127,13 @@ def get_energy_efficiency_heating():
     y = y + np.abs(np.min(y))
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.3, random_state=42)
+        X, y, test_size=0.2, random_state=42)
+
+    # shuffle training data - greed search does not do it automatically
+    random_state = np.random.RandomState(42)
+    shuffled_indices = random_state.permutation(len(y_train))
+
+    X_train, y_train = X_train.values[shuffled_indices], y_train.values[shuffled_indices]
 
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
@@ -132,7 +151,7 @@ def get_energy_efficiency_cooling():
     y = y + np.abs(np.min(y))
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.3, random_state=42)
+        X, y, test_size=0.2, random_state=42)
 
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
@@ -141,7 +160,7 @@ def get_energy_efficiency_cooling():
     return X_train, X_test, y_train, y_test, 'energy_efficiency_cooling'
 
 
-def get_who_dataset():
+def get_who():
     df = pd.read_csv('../data/Life Expectancy Data.csv')
     '''df['Country'] = LabelEncoder().fit_transform(df['Country'])
     df['Status'] = LabelEncoder().fit_transform(df['Status'])'''
@@ -155,7 +174,7 @@ def get_who_dataset():
     y = y + np.abs(np.min(y))
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.3, random_state=42)
+        X, y, test_size=0.2, random_state=42)
 
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
@@ -164,13 +183,19 @@ def get_who_dataset():
     return X_train, X_test, y_train, y_test, 'who'
 
 
-def get_mpg_dataset():
+def get_mpg():
     X, y = load_svmlight_file('../data/mpg')
     X = X.toarray()
     y = y + np.abs(np.min(y))
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.3, random_state=42)
+        X, y, test_size=0.2, random_state=42)
+
+    # shuffle training data - greed search does not do it automatically
+    random_state = np.random.RandomState(42)
+    shuffled_indices = random_state.permutation(len(y_train))
+
+    X_train, y_train = X_train[shuffled_indices], y_train[shuffled_indices]
 
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
@@ -179,13 +204,19 @@ def get_mpg_dataset():
     return X_train, X_test, y_train, y_test, 'mpg'
 
 
-def get_eunite2001_dataset():
+def get_eunite2001():
     X, y = load_svmlight_file('../data/eunite2001')
     X = X.toarray()
     y = y + np.abs(np.min(y))
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.3, random_state=42)
+        X, y, test_size=0.2, random_state=42)
+
+    # shuffle training data - greed search does not do it automatically
+    random_state = np.random.RandomState(42)
+    shuffled_indices = random_state.permutation(len(y_train))
+
+    X_train, y_train = X_train[shuffled_indices], y_train[shuffled_indices]
 
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
@@ -194,13 +225,19 @@ def get_eunite2001_dataset():
     return X_train, X_test, y_train, y_test, 'eunite2001'
 
 
-def get_abalone_dataset():
+def get_abalone():
     X, y = load_svmlight_file('../data/abalone')
     X = X.toarray()
     y = y + np.abs(np.min(y))
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.3, random_state=42)
+        X, y, test_size=0.2, random_state=42)
+
+    # shuffle training data - greed search does not do it automatically
+    random_state = np.random.RandomState(42)
+    shuffled_indices = random_state.permutation(len(y_train))
+
+    X_train, y_train = X_train[shuffled_indices], y_train[shuffled_indices]
 
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
@@ -209,13 +246,19 @@ def get_abalone_dataset():
     return X_train, X_test, y_train, y_test, 'abalone'
 
 
-def get_spacega_dataset():
+def get_spacega():
     X, y = load_svmlight_file('../data/space_ga')
     X = X.toarray()
     y = y + np.abs(np.min(y))
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.3, random_state=42)
+        X, y, test_size=0.2, random_state=42)
+
+    # shuffle training data - greed search does not do it automatically
+    random_state = np.random.RandomState(42)
+    shuffled_indices = random_state.permutation(len(y_train))
+
+    X_train, y_train = X_train[shuffled_indices], y_train[shuffled_indices]
 
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
@@ -224,12 +267,18 @@ def get_spacega_dataset():
     return X_train, X_test, y_train, y_test, 'space_ga'
 
 
-def get_boston_dataset():
+def get_boston():
     X, y = load_boston(return_X_y=True)
     y = y + np.abs(np.min(y))
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.3, random_state=42)
+        X, y, test_size=0.2, random_state=42)
+
+    # shuffle training data - greed search does not do it automatically
+    random_state = np.random.RandomState(42)
+    shuffled_indices = random_state.permutation(len(y_train))
+
+    X_train, y_train = X_train[shuffled_indices], y_train[shuffled_indices]
 
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
@@ -238,13 +287,13 @@ def get_boston_dataset():
     return X_train, X_test, y_train, y_test, 'boston'
 
 
-def get_auto_dataset():
+def get_auto():
     df = pd.read_csv('auto.data', header=None)
     df.dropna(inplace=True)
     df = fix_dtypes(df)
 
 
-def get_servo_dataset(onehot=False, scale=False):
+def get_servo(onehot=False, scale=False):
     df = pd.read_csv('../data/servo.data', header=None, names=['a', 'b', 'c', 'd', 'class'])
     if onehot:
         df = pd.concat([df, pd.get_dummies(df['a'])], axis=1)
@@ -276,22 +325,34 @@ def get_wine_quality():
     y = y + np.abs(np.min(y))
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.3, random_state=42)
+        X, y, test_size=0.2, random_state=42)
+
+    # shuffle training data - greed search does not do it automatically
+    random_state = np.random.RandomState(42)
+    shuffled_indices = random_state.permutation(len(y_train))
+
+    X_train, y_train = X_train.values[shuffled_indices], y_train.values[shuffled_indices]
 
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    return X_train, X_test, y_train, y_test, 'wine_quality'
+    return X_train, X_test, y_train, y_test, 'wine_quality',
 
 
-def get_friedman_dataset():
+def get_friedman():
     X, y = make_friedman1(n_samples=1000, random_state=42)
 
     y = y + np.abs(np.min(y))
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.3, random_state=42)
+        X, y, test_size=0.2, random_state=42)
+
+    # shuffle training data - greed search does not do it automatically
+    random_state = np.random.RandomState(42)
+    shuffled_indices = random_state.permutation(len(y_train))
+
+    X_train, y_train = X_train[shuffled_indices], y_train[shuffled_indices]
 
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
@@ -301,17 +362,15 @@ def get_friedman_dataset():
 
 
 datasets = [
-            get_boston_dataset(),
-            get_mpg_dataset(),
-            get_concrete_flow_dataset(),
-            get_hardware_dataset(),
-            get_spacega_dataset(),
-            get_eunite2001_dataset(),
+            get_boston(),
+            get_mpg(),
+            #get_hardware(),
+            get_spacega(),
+            get_eunite2001(),
             get_wine_quality(),
-            get_abalone_dataset(),
-            get_boston_dataset(),
-            get_energy_efficiency_heating(),
-            get_friedman_dataset()
+            get_abalone(),
+            #get_energy_efficiency_heating(),
+            #get_concrete_flow()
 ]
 
 

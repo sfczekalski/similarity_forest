@@ -1,0 +1,19 @@
+name: similarity-forest
+channels:
+  - conda-forge
+  - defaults
+  - anaconda
+dependencies:
+  - python=3.8
+  - scikit-learn
+  - pandas
+  - neptune-client
+  - hdbscan
+  - seaborn
+  - cython
+  - numexpr
+  - notebook
+  - pytest
+  - pip
+  - pip:
+      - git+https://github.com/mmngreco/IneqPy.git

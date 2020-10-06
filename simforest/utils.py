@@ -1,7 +1,62 @@
-import matplotlib.pyplot as plt
 from matplotlib import collections
 import matplotlib as mpl
+import matplotlib.pyplot as plt
+from scipy.stats import spearmanr
 import numpy as np
+import pandas as pd
+from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
+from scipy.stats import pearsonr
+
+
+def outliers_rank_stability(model, X, plot=True):
+    """Check stability of outliers ranking with different number of subestimators.
+        We check 1, 2, 3, 5, 10, 20, 30, 50, 70 and 100 trees respectively
+        Paramaters
+        ----------
+            X : array, data to perform outlier detection
+            plot : bool, flag indicating, if a chart with rank stability would be plotted
+        Returns
+        ---------
+            rcorrelations : array of shape(number of estimators used for checing ranking stability, 2)
+                First column represented Spearman correlation of ranking predicted with current number of trees,
+                second column gives p-values
+    """
+    model = model(n_estimators=100).fit(X)
+    initial_decision_function = model.decision_function(X, check_input=True, n_estimators=1)
+    n_outliers = np.where(initial_decision_function <= 0)[0].size
+    order = initial_decision_function[::-1].argsort()
+
+    trees = [2, 3, 5, 10, 20, 30, 50, 70, 100]
+    rcorrelations = np.zeros(shape=(9, 2), dtype=np.float)
+
+    for idx, v in enumerate(trees):
+        model = model(n_estimators=v).fit(X)
+        decision_function = model.decision_function(X, check_input=False, n_estimators=v)
+        rcorr, p = spearmanr(initial_decision_function[::-1][order][:n_outliers],
+                             decision_function[::-1][order][:n_outliers])
+
+        rcorrelations[idx] = rcorr, p
+        initial_decision_function = decision_function
+
+    if plot:
+        import matplotlib.pyplot as plt
+        from matplotlib.lines import Line2D
+
+        fig = plt.figure(figsize=(10, 6))
+        ax = fig.add_subplot(111)
+
+        line = Line2D(trees, rcorrelations[:, 0])
+        ax.add_line(line)
+        ax.set_xlim(trees[0], trees[-1])
+        ax.set_ylim(-0.2, 1.0)
+        ax.set_xlabel('Number of estimators')
+        ax.set_ylabel('Rcorrelation with previous value')
+
+        plt.show()
+
+    return rcorrelations
 
 
 def plot_projection(s, p, q, split_point, y, sim_function, depth, criterion):
@@ -77,3 +132,38 @@ def plot_projection(s, p, q, split_point, y, sim_function, depth, criterion):
     plt.xlabel('Similarity')
     plt.ylabel('y')
     plt.show()
+
+
+def plot_model_selection(model, parameter, parameter_range, X, y):
+    # grid search
+    param = {parameter: parameter_range}
+    search = GridSearchCV(model, param_grid=param, cv=5, return_train_score=True)
+    search = search.fit(X, y)
+
+    # extract scores
+    train_scores = search.cv_results_['mean_train_score']
+    val_scores = search.cv_results_['mean_test_score']
+
+    # plot
+    train_curve, = plt.plot(parameter_range, train_scores, marker='o', label='train')
+    validation_curve, = plt.plot(parameter_range, val_scores, marker='o', label='cross-validation')
+    plt.legend(handles=[train_curve, validation_curve])
+    plt.title('Validation curve')
+    plt.xlabel(parameter)
+    plt.ylabel('score')
+    plt.show()
+
+    # return grid-search results
+    return pd.DataFrame(search.cv_results_)
+
+
+def plot_confusion_matrix(model, X_test, y_test, classes, cmap='Purples'):
+    y_pred = model.predict(X_test)
+    cm = confusion_matrix(y_test, y_pred)
+    sns.heatmap(cm, annot=True, fmt="d", cmap=cmap, xticklabels=classes, yticklabels=classes, cbar=False)
+    plt.xticks(rotation=90)
+    plt.xlabel('Predicted Class')
+    plt.ylabel('True Class')
+    plt.title('Confusion Matrix')
+    plt.show()
+

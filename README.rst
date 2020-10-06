@@ -22,9 +22,38 @@ Similarity Forest : A similarity-based decision tree ensemble
 
 This is my MS thesis project conducted at Poznan University of Technology under the supervision of
 prof. Mikołaj Morzy
-
 It aims to extend the work described in Similarity Forest by Sathe and Aggarwal and provide ease to use,
 Scikit-Learn compatible implementation.
-
 It can be used in Scikit-Learn pipelines and (hyper)parameter search, it includes testing (API compliance) and more.
 I will include necessary documentation.
+
+Below you can find neccessary steps to install the project package. 
+It assumes that you have Anaconda (or Miniconda) installed.
+If you don't, follow the steps from the docs: 
+https://docs.conda.io/projects/conda/en/latest/user-guide/install/ 
+
+Package instalation
+-------------------
+1. Make sure that conda it's up to date ::
+
+    conda update conda
+
+2. Clone this repository ::
+
+    git clone https://github.com/sfczekalski/similarity_forest
+
+3. Go to the project folder ::
+
+    cd similarity_forest
+
+3. Create conda environment ::
+
+    conda env create --file environment.yml
+
+4. Activate conda environment ::
+
+    conda activate similarity-forest
+
+5. Install simforest package ::
+
+    pip install .

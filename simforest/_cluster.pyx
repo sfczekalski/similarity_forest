@@ -1,4 +1,4 @@
-from cpython.mem cimport PyMem_Malloc, PyMem_Realloc, PyMem_Free
+# from cpython.mem cimport PyMem_Malloc, PyMem_Realloc, PyMem_Free
 # https://cython.readthedocs.io/en/latest/src/tutorial/memory_allocation.html
 import numpy as np
 cimport numpy as np
@@ -9,13 +9,15 @@ from cython.parallel import prange, parallel
 cimport openmp
 from libc.math cimport exp
 
+from projection cimport dot_projection
+
 
 # projection function type definition
-ctypedef float (*f_type)(float [:] xi, float [:] p, float [:] q) nogil
+ctypedef float [:] (*f_type)(float [:, :] X, float [:] p, float [:] q, float [:] result) nogil
 """This type represents a function type for a function that calculates projection of data-points on split direction.
     Parameters
     ----------
-        xi : memoryview of ndarray, a data-point to be projected
+        X : memoryview of ndarray, data-points to be projected
         p : memoryview of ndarray, first data-point used for drawing split direction
         q : memoryview of ndarray, second data-point used for drawing split direction
     Returns 
@@ -23,136 +25,6 @@ ctypedef float (*f_type)(float [:] xi, float [:] p, float [:] q) nogil
         float, value of projection on given split direction
 """
 
-
-@cython.boundscheck(False)
-@cython.wraparound(False)
-cdef float dot(float [:] u, float [:] v) nogil:
-    """Calcuate dot product of two vectors.
-        Parameters
-        ----------
-            u : memoryview of ndarray, first vector
-            v : memoryview of ndarray, second vector
-        Returns 
-        ----------
-            result : float value
-    """
-    cdef float result = 0.0
-    cdef int n = u.shape[0]
-    cdef int i = 0
-    for i in range(n):
-        result += u[i] * v[i]
-
-    return result
-
-@cython.boundscheck(False)
-@cython.wraparound(False)
-cdef inline float dot_projection(float [:] xi, float [:] p, float [:] q) nogil:
-    """Projection of data-point on split direction using dot product.
-        Parameters
-        ----------
-            xi : memoryview of ndarray, data-point to be projected
-            p : memoryview of ndarray, first data-point used to draw split direction
-            q : memoryview of ndarray, second data-point used to draw split direction
-        Returns 
-        ----------
-            result : float value
-    """
-    cdef float result = 0.0
-    cdef int n = xi.shape[0]
-    cdef int i = 0
-    cdef float q_p
-
-    for i in range(n):
-        q_p = q[i] - p[i]
-        result += xi[i] * q_p
-
-    return result
-
-@cython.boundscheck(False)
-@cython.wraparound(False)
-cdef float sqeuclidean(self, float [:] u, float [:] v) nogil:
-    """Calcuate squared euclidean distance of two vectors. 
-        It serves as an approximation of euclidean distance, when sorted using both methods, 
-        the order of data-points remains the same. 
-        Parameters
-        ----------
-            u : memoryview of ndarray, first vector
-            v : memoryview of ndarray, second vector
-        Returns 
-        ----------
-            result : float value
-    """
-    cdef float result = 0.0
-    cdef int n = u.shape[0]
-    cdef int i = 0
-    for i in range(n):
-        result += (u[i] - v[i]) ** 2
-
-    return result
-
-@cython.boundscheck(False)
-@cython.wraparound(False)
-cdef inline float sqeuclidean_projection(float [:] xi, float [:] p, float [:] q) nogil:
-    """Projection of data-point on split direction using squared euclidean distance.
-        It serves as an approximation of euclidean distance, when sorted using both methods, 
-        the order of data-points remains the same. 
-        Parameters
-        ----------
-            xi : memoryview of ndarray, data-point to be projected
-            p : memoryview of ndarray, first data-point used to draw split direction
-            q : memoryview of ndarray, second data-point used to draw split direction
-        Returns 
-        ----------
-            result : float value
-    """
-    cdef float result = 0.0
-    cdef int n = xi.shape[0]
-    cdef int i = 0
-    cdef float p_q
-
-    for i in range(n):
-        p_q = p[i] - q[i]
-        result += xi[i] * p_q
-
-    return result
-
-@cython.boundscheck(False)
-@cython.wraparound(False)
-cdef inline float rbf_projection(float [:] xi, float [:] p, float [:] q) nogil:
-    """Projection of data-point on split direction using squared euclidean distance.
-        It serves as an approximation of euclidean distance, when sorted using both methods, 
-        the order of data-points remains the same. 
-        Parameters
-        ----------
-            xi : memoryview of ndarray, data-point to be projected
-            p : memoryview of ndarray, first data-point used to draw split direction
-            q : memoryview of ndarray, second data-point used to draw split direction
-        Returns 
-        ----------
-            result : float value
-    """
-    cdef float result = 0.0
-    cdef float xq = 0.0
-    cdef float xp = 0.0
-    cdef int n = xi.shape[0]
-    cdef float gamma = 1 / <float>len(xi)
-    cdef int i = 0
-    cdef float temp_x_q
-    cdef float temp_x_p
-
-    for i in range(n):
-        temp_x_q = xi[i] - q[i]
-        xq += temp_x_q ** temp_x_q
-
-        temp_x_p = xi[i] - p[i]
-        xp += temp_x_p ** temp_x_p
-
-    xq = exp(-gamma * xq)
-    xp = exp(-gamma * xp)
-
-    result = xq - xp
-
-    return result
 
 cdef class CSimilarityForestClusterer:
     """Similarity forest clusterer."""
@@ -166,8 +38,8 @@ cdef class CSimilarityForestClusterer:
 
     def __cinit__(self,
                   random_state=None,
-                  str sim_function='euclidean',
-                  int max_depth=-1,
+                  str sim_function='dot',
+                  int max_depth=5,
                   int n_estimators = 20,
                   int bootstrap = 0):
         self.random_state = random_state
@@ -225,76 +97,34 @@ cdef class CSimilarityForestClusterer:
             distance_matrix : ndarray of shape = comb(n_samples, 2) containing the distances
         """
         cdef int n = X.shape[0]
+        cdef float [:, :] X_i_view
+        cdef float [:, :] X_j_view
+
         cdef np.ndarray[np.float32_t, ndim=1] distance_matrix = np.ones(<int>comb(n, 2), np.float32, order='c')
         cdef float [:] view = distance_matrix
 
-        cdef int num_threads = 4
         cdef int diagonal = 1
         cdef int idx = 0
         cdef float similarity = 0.0
         cdef int i = 0
         cdef int j = 0
         cdef int e = 0
+        cdef CSimilarityTreeCluster current_tree
+
         for i in range(n):
             for j in range(diagonal, n):
                 for e in range(self.n_estimators,):
-                    similarity += self.estimators_[e].distance(X[i], X[j])
+                    current_tree = self.estimators_[e]
+                    X_i_view = X[np.newaxis, i]
+                    X_j_view = X[np.newaxis, j]
+                    similarity += current_tree.similarity(X_i_view, X_j_view)
 
                 # similarity is an average depth at which points split across all trees
-                #similarity = similarity/<float>self.n_estimators
-                # distance = 1 / similarity
+                # but we don't need to divide the accumulated similarities as this only rescales the distance
                 view[idx] = 1 / <float>similarity
                 similarity = 0.0
                 idx += 1
             diagonal += 1
-
-        return distance_matrix
-
-    @cython.boundscheck(False)
-    @cython.wraparound(False)
-    cpdef np.ndarray[np.float32_t, ndim=2] ppredict_(self, np.ndarray[np.float32_t, ndim=2] X):
-        """Parallel implementation. Produce pairwise distance matrix.
-            Parameters
-            ----------
-            X : array-like matrix of shape = [n_samples, n_features]
-                The training data samples.
-            Returns
-            -------
-            distance_matrix : ndarray of shape = [n_samples, n_samples] containing the distances
-
-        Notes
-        ------
-            In parallel implementation distance is calculated as a sum of 1/similarity across the trees,
-            instead of 1 / sum of similarities.
-            
-            Parallel implementation materializes the whole N*N distance matrix instead of comb(N, 2) flat array.
-            Possibly change it in the future.
-        """
-        cdef int n = X.shape[0]
-        cdef float [:, :] X_view = X
-
-        cdef np.ndarray[np.float32_t, ndim=2] distance_matrix = np.zeros(shape=(n, n), dtype=np.float32)
-        cdef float [:, :] distance_matrix_view = distance_matrix
-
-        cdef float similarity = 0.0
-
-        cdef int num_threads = 10
-        cdef int diagonal = 1
-        cdef int i = 0
-        cdef int j = 0
-        cdef int e = 0
-        cdef CSimilarityTreeCluster current_tree
-
-        for e in range(self.n_estimators):
-            current_tree = self.estimators_[e]
-            for i in range(n):
-                for j in prange(n, nogil=True, schedule='dynamic', num_threads=num_threads):
-                    if i == j:
-                        continue
-                    similarity = current_tree.distance(X_view[i], X_view[j])
-                    distance_matrix_view[i, j] += 1 / <float>similarity
-                    distance_matrix_view[j, i] = distance_matrix_view[i, j]
-
 
         return distance_matrix
 
@@ -319,7 +149,7 @@ cdef class CSimilarityTreeCluster:
 
     def __cinit__(self,
                   random_state=None,
-                  str sim_function='euclidean',
+                  str sim_function='dot',
                   int max_depth=-1,
                   int depth=1):
         self.random_state = random_state
@@ -376,7 +206,7 @@ cdef class CSimilarityTreeCluster:
         cdef int m = X.shape[1]
         cdef float [:] first_row = X[first]
 
-        cdef np.ndarray[np.int32_t, ndim=1] others = np.where(np.abs(X - X[first]) > 0)[0].astype(np.int32)
+        cdef np.ndarray[np.int32_t, ndim=1] others = np.where(np.abs(X - X[first]) > 0.001)[0].astype(np.int32)
         #assert len(others) > 0, 'All points are the same'
         return self._rng.choice(others, replace=False)
 
@@ -397,28 +227,22 @@ cdef class CSimilarityTreeCluster:
 
         # Calculate similarities
         cdef int n = X.shape[0]
-        cdef np.ndarray[np.float32_t, ndim=1] array = np.zeros(n, dtype=np.float32, order='c')
-        cdef float [:] similarities = array
+        cdef np.ndarray[np.float32_t, ndim=1] similarities = np.empty(shape=n, dtype=np.float32, order='c')
+        cdef float [:] similarities_view = similarities
         cdef float [:] p = self._p
         cdef float [:] q = self._q
 
-        cdef int num_threads = 4
-        if n < 12:
-            num_threads = 1
-        cdef int i = 0
-        # Read about different schedules https://cython.readthedocs.io/en/latest/src/userguide/parallelism.html
-        for i in prange(n, schedule='dynamic', nogil=True, num_threads=num_threads):
-            similarities[i] = projection(X[i], p, q)
+        similarities_view = projection(X, p, q, similarities_view)
 
-        cdef float similarities_min = np.min(array)
-        cdef float similarities_max = np.max(array)
+        cdef float similarities_min = np.min(similarities)
+        cdef float similarities_max = np.max(similarities)
 
         # Find random split point
         self._split_point = self._rng.uniform(similarities_min, similarities_max, 1)
 
         # Find indexes of points going left
-        self.lhs_idxs = np.nonzero(array <= self._split_point)[0].astype(np.int32)
-        self.rhs_idxs = np.nonzero(array > self._split_point)[0].astype(np.int32)
+        self.lhs_idxs = np.nonzero(similarities <= self._split_point)[0].astype(np.int32)
+        self.rhs_idxs = np.invert(self.lhs_idxs)
 
 
     cpdef CSimilarityTreeCluster fit(self, np.ndarray[np.float32_t, ndim=2] X):
@@ -464,10 +288,6 @@ cdef class CSimilarityTreeCluster:
 
         if self.sim_function == 'dot':
             self.projection = dot_projection
-        elif self.sim_function == 'euclidean':
-            self.projection = sqeuclidean_projection
-        elif self.sim_function == 'rbf':
-            self.projection = rbf_projection
         else:
             raise ValueError('Unknown similarity function')
 
@@ -490,8 +310,8 @@ cdef class CSimilarityTreeCluster:
 
         return self
 
-    cdef int distance(self, float [:] xi, float [:] xj) nogil:
-        """Calculate distance of a pair of data-points in tree-space.
+    cdef int similarity(self, float [:, :] xi, float [:, :] xj):
+        """Calculate similarity of a pair of data-points in tree-space.
             The pair of traverses down the tree, and the depth on which the pair splits is recorded.
             This values serves as a similarity measure between the pair.
             Parameters
@@ -505,15 +325,21 @@ cdef class CSimilarityTreeCluster:
         if self.is_leaf:
             return self.depth
 
-        cdef bint path_i = self.projection(xi, self._p, self._q) <= self._split_point
-        cdef bint path_j = self.projection(xj, self._p, self._q) <= self._split_point
+        cdef float point[1]
+        cdef float [:] point_view = point
+
+        point_view = self.projection(xi, self._p, self._q, point_view)
+        cdef bint path_i = point_view[0] <= self._split_point
+
+        point_view = self.projection(xj, self._p, self._q, point_view)
+        cdef bint path_j = point_view[0] <= self._split_point
 
         if path_i == path_j:
             # the same path, check if the pair goes left or right
             if path_i:
-                return self._lhs.distance(xi, xj)
+                return self._lhs.similarity(xi, xj)
             else:
-                return self._rhs.distance(xi, xj)
+                return self._rhs.similarity(xi, xj)
         else:
             # different path, return current depth
             return self.depth
@@ -537,7 +363,7 @@ cdef class CSimilarityTreeCluster:
         cdef int idx = 0
         for c in range(n):
             for r in range(diagonal, n):
-                view[idx] = 1 / <float>self.distance(X[c], X[r])
+                view[idx] = 1 / <float>self.similarity(X[c], X[r])
                 idx += 1
             diagonal += 1
 

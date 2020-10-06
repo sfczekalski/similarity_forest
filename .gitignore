@@ -66,5 +66,46 @@ doc/generated/
 # PyBuilder
 target/
 
-#Pycharm specific settings
+# Pycharm specific settings
 .idea
+
+# VS Code specific settings
+.vscode
+
+# Cython compiling reports
+/simforest/cluster/_cluster.html
+/simforest/_distance.html
+/simforest/criterion.html
+
+# C files resulting from Cython compilation
+*.c
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints
+
+# Pytest
+.pytest_cache
+
+# Circleci
+.circleci
+
+# Datasets
+examples/data/
+
+# Logs
+examples/classification/logs
+examples/regression/logs
+examples/outliers/logs
+examples/cluster/logs
+
+# Output summaries
+examples/classification/summaries
+examples/regression/summaries
+examples/outliers/summaries
+examples/cluster/summaries
+
+# Figures
+examples/classification/figures
+examples/regression/figures
+examples/outliers/figures
+examples/cluster/figures
