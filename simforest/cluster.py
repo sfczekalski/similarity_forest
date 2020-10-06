@@ -48,7 +48,7 @@ class SimilarityForestCluster(BaseEstimator, ClusterMixin):
     def __init__(self,
                  random_state=None,
                  sim_function='dot',
-                 max_depth=None,
+                 max_depth=5,
                  n_clusters=8,
                  technique='ahc',
                  n_estimators=20,
