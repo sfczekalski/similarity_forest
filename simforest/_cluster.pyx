@@ -206,7 +206,7 @@ cdef class CSimilarityTreeCluster:
         cdef int m = X.shape[1]
         cdef float [:] first_row = X[first]
 
-        cdef np.ndarray[np.int32_t, ndim=1] others = np.where(np.abs(X - X[first]) > 0)[0].astype(np.int32)
+        cdef np.ndarray[np.int32_t, ndim=1] others = np.where(np.abs(X - X[first]) > 0.001)[0].astype(np.int32)
         #assert len(others) > 0, 'All points are the same'
         return self._rng.choice(others, replace=False)
 
