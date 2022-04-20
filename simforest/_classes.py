@@ -9,7 +9,7 @@ from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin, is_clas
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted, check_random_state
 from sklearn.utils.multiclass import unique_labels, check_classification_targets
 from simforest.rcriterion import theil
-from ineqpy import atkinson
+from ineqpy.inequality import atkinson
 from simforest.utils import plot_projection
 from simforest.splitter import find_split
 from simforest.distance import dot_product, rbf
@@ -261,7 +261,9 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
     def _validate_X_predict(self, X, check_input):
         """Validate X whenever one tries to predict, apply, predict_proba."""
 
-        X = check_array(X)
+        if check_input:
+            X = check_array(X)
+        
         return X
 
     def predict(self, X, check_input=True):
@@ -283,8 +285,6 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
         check_is_fitted(self, ['is_fitted_'])
 
         # Input validation
-        X = check_array(X)
-
         X = self._validate_X_predict(X, check_input)
 
         return np.array([self.apply_x(x.reshape(1, -1))._class_prediction for x in X])
@@ -307,7 +307,6 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
         check_is_fitted(self, ['is_fitted_'])
 
         # Input validation
-        X = check_array(X)
         X = self._validate_X_predict(X, check_input)
 
         return np.array([self.apply_x(x.reshape(1, -1))._value for x in X])
@@ -337,8 +336,6 @@ class SimilarityTreeClassifier(BaseEstimator, ClassifierMixin):
             check_is_fitted(self, ['is_fitted_'])
 
             # Input validation
-            X = check_array(X)
-
             X = self._validate_X_predict(X, check_input)
 
         return np.array([self.apply_x(x.reshape(1, -1))._node_id for x in X])
@@ -436,7 +433,9 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
     def _validate_X_predict(self, X, check_input):
         """Validate X whenever one tries to predict, apply, predict_proba."""
 
-        X = check_array(X)
+        if check_input:
+            X = check_array(X)
+
         return X
 
     def fit(self, X, y, check_input=True):
@@ -457,8 +456,6 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
             X, y = check_X_y(X, y)
 
             # Input validation, check it to be a non-empty 2D array containing only finite values
-            X = check_array(X)
-
             # Check if provided similarity function applies to input
             X = self._validate_X_predict(X, check_input)
 
@@ -538,8 +535,6 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
         check_is_fitted(self, ['is_fitted_'])
 
         # Input validation
-        X = check_array(X)
-
         # Check if provided similarity function applies to input
         X = self._validate_X_predict(X, check_input)
 
@@ -578,8 +573,6 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
         check_is_fitted(self, ['is_fitted_'])
 
         # Input validation
-        X = check_array(X)
-
         # Check if provided similarity function applies to input
         X = self._validate_X_predict(X, check_input)
 
@@ -593,8 +586,6 @@ class SimilarityForestClassifier(BaseEstimator, ClassifierMixin):
             check_is_fitted(self, ['is_fitted_'])
 
             # Input validation
-            X = check_array(X)
-
             X = self._validate_X_predict(X, check_input)
 
         return np.array([t.apply(X, check_input=False) for t in self.estimators_]).transpose()
@@ -678,8 +669,6 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
             check_is_fitted(self, ['is_fitted_'])
 
             # Input validation
-            X = check_array(X)
-
             X = self._validate_X_predict(X, check_input)
 
         return np.array([self.apply_x(x.reshape(1, -1))._node_id for x in X])
@@ -938,7 +927,9 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
     def _validate_X_predict(self, X, check_input):
         """Validate X whenever one tries to predict, apply."""
 
-        X = check_array(X)
+        if check_input:
+            X = check_array(X)
+
         return X
 
     def predict(self, X, check_input=True):
@@ -958,8 +949,6 @@ class SimilarityTreeRegressor(BaseEstimator, RegressorMixin):
             check_is_fitted(self, ['is_fitted_'])
 
             # Input validation
-            X = check_array(X)
-
             X = self._validate_X_predict(X, check_input)
 
         return np.array([self.apply_x(x.reshape(1, -1))._value for x in X], dtype=np.float32)
@@ -1070,8 +1059,6 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
             check_is_fitted(self, ['is_fitted_'])
 
             # Input validation
-            X = check_array(X)
-
             X = self._validate_X_predict(X, check_input)
 
         return np.array([t.apply(X, check_input=False) for t in self.estimators_]).transpose()
@@ -1123,8 +1110,6 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
             X, y = check_X_y(X, y)
 
             # Input validation, check it to be a non-empty 2D array containing only finite values
-            X = check_array(X)
-
             # Check if provided similarity function applies to input
             X = self._validate_X_predict(X, check_input)
 
@@ -1181,7 +1166,8 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
     def _validate_X_predict(self, X, check_input):
         """Validate X whenever one tries to predict, apply."""
 
-        X = check_array(X)
+        if check_input:
+            X = check_array(X)
 
         return X
 
@@ -1202,8 +1188,6 @@ class SimilarityForestRegressor(BaseEstimator, RegressorMixin):
             check_is_fitted(self, ['is_fitted_'])
 
             # Input validation
-            X = check_array(X)
-
             X = self._validate_X_predict(X, check_input)
 
         return np.mean([t.predict(X) for t in self.estimators_], axis=0)

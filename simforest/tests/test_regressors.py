@@ -2,8 +2,8 @@ import pytest
 import numpy as np
 
 from sklearn.datasets import load_boston
-from sklearn.utils.testing import assert_array_equal
-from sklearn.utils.testing import assert_allclose
+from sklearn.utils._testing import assert_array_equal
+from sklearn.utils._testing import assert_allclose
 from scipy.spatial import distance
 from simforest.criterion import find_split_variance, find_split_theil
 from simforest.distance import euclidean, dot_product

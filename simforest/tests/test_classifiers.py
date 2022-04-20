@@ -2,8 +2,8 @@ import pytest
 import numpy as np
 
 from sklearn.datasets import load_iris, make_blobs
-from sklearn.utils.testing import assert_array_equal
-from sklearn.utils.testing import assert_allclose
+from sklearn.utils._testing import assert_array_equal
+from sklearn.utils._testing import assert_allclose
 from simforest import SimilarityTreeClassifier, SimilarityForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
